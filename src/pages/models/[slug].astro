@@ -1,11 +1,13 @@
 ---
 import BaseLayout from '../../layouts/BaseLayout.astro';
+import Brand from '../../components/Brand.astro';
+import ModelRoutingCalculator from '../../components/ModelRoutingCalculator.astro';
 import { getCollection, render } from 'astro:content';
 
 export async function getStaticPaths() {
   const models = await getCollection('models');
   return models.map((model) => ({
-    params: { slug: model.id },
+    params: { slug: model.slug },
     props: { model },
   }));
 }
@@ -19,7 +21,11 @@ const {
   context_window,
   parameters_active,
   mmlu_score,
-  cac_filing,
+  mmlu_pro_score,
+  pricing_source_date,
+  pricing_model_version,
+  cac_status,
+  cac_source,
 } = model.data;
 
 const usd = (value: number) =>
@@ -33,104 +39,155 @@ const usd = (value: number) =>
 const formatNumber = (value: number) =>
   new Intl.NumberFormat('en-US').format(value);
 
-const filingStatus = cac_filing.toLowerCase();
-const filingStyles =
-  filingStatus === 'filed'
-    ? 'border-emerald-500/30 bg-emerald-500/10 text-emerald-300'
-    : filingStatus === 'pending'
-      ? 'border-amber-500/30 bg-amber-500/10 text-amber-300'
-      : 'border-slate-600 bg-slate-800/60 text-slate-300';
+const formatActiveParameters = (value: number) => {
+  if (value >= 1_000_000_000) {
+    return `${new Intl.NumberFormat('en-US', {
+      maximumFractionDigits: 1,
+    }).format(value / 1_000_000_000)}B`;
+  }
+
+  return `${formatNumber(value)}B`;
+};
+
+const formatPricingDate = (value: string) => {
+  const parsed = new Date(value);
+  if (Number.isNaN(parsed.getTime())) return value;
+
+  return new Intl.DateTimeFormat('en-US', {
+    year: 'numeric',
+    month: 'long',
+    day: 'numeric',
+  }).format(parsed);
+};
+
+const cacStatusKey = cac_status.toLowerCase();
+const cacBadgeStyles =
+  cacStatusKey === 'filed'
+    ? 'border-cyan-500/40 bg-cyan-500/10 text-cyan-400'
+    : cacStatusKey === 'pending'
+      ? 'border-neutral-600 bg-neutral-900 text-neutral-300'
+      : 'border-blue-500/40 bg-blue-500/10 text-blue-400';
+
+const cacBadgeClass = `inline-flex items-center rounded-full border px-4 py-2 text-sm font-medium ${cacBadgeStyles}`;
 ---
 
-<BaseLayout title={`${title} | ColinBuilds`} description={`${title} pricing, benchmarks, and regulatory status.`}>
+<BaseLayout title={`${title} | ColinBuilds.com`} description={`${title} pricing, benchmarks, and regulatory status on ColinBuilds.com.`}>
   <article>
-    <!-- Hero -->
-    <section class="border-b border-slate-800/80 bg-gradient-to-b from-slate-900 to-slate-950">
+    <section class="border-b border-neutral-800 bg-gradient-to-b from-neutral-950 to-black">
       <div class="mx-auto max-w-6xl px-6 py-16">
-        <p class="mb-3 text-sm font-medium uppercase tracking-[0.2em] text-cyan-400">
-          AI Model Profile
+        <p class="mb-3 text-sm font-medium tracking-wide">
+          <Brand />
+          <span class="text-neutral-500"> · AI Model Profile</span>
         </p>
         <h1 class="max-w-4xl text-4xl font-bold tracking-tight text-white sm:text-5xl">
           {title}
         </h1>
-        <div class="mt-8 inline-flex items-center gap-3 rounded-2xl border border-slate-700/80 bg-slate-900/70 px-5 py-4">
-          <span class="text-sm text-slate-400">Context window</span>
+        <div class="mt-8 inline-flex items-center gap-3 rounded-2xl border border-neutral-700 bg-neutral-950 px-5 py-4">
+          <span class="text-sm text-neutral-400">Context window</span>
           <span class="text-2xl font-semibold text-white">
             {formatNumber(context_window)}
           </span>
-          <span class="text-sm text-slate-500">tokens</span>
+          <span class="text-sm text-neutral-500">tokens</span>
         </div>
       </div>
     </section>
 
     <div class="mx-auto max-w-6xl px-6 py-12">
       <div class="grid gap-6 lg:grid-cols-3">
-        <!-- Economic calculator / cost block -->
-        <section class="rounded-2xl border border-slate-800 bg-slate-900/50 p-6 shadow-xl shadow-black/20 lg:col-span-2">
+        <section class="rounded-2xl border border-neutral-800 bg-neutral-950 p-6 shadow-xl shadow-black/40 lg:col-span-2">
           <div class="mb-6 flex items-center justify-between">
             <h2 class="text-lg font-semibold text-white">API Economics</h2>
-            <span class="text-xs uppercase tracking-wider text-slate-500">Per 1M tokens · USD</span>
+            <span class="text-xs uppercase tracking-wider text-neutral-500">Per 1M tokens · USD</span>
           </div>
           <div class="grid gap-4 sm:grid-cols-2">
-            <div class="rounded-xl border border-cyan-500/20 bg-cyan-500/5 p-5">
-              <p class="text-sm text-cyan-300/80">Input cost</p>
+            <div class="rounded-xl border border-cyan-500/30 bg-cyan-500/5 p-5">
+              <p class="text-sm text-cyan-400">Input cost</p>
               <p class="mt-2 text-3xl font-bold text-white">{usd(cost_input_1m)}</p>
-              <p class="mt-2 text-xs text-slate-400">Charged on prompt tokens sent to the model.</p>
+              <p class="mt-2 text-xs text-neutral-500">Charged on prompt tokens sent to the model.</p>
             </div>
-            <div class="rounded-xl border border-violet-500/20 bg-violet-500/5 p-5">
-              <p class="text-sm text-violet-300/80">Output cost</p>
+            <div class="rounded-xl border border-blue-500/30 bg-blue-500/5 p-5">
+              <p class="text-sm text-blue-400">Output cost</p>
               <p class="mt-2 text-3xl font-bold text-white">{usd(cost_output_1m)}</p>
-              <p class="mt-2 text-xs text-slate-400">Charged on completion tokens returned.</p>
+              <p class="mt-2 text-xs text-neutral-500">Charged on completion tokens returned.</p>
             </div>
           </div>
-          <div class="mt-5 rounded-xl border border-slate-800 bg-slate-950/70 p-4 text-sm text-slate-400">
+          <p class="mt-4 text-xs leading-relaxed text-neutral-500">
+            Pricing applies to model version <span class="font-medium text-neutral-300">{pricing_model_version}</span>
+            as of <span class="font-medium text-neutral-300">{formatPricingDate(pricing_source_date)}</span>.
+          </p>
+          <div class="mt-5 rounded-xl border border-neutral-800 bg-black p-4 text-sm text-neutral-400">
             Estimated blended cost for a 50/50 input-output workload:
-            <span class="ml-1 font-medium text-slate-200">
+            <span class="ml-1 font-medium text-white">
               {usd((cost_input_1m + cost_output_1m) / 2)} / 1M tokens
             </span>
           </div>
         </section>
 
-        <!-- Regulatory status -->
-        <section class="rounded-2xl border border-slate-800 bg-slate-900/50 p-6 shadow-xl shadow-black/20">
+        <section class="rounded-2xl border border-neutral-800 bg-neutral-950 p-6 shadow-xl shadow-black/40">
           <h2 class="text-lg font-semibold text-white">Regulatory Status</h2>
-          <p class="mt-2 text-sm text-slate-400">CAC filing disclosure for compliance tracking.</p>
-          <div class={`mt-6 inline-flex items-center rounded-full border px-4 py-2 text-sm font-medium ${filingStyles}`}>
-            <span class="mr-2 h-2 w-2 rounded-full bg-current opacity-80"></span>
-            {cac_filing}
-          </div>
+          <p class="mt-2 text-sm text-neutral-400">CAC filing disclosure for compliance tracking.</p>
+          {
+            cac_source ? (
+              <a
+                href={cac_source}
+                target="_blank"
+                rel="noopener noreferrer"
+                class={`${cacBadgeClass} mt-6 transition hover:opacity-80`}
+              >
+                <span class="mr-2 h-2 w-2 rounded-full bg-current opacity-80"></span>
+                {cac_status}
+              </a>
+            ) : (
+              <div class={`${cacBadgeClass} mt-6`}>
+                <span class="mr-2 h-2 w-2 rounded-full bg-current opacity-80"></span>
+                {cac_status}
+              </div>
+            )
+          }
         </section>
       </div>
 
-      <!-- Benchmark matrix -->
-      <section class="mt-6 rounded-2xl border border-slate-800 bg-slate-900/50 p-6 shadow-xl shadow-black/20">
-        <div class="mb-6 flex items-end justify-between gap-4">
-          <div>
-            <h2 class="text-lg font-semibold text-white">Benchmark Matrix</h2>
-            <p class="mt-1 text-sm text-slate-400">Standardized evaluation metrics for model comparison.</p>
-          </div>
+      <ModelRoutingCalculator modelTitle={title} costInput1m={cost_input_1m} />
+
+      <section class="mt-6 rounded-2xl border border-neutral-800 bg-neutral-950 p-6 shadow-xl shadow-black/40">
+        <div class="mb-6">
+          <h2 class="text-lg font-semibold text-white">Benchmark Matrix</h2>
+          <p class="mt-1 text-sm text-neutral-400">Standardized evaluation metrics for model comparison.</p>
         </div>
-        <div class="grid gap-4 sm:grid-cols-2">
-          <div class="rounded-xl border border-slate-800 bg-slate-950/70 p-5">
-            <p class="text-xs uppercase tracking-wider text-slate-500">MMLU Score</p>
+        <div class={`grid gap-4 ${mmlu_pro_score != null ? 'sm:grid-cols-2 lg:grid-cols-3' : 'sm:grid-cols-2'}`}>
+          <div class="rounded-xl border border-neutral-800 bg-black p-5">
+            <p class="text-xs uppercase tracking-wider text-neutral-500">MMLU Score</p>
             <p class="mt-2 text-4xl font-bold text-white">{mmlu_score}%</p>
-            <div class="mt-4 h-2 overflow-hidden rounded-full bg-slate-800">
+            <div class="mt-4 h-2 overflow-hidden rounded-full bg-neutral-800">
               <div
-                class="h-full rounded-full bg-gradient-to-r from-cyan-500 to-blue-500"
+                class="h-full rounded-full bg-gradient-to-r from-cyan-400 to-blue-500"
                 style={`width: ${Math.min(mmlu_score, 100)}%`}
               />
             </div>
           </div>
-          <div class="rounded-xl border border-slate-800 bg-slate-950/70 p-5">
-            <p class="text-xs uppercase tracking-wider text-slate-500">Active Parameters</p>
-            <p class="mt-2 text-4xl font-bold text-white">{formatNumber(parameters_active)}B</p>
-            <p class="mt-2 text-sm text-slate-400">Reported active parameter count at inference time.</p>
+          {
+            mmlu_pro_score != null && (
+              <div class="rounded-xl border border-neutral-800 bg-black p-5">
+                <p class="text-xs uppercase tracking-wider text-neutral-500">MMLU-Pro Score</p>
+                <p class="mt-2 text-4xl font-bold text-white">{mmlu_pro_score}%</p>
+                <div class="mt-4 h-2 overflow-hidden rounded-full bg-neutral-800">
+                  <div
+                    class="h-full rounded-full bg-gradient-to-r from-cyan-400 to-blue-500"
+                    style={`width: ${Math.min(mmlu_pro_score, 100)}%`}
+                  />
+                </div>
+              </div>
+            )
+          }
+          <div class="rounded-xl border border-neutral-800 bg-black p-5">
+            <p class="text-xs uppercase tracking-wider text-neutral-500">Active Parameters</p>
+            <p class="mt-2 text-4xl font-bold text-white">{formatActiveParameters(parameters_active)}</p>
+            <p class="mt-2 text-sm text-neutral-400">Reported active parameter count at inference time.</p>
           </div>
         </div>
       </section>
 
-      <!-- Markdown content body -->
-      <section class="prose prose-invert prose-slate mt-10 max-w-none rounded-2xl border border-slate-800 bg-slate-900/30 p-8">
+      <section class="prose prose-invert mt-10 max-w-none rounded-2xl border border-neutral-800 bg-neutral-950 p-8">
         <Content />
       </section>
     </div>
@@ -140,17 +197,21 @@ const filingStyles =
 <style is:global>
   .prose h2 {
     margin-top: 2rem;
-    color: rgb(241 245 249);
+    color: #ffffff;
     font-size: 1.25rem;
     font-weight: 600;
   }
 
   .prose p {
-    color: rgb(203 213 225);
+    color: #a3a3a3;
     line-height: 1.75;
   }
 
   .prose ul {
-    color: rgb(203 213 225);
+    color: #a3a3a3;
+  }
+
+  .prose strong {
+    color: #22d3ee;
   }
 </style>

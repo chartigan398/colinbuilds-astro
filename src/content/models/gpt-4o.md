@@ -5,7 +5,11 @@ cost_output_1m: 10.00
 context_window: 128000
 parameters_active: 175
 mmlu_score: 86.4
-cac_filing: "Filed"
+mmlu_pro_score: 74.2
+pricing_source_date: "2026-06-01"
+pricing_model_version: "gpt-4o-2024-08-06"
+cac_status: "Filed"
+cac_source: "https://openai.com/index/gpt-4o-system-card/"
 ---
 
 OpenAI's GPT-4o is a multimodal frontier model optimized for low-latency reasoning, vision, and tool use. It remains a benchmark reference point for general-purpose assistants and API workloads where reliability and ecosystem support matter.

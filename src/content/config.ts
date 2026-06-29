@@ -9,7 +9,11 @@ const models = defineCollection({
     context_window: z.number(),
     parameters_active: z.number(),
     mmlu_score: z.number(),
-    cac_filing: z.string(),
+    mmlu_pro_score: z.number().optional(),
+    pricing_source_date: z.string(),
+    pricing_model_version: z.string(),
+    cac_status: z.string(),
+    cac_source: z.string().url().optional(),
   }),
 });
 

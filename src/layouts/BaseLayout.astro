@@ -1,12 +1,13 @@
 ---
 import '../styles/global.css';
+import Brand from '../components/Brand.astro';
 
 interface Props {
   title: string;
   description?: string;
 }
 
-const { title, description = 'ColinBuilds AI Model Directory' } = Astro.props;
+const { title, description = 'ColinBuilds.com AI Model Directory' } = Astro.props;
 ---
 
 <!doctype html>
@@ -18,13 +19,13 @@ const { title, description = 'ColinBuilds AI Model Directory' } = Astro.props;
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <title>{title}</title>
   </head>
-  <body class="min-h-screen bg-slate-950 text-slate-100 antialiased">
-    <header class="border-b border-slate-800/80 bg-slate-950/90 backdrop-blur">
+  <body class="min-h-screen bg-black text-white antialiased">
+    <header class="border-b border-neutral-800 bg-black/95 backdrop-blur">
       <div class="mx-auto flex max-w-6xl items-center justify-between px-6 py-4">
-        <a href="/" class="text-sm font-semibold tracking-wide text-white">
-          ColinBuilds
+        <a href="/" class="text-sm font-semibold tracking-wide">
+          <Brand />
         </a>
-        <span class="rounded-full border border-slate-700 px-3 py-1 text-xs text-slate-400">
+        <span class="rounded-full border border-neutral-700 px-3 py-1 text-xs text-neutral-400">
           AI Model Directory
         </span>
       </div>
@@ -32,8 +33,8 @@ const { title, description = 'ColinBuilds AI Model Directory' } = Astro.props;
     <main>
       <slot />
     </main>
-    <footer class="border-t border-slate-800/80 py-8 text-center text-sm text-slate-500">
-      Programmatic SEO directory · Powered by Astro + Vault CMS
+    <footer class="border-t border-neutral-800 py-8 text-center text-sm text-neutral-500">
+      <Brand /> · Programmatic SEO directory
     </footer>
   </body>
 </html>

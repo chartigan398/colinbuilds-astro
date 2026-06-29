@@ -1,5 +1,6 @@
 ---
 import BaseLayout from '../layouts/BaseLayout.astro';
+import Brand from '../components/Brand.astro';
 import { getCollection } from 'astro:content';
 
 const models = (await getCollection('models')).sort((a, b) =>
@@ -7,15 +8,15 @@ const models = (await getCollection('models')).sort((a, b) =>
 );
 ---
 
-<BaseLayout title="ColinBuilds | AI Model Directory">
+<BaseLayout title="ColinBuilds.com | AI Model Directory">
   <section class="mx-auto max-w-6xl px-6 py-16">
-    <p class="mb-3 text-sm font-medium uppercase tracking-[0.2em] text-cyan-400">
-      Programmatic SEO Directory
+    <p class="mb-3 text-sm font-medium tracking-wide">
+      <Brand />
     </p>
     <h1 class="max-w-3xl text-4xl font-bold tracking-tight text-white sm:text-5xl">
       AI Model Directory
     </h1>
-    <p class="mt-4 max-w-2xl text-lg text-slate-400">
+    <p class="mt-4 max-w-2xl text-lg text-neutral-400">
       High-speed model profiles sourced from your Obsidian vault via Vault CMS. Each page is generated from local Markdown frontmatter.
     </p>
 
@@ -23,13 +24,13 @@ const models = (await getCollection('models')).sort((a, b) =>
       {
         models.map((model) => (
           <a
-            href={`/models/${model.id}`}
-            class="group rounded-2xl border border-slate-800 bg-slate-900/50 p-6 transition hover:border-cyan-500/40 hover:bg-slate-900"
+            href={`/models/${model.slug}`}
+            class="group rounded-2xl border border-neutral-800 bg-neutral-950 p-6 transition hover:border-blue-500/50 hover:bg-neutral-900"
           >
-            <h2 class="text-xl font-semibold text-white group-hover:text-cyan-300">
+            <h2 class="text-xl font-semibold text-white group-hover:text-cyan-400">
               {model.data.title}
             </h2>
-            <p class="mt-2 text-sm text-slate-400">
+            <p class="mt-2 text-sm text-neutral-500">
               {new Intl.NumberFormat('en-US').format(model.data.context_window)} token context · MMLU {model.data.mmlu_score}%
             </p>
           </a>

@@ -5,7 +5,9 @@ cost_output_1m: 15.00
 context_window: 200000
 parameters_active: 140
 mmlu_score: 88.7
-cac_filing: "Pending"
+pricing_source_date: "2026-06-01"
+pricing_model_version: "claude-3-5-sonnet-20241022"
+cac_status: "Pending"
 ---
 
 Anthropic's Claude 3.5 Sonnet targets high-quality writing, coding, and long-context analysis. It is frequently chosen for document-heavy workflows where careful reasoning and extended context windows reduce the need for chunking.
