@@ -1,185 +1,375 @@
 ---
-interface Props {
-  modelTitle: string;
+/** LOCKED TEMPLATE — Colin approved 2026-06-30. See .cursor/rules/model-template-locked.mdc */
+interface ComparisonModel {
+  title: string;
+  slug: string;
   costInput1m: number;
+  costOutput1m: number;
 }
 
-const { modelTitle, costInput1m } = Astro.props;
-const gpt4oBaseline = 5;
-const defaultMillions = 10;
-const initialGpt4oCost = defaultMillions * gpt4oBaseline;
-const initialModelCost = defaultMillions * costInput1m;
-const initialSavings = initialGpt4oCost - initialModelCost;
+interface Props {
+  modelTitle: string;
+  modelSlug?: string;
+  costInput1m?: number;
+  costOutput1m?: number;
+  comparisonModels?: ComparisonModel[];
+}
+
+const { modelTitle, modelSlug, costInput1m, costOutput1m, comparisonModels = [] } = Astro.props;
+const hasPricing = costInput1m != null && costOutput1m != null;
+const defaultInputMillions = 1;
+const defaultOutputMillions = 1;
 const calculatorId = `routing-calc-${Math.random().toString(36).slice(2, 9)}`;
+
+const currentSlug = modelSlug ?? modelTitle.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
+const normalizedModels = comparisonModels
+  .filter((model) => Number.isFinite(model.costInput1m) && Number.isFinite(model.costOutput1m))
+  .sort((a, b) => a.title.localeCompare(b.title));
+
+const currentModel = hasPricing
+  ? { title: modelTitle, slug: currentSlug, costInput1m: costInput1m!, costOutput1m: costOutput1m! }
+  : null;
+
+const modelsBySlug = new Map<string, ComparisonModel>();
+for (const model of normalizedModels) modelsBySlug.set(model.slug, model);
+if (currentModel) modelsBySlug.set(currentModel.slug, currentModel);
+
+const pricedModels = Array.from(modelsBySlug.values()).sort((a, b) => a.title.localeCompare(b.title));
+const gpt4o = pricedModels.find((model) => model.slug === 'gpt-4o');
+const defaultCompareFrom = currentModel ?? pricedModels[0];
+const defaultCompareTo = gpt4o && defaultCompareFrom?.slug !== gpt4o.slug
+  ? gpt4o
+  : pricedModels.find((model) => model.slug !== defaultCompareFrom?.slug) ?? pricedModels[0];
 
 const usd = (value: number) =>
   new Intl.NumberFormat('en-US', {
     style: 'currency',
     currency: 'USD',
     minimumFractionDigits: 2,
-    maximumFractionDigits: 2,
+    maximumFractionDigits: value < 1 ? 3 : 2,
   }).format(value);
+
+const formatMillions = (millions: number) =>
+  Number.isInteger(millions) ? String(millions) : String(millions);
+
+const costsForModel = (model: ComparisonModel, inputMillions: number, outputMillions: number) => {
+  const inputCost = inputMillions * model.costInput1m;
+  const outputCost = outputMillions * model.costOutput1m;
+  return { inputCost, outputCost, total: inputCost + outputCost };
+};
+
+const costLine = (
+  kind: 'Input' | 'Output',
+  millions: number,
+  rate: number,
+  cost: number,
+) => `${kind}: ${formatMillions(millions)}M × ${usd(rate)} = ${usd(cost)}`;
+
+const savingsMessage = (fromTitle: string, toTitle: string, difference: number) => {
+  if (difference === 0) return 'Same monthly cost at this volume.';
+  if (difference > 0) {
+    return `${toTitle} costs ${usd(difference)} more than ${fromTitle}.`;
+  }
+  return `${fromTitle} costs ${usd(Math.abs(difference))} more than ${toTitle}.`;
+};
+
+const initialFromCosts = defaultCompareFrom
+  ? costsForModel(defaultCompareFrom, defaultInputMillions, defaultOutputMillions)
+  : null;
+const initialToCosts = defaultCompareTo
+  ? costsForModel(defaultCompareTo, defaultInputMillions, defaultOutputMillions)
+  : null;
+const initialDifference = (initialToCosts?.total ?? 0) - (initialFromCosts?.total ?? 0);
+const canCompare = pricedModels.length >= 2;
 ---
 
-<section
-  class="routing-calculator mt-6 overflow-hidden rounded-2xl border border-neutral-800 bg-neutral-950 shadow-xl shadow-black/40"
-  data-calculator-id={calculatorId}
-  data-model-title={modelTitle}
-  data-cost-input={costInput1m}
-  data-gpt4o-baseline={gpt4oBaseline}
->
-  <div class="border-b border-neutral-800 bg-gradient-to-r from-neutral-950 via-black to-neutral-950 px-6 py-5">
-    <p class="text-xs font-medium uppercase tracking-[0.2em] text-cyan-400">Model Routing</p>
-    <h2 class="mt-1 text-xl font-semibold text-white">Cost Calculator</h2>
-    <p class="mt-2 max-w-2xl text-sm text-neutral-400">
-      Compare monthly input spend against a GPT-4o baseline of ${gpt4oBaseline.toFixed(2)} per 1M tokens
-      versus routing to {modelTitle} at ${costInput1m.toFixed(2)} per 1M tokens.
-    </p>
-  </div>
+{
+  canCompare ? (
+    <section
+      class="routing-calculator mt-6 overflow-hidden rounded-2xl border border-neutral-800 bg-neutral-950"
+      data-calculator-id={calculatorId}
+      data-models={JSON.stringify(pricedModels)}
+    >
+      <div class="border-b border-neutral-800 px-6 py-4">
+        <h2 class="text-lg font-semibold text-white">Compare models</h2>
+        <p class="mt-1 text-sm text-neutral-500">
+          {
+            hasPricing
+              ? 'Same per-1M input/output rates as above. Enter your monthly token volumes to compare bills.'
+              : 'No official per-1M price on this page. Compare priced models below.'
+          }
+        </p>
+      </div>
 
-  <div class="px-6 py-8">
-    <label class="block text-sm font-medium text-neutral-300" for={`${calculatorId}-input`}>
-      Estimated monthly input tokens (millions)
-    </label>
-    <div class="mt-4 flex flex-col gap-4 sm:flex-row sm:items-end">
-      <div class="flex-1">
-        <input
-          id={`${calculatorId}-range`}
-          type="range"
-          min="1"
-          max="500"
-          step="1"
-          value="10"
-          class="routing-range h-2 w-full cursor-pointer appearance-none rounded-full bg-neutral-800 accent-cyan-400"
-        />
-        <div class="mt-2 flex justify-between text-xs text-neutral-500">
-          <span>1M</span>
-          <span>500M</span>
+      <div class="px-6 py-6">
+        <div class="grid gap-3 sm:grid-cols-2">
+          <label class="block text-xs font-medium uppercase tracking-wide text-neutral-500" for={`${calculatorId}-from`}>
+            Model
+            <select
+              id={`${calculatorId}-from`}
+              class="mt-1.5 w-full rounded-lg border border-neutral-800 bg-black px-3 py-2.5 text-sm font-medium text-white outline-none focus:border-cyan-400"
+            >
+              {pricedModels.map((model) => (
+                <option value={model.slug} selected={model.slug === defaultCompareFrom?.slug}>
+                  {model.title}
+                </option>
+              ))}
+            </select>
+          </label>
+
+          <label class="block text-xs font-medium uppercase tracking-wide text-neutral-500" for={`${calculatorId}-to`}>
+            Compare to
+            <select
+              id={`${calculatorId}-to`}
+              class="mt-1.5 w-full rounded-lg border border-neutral-800 bg-black px-3 py-2.5 text-sm font-medium text-white outline-none focus:border-cyan-400"
+            >
+              {pricedModels.map((model) => (
+                <option value={model.slug} selected={model.slug === defaultCompareTo?.slug}>
+                  {model.title}
+                </option>
+              ))}
+            </select>
+          </label>
+        </div>
+
+        <div class="mt-5 grid gap-3 sm:grid-cols-2">
+          <label class="block text-xs font-medium uppercase tracking-wide text-neutral-500" for={`${calculatorId}-input-millions`}>
+            Monthly input tokens, in millions
+            <input
+              id={`${calculatorId}-input-millions`}
+              type="number"
+              min="0"
+              step="0.1"
+              value={defaultInputMillions}
+              class="mt-1.5 w-full rounded-lg border border-neutral-800 bg-black px-3 py-2.5 text-sm font-semibold tabular-nums text-white outline-none focus:border-cyan-400"
+            />
+          </label>
+
+          <label class="block text-xs font-medium uppercase tracking-wide text-neutral-500" for={`${calculatorId}-output-millions`}>
+            Monthly output tokens, in millions
+            <input
+              id={`${calculatorId}-output-millions`}
+              type="number"
+              min="0"
+              step="0.1"
+              value={defaultOutputMillions}
+              class="mt-1.5 w-full rounded-lg border border-neutral-800 bg-black px-3 py-2.5 text-sm font-semibold tabular-nums text-white outline-none focus:border-cyan-400"
+            />
+          </label>
+        </div>
+
+        <div class="mt-6 grid gap-3 lg:grid-cols-2">
+          <div class="rounded-xl border border-neutral-800 bg-black/40 p-4">
+            <p class="routing-from-label text-sm font-medium text-cyan-400">{defaultCompareFrom?.title}</p>
+            <dl class="mt-3 space-y-2 text-sm">
+              {defaultCompareFrom && initialFromCosts && (
+                <>
+                  <div>
+                    <dd class="routing-from-input-line tabular-nums text-neutral-300">
+                      {costLine('Input', defaultInputMillions, defaultCompareFrom.costInput1m, initialFromCosts.inputCost)}
+                    </dd>
+                  </div>
+                  <div>
+                    <dd class="routing-from-output-line tabular-nums text-neutral-300">
+                      {costLine('Output', defaultOutputMillions, defaultCompareFrom.costOutput1m, initialFromCosts.outputCost)}
+                    </dd>
+                  </div>
+                  <div class="flex justify-between gap-4 border-t border-neutral-800 pt-3">
+                    <dt class="font-medium text-neutral-300">Total</dt>
+                    <dd class="routing-from-cost text-lg font-bold tabular-nums text-white">
+                      {usd(initialFromCosts.total)}
+                    </dd>
+                  </div>
+                </>
+              )}
+            </dl>
+          </div>
+
+          <div class="rounded-xl border border-neutral-800 bg-black/40 p-4">
+            <p class="routing-to-label text-sm font-medium text-blue-400">{defaultCompareTo?.title}</p>
+            <dl class="mt-3 space-y-2 text-sm">
+              {defaultCompareTo && initialToCosts && (
+                <>
+                  <div>
+                    <dd class="routing-to-input-line tabular-nums text-neutral-300">
+                      {costLine('Input', defaultInputMillions, defaultCompareTo.costInput1m, initialToCosts.inputCost)}
+                    </dd>
+                  </div>
+                  <div>
+                    <dd class="routing-to-output-line tabular-nums text-neutral-300">
+                      {costLine('Output', defaultOutputMillions, defaultCompareTo.costOutput1m, initialToCosts.outputCost)}
+                    </dd>
+                  </div>
+                  <div class="flex justify-between gap-4 border-t border-neutral-800 pt-3">
+                    <dt class="font-medium text-neutral-300">Total</dt>
+                    <dd class="routing-to-cost text-lg font-bold tabular-nums text-white">
+                      {usd(initialToCosts.total)}
+                    </dd>
+                  </div>
+                </>
+              )}
+            </dl>
+          </div>
+        </div>
+
+        <div class="routing-savings-block mt-5 rounded-xl border border-neutral-800 bg-black/40 px-5 py-4">
+          <p class="text-xs font-medium uppercase tracking-wide text-neutral-500">Difference</p>
+          <p class="routing-savings mt-1 text-2xl font-bold tabular-nums text-white">
+            {usd(Math.abs(initialDifference))}
+          </p>
+          <p class="routing-savings-note mt-2 text-sm text-neutral-400">
+            {defaultCompareFrom && defaultCompareTo
+              ? savingsMessage(defaultCompareFrom.title, defaultCompareTo.title, initialDifference)
+              : ''}
+          </p>
         </div>
       </div>
-      <div class="w-full sm:w-40">
-        <input
-          id={`${calculatorId}-input`}
-          type="number"
-          min="1"
-          max="500"
-          step="1"
-          value="10"
-          class="w-full rounded-xl border border-neutral-700 bg-black px-4 py-3 text-lg font-semibold text-white outline-none focus:border-cyan-400"
-        />
-      </div>
-    </div>
-
-    <div class="mt-8 grid gap-4 lg:grid-cols-2">
-      <div class="rounded-xl border border-neutral-700 bg-black p-5">
-        <p class="text-xs uppercase tracking-wider text-neutral-500">GPT-4o baseline</p>
-        <p class="routing-gpt4o-cost mt-2 text-3xl font-bold text-white">{usd(initialGpt4oCost)}</p>
-        <p class="mt-2 text-sm text-neutral-500">Premium Western model reference</p>
-      </div>
-      <div class="rounded-xl border border-cyan-500/30 bg-cyan-500/5 p-5">
-        <p class="text-xs uppercase tracking-wider text-cyan-400">{modelTitle}</p>
-        <p class="routing-model-cost mt-2 text-3xl font-bold text-white">{usd(initialModelCost)}</p>
-        <p class="mt-2 text-sm text-neutral-500">This model's input pricing</p>
-      </div>
-    </div>
-
-    <div class="routing-savings-block mt-8 rounded-2xl border border-cyan-500/30 bg-gradient-to-br from-cyan-500/10 via-black to-blue-500/10 px-6 py-8 text-center">
-      <p class="text-sm font-medium uppercase tracking-[0.2em] text-cyan-400">Total monthly savings</p>
-      <p class="routing-savings mt-3 text-5xl font-bold tracking-tight text-white sm:text-6xl">{usd(Math.max(initialSavings, 0))}</p>
-      <p class="routing-savings-note mt-3 text-sm text-neutral-400">
-        Savings vs GPT-4o at your selected input volume
-      </p>
-    </div>
-  </div>
-</section>
+    </section>
+  ) : (
+    <section class="mt-6 rounded-2xl border border-neutral-800 bg-neutral-950 p-6">
+      <h2 class="text-lg font-semibold text-white">Compare models</h2>
+      <p class="mt-2 text-sm text-neutral-500">Needs pricing on at least two models.</p>
+    </section>
+  )
+}
 
 <script>
+  type ComparisonModel = {
+    title: string;
+    slug: string;
+    costInput1m: number;
+    costOutput1m: number;
+  };
+
   function formatUsd(value: number) {
     return new Intl.NumberFormat('en-US', {
       style: 'currency',
       currency: 'USD',
       minimumFractionDigits: 2,
-      maximumFractionDigits: 2,
+      maximumFractionDigits: value < 1 ? 3 : 2,
     }).format(value);
   }
 
+  function formatMillions(millions: number) {
+    return Number.isInteger(millions) ? String(millions) : String(millions);
+  }
+
+  function costsForModel(model: ComparisonModel, inputMillions: number, outputMillions: number) {
+    const inputCost = inputMillions * model.costInput1m;
+    const outputCost = outputMillions * model.costOutput1m;
+    return { inputCost, outputCost, total: inputCost + outputCost };
+  }
+
+  function costLine(kind: 'Input' | 'Output', millions: number, rate: number, cost: number) {
+    return `${kind}: ${formatMillions(millions)}M × ${formatUsd(rate)} = ${formatUsd(cost)}`;
+  }
+
+  function savingsMessage(fromTitle: string, toTitle: string, difference: number) {
+    if (difference === 0) return 'Same monthly cost at this volume.';
+    if (difference > 0) {
+      return `${toTitle} costs ${formatUsd(difference)} more than ${fromTitle}.`;
+    }
+    return `${fromTitle} costs ${formatUsd(Math.abs(difference))} more than ${toTitle}.`;
+  }
+
   function initCalculator(root: HTMLElement) {
-    const modelTitle = root.dataset.modelTitle ?? 'This model';
-    const costInput = Number(root.dataset.costInput ?? 0);
-    const gpt4oBaseline = Number(root.dataset.gpt4oBaseline ?? 5);
+    const models = JSON.parse(root.dataset.models ?? '[]') as ComparisonModel[];
+    const modelsBySlug = new Map(models.map((model) => [model.slug, model]));
     const id = root.dataset.calculatorId ?? '';
 
-    const range = root.querySelector<HTMLInputElement>(`#${id}-range`);
-    const input = root.querySelector<HTMLInputElement>(`#${id}-input`);
-    const gpt4oEl = root.querySelector('.routing-gpt4o-cost');
-    const modelEl = root.querySelector('.routing-model-cost');
+    const fromSelect = root.querySelector<HTMLSelectElement>(`#${id}-from`);
+    const toSelect = root.querySelector<HTMLSelectElement>(`#${id}-to`);
+    const inputMillionsEl = root.querySelector<HTMLInputElement>(`#${id}-input-millions`);
+    const outputMillionsEl = root.querySelector<HTMLInputElement>(`#${id}-output-millions`);
+    const fromLabelEl = root.querySelector('.routing-from-label');
+    const toLabelEl = root.querySelector('.routing-to-label');
+    const fromInputLineEl = root.querySelector('.routing-from-input-line');
+    const fromOutputLineEl = root.querySelector('.routing-from-output-line');
+    const toInputLineEl = root.querySelector('.routing-to-input-line');
+    const toOutputLineEl = root.querySelector('.routing-to-output-line');
+    const fromCostEl = root.querySelector('.routing-from-cost');
+    const toCostEl = root.querySelector('.routing-to-cost');
     const savingsEl = root.querySelector('.routing-savings');
     const savingsNoteEl = root.querySelector('.routing-savings-note');
-    const savingsBlock = root.querySelector('.routing-savings-block');
 
-    if (!range || !input || !gpt4oEl || !modelEl || !savingsEl || !savingsNoteEl || !savingsBlock) {
+    if (
+      !fromSelect ||
+      !toSelect ||
+      !inputMillionsEl ||
+      !outputMillionsEl ||
+      !fromLabelEl ||
+      !toLabelEl ||
+      !fromInputLineEl ||
+      !fromOutputLineEl ||
+      !toInputLineEl ||
+      !toOutputLineEl ||
+      !fromCostEl ||
+      !toCostEl ||
+      !savingsEl ||
+      !savingsNoteEl
+    ) {
       return;
     }
 
-    const clamp = (value: number) => Math.min(500, Math.max(1, value));
-
-    const update = (rawValue: number) => {
-      const millions = clamp(rawValue);
-      range.value = String(millions);
-      input.value = String(millions);
-
-      const gpt4oCost = millions * gpt4oBaseline;
-      const modelCost = millions * costInput;
-      const savings = gpt4oCost - modelCost;
-
-      gpt4oEl.textContent = formatUsd(gpt4oCost);
-      modelEl.textContent = formatUsd(modelCost);
-
-      if (savings > 0) {
-        savingsEl.textContent = formatUsd(savings);
-        savingsNoteEl.textContent = `You save by routing to ${modelTitle} instead of GPT-4o at ${millions}M input tokens/month.`;
-        savingsBlock.classList.remove('border-neutral-700', 'from-neutral-900/20', 'to-neutral-900/20');
-        savingsBlock.classList.add('border-cyan-500/30', 'from-cyan-500/10', 'to-blue-500/10');
-        savingsEl.classList.remove('text-neutral-400');
-        savingsEl.classList.add('text-white');
-      } else if (savings < 0) {
-        savingsEl.textContent = formatUsd(Math.abs(savings));
-        savingsNoteEl.textContent = `${modelTitle} costs more than the GPT-4o baseline at ${millions}M input tokens/month.`;
-        savingsBlock.classList.remove('border-cyan-500/30', 'from-cyan-500/10', 'to-blue-500/10');
-        savingsBlock.classList.add('border-neutral-700', 'from-neutral-900/20', 'to-neutral-900/20');
-        savingsEl.classList.remove('text-white');
-        savingsEl.classList.add('text-neutral-400');
-      } else {
-        savingsEl.textContent = formatUsd(0);
-        savingsNoteEl.textContent = `Same input cost as the GPT-4o baseline at ${millions}M tokens/month.`;
-      }
+    const parseMillions = (value: string) => {
+      const parsed = Number(value);
+      return Number.isFinite(parsed) && parsed >= 0 ? parsed : 0;
     };
 
-    range.addEventListener('input', () => update(Number(range.value)));
-    input.addEventListener('input', () => update(Number(input.value)));
-    update(Number(input.value));
+    const updateCard = (
+      model: ComparisonModel,
+      inputMillions: number,
+      outputMillions: number,
+      inputLineEl: Element,
+      outputLineEl: Element,
+      totalEl: Element,
+    ) => {
+      const costs = costsForModel(model, inputMillions, outputMillions);
+      inputLineEl.textContent = costLine('Input', inputMillions, model.costInput1m, costs.inputCost);
+      outputLineEl.textContent = costLine('Output', outputMillions, model.costOutput1m, costs.outputCost);
+      totalEl.textContent = formatUsd(costs.total);
+      return costs.total;
+    };
+
+    const update = () => {
+      const inputMillions = parseMillions(inputMillionsEl.value);
+      const outputMillions = parseMillions(outputMillionsEl.value);
+
+      const fromModel = modelsBySlug.get(fromSelect.value);
+      const toModel = modelsBySlug.get(toSelect.value);
+      if (!fromModel || !toModel) return;
+
+      fromLabelEl.textContent = fromModel.title;
+      toLabelEl.textContent = toModel.title;
+
+      const fromTotal = updateCard(
+        fromModel,
+        inputMillions,
+        outputMillions,
+        fromInputLineEl,
+        fromOutputLineEl,
+        fromCostEl,
+      );
+      const toTotal = updateCard(
+        toModel,
+        inputMillions,
+        outputMillions,
+        toInputLineEl,
+        toOutputLineEl,
+        toCostEl,
+      );
+
+      const difference = toTotal - fromTotal;
+      savingsEl.textContent = formatUsd(Math.abs(difference));
+      savingsNoteEl.textContent = savingsMessage(fromModel.title, toModel.title, difference);
+    };
+
+    inputMillionsEl.addEventListener('input', update);
+    outputMillionsEl.addEventListener('input', update);
+    fromSelect.addEventListener('change', update);
+    toSelect.addEventListener('change', update);
+    update();
   }
 
   document.querySelectorAll<HTMLElement>('.routing-calculator').forEach(initCalculator);
 </script>
-
-<style>
-  .routing-range::-webkit-slider-thumb {
-    appearance: none;
-    height: 1.125rem;
-    width: 1.125rem;
-    border-radius: 9999px;
-    border: 2px solid #22d3ee;
-    background: #000;
-    cursor: pointer;
-  }
-
-  .routing-range::-moz-range-thumb {
-    height: 1.125rem;
-    width: 1.125rem;
-    border-radius: 9999px;
-    border: 2px solid #22d3ee;
-    background: #000;
-    cursor: pointer;
-  }
-</style>

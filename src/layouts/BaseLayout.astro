@@ -8,6 +8,7 @@ interface Props {
 }
 
 const { title, description = 'ColinBuilds.com AI Model Directory' } = Astro.props;
+const canonicalURL = new URL(Astro.url.pathname, Astro.site);
 ---
 
 <!doctype html>
@@ -16,7 +17,15 @@ const { title, description = 'ColinBuilds.com AI Model Directory' } = Astro.prop
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta name="description" content={description} />
+    <meta property="og:title" content={title} />
+    <meta property="og:description" content={description} />
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content={canonicalURL} />
+    <meta name="twitter:card" content="summary" />
+    <meta name="twitter:title" content={title} />
+    <meta name="twitter:description" content={description} />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="canonical" href={canonicalURL} />
     <title>{title}</title>
   </head>
   <body class="min-h-screen bg-black text-white antialiased">
@@ -34,7 +43,7 @@ const { title, description = 'ColinBuilds.com AI Model Directory' } = Astro.prop
       <slot />
     </main>
     <footer class="border-t border-neutral-800 py-8 text-center text-sm text-neutral-500">
-      <Brand /> · Programmatic SEO directory
+      <Brand /> · AI model pricing directory
     </footer>
   </body>
 </html>

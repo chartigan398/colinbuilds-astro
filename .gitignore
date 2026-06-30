@@ -23,7 +23,12 @@ pnpm-debug.log*
 # jetbrains setting folder
 .idea/
 
-# Vault CMS / Obsidian
-.obsidian/workspace.json
-.obsidian/workspace-mobile.json
+# Vault CMS / Obsidian (local CMS only — not for deploy)
+.obsidian/
 .ref/
+
+# Cursor local config (not needed on Vercel)
+.cursor/
+
+# Internal Cursor handoff notes (not for deploy)
+CURSOR-UPDATE*.md
