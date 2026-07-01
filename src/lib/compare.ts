@@ -2,6 +2,13 @@ import type { CollectionEntry } from 'astro:content';
 
 export type ModelEntry = CollectionEntry<'models'>;
 
+export type ComparisonLink = {
+  slugA: string;
+  slugB: string;
+  href: string;
+  label: string;
+};
+
 export function isLiveComparisonModel(entry: ModelEntry) {
   if (entry.data.draft === true) return false;
   return entry.data.cost_input_1m != null && entry.data.cost_output_1m != null;
@@ -9,6 +16,10 @@ export function isLiveComparisonModel(entry: ModelEntry) {
 
 export function comparisonPath(slugA: string, slugB: string) {
   return `/compare/${slugA}-vs-${slugB}/`;
+}
+
+export function comparisonsForModel(slug: string, allComparisons: ComparisonLink[]) {
+  return allComparisons.filter((comparison) => comparison.slugA === slug || comparison.slugB === slug);
 }
 
 export function pickRelated<T>(items: T[], seed: string, count: number): T[] {

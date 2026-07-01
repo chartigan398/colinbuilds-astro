@@ -1,6 +1,7 @@
 ---
 import BaseLayout from '../layouts/BaseLayout.astro';
 import Brand from '../components/Brand.astro';
+import { getLiveComparisonPairs } from '../lib/compare';
 import { getCollection } from 'astro:content';
 
 const hasOfficialCalculatorPricing = (model: { data: { cost_input_1m?: number; cost_output_1m?: number } }) =>
@@ -9,6 +10,8 @@ const hasOfficialCalculatorPricing = (model: { data: { cost_input_1m?: number; c
 const models = (await getCollection('models'))
   .filter(hasOfficialCalculatorPricing)
   .sort((a, b) => a.data.title.localeCompare(b.data.title));
+
+const { allComparisons } = await getLiveComparisonPairs();
 
 const usd = (value: number) =>
   new Intl.NumberFormat('en-US', {
@@ -84,5 +87,30 @@ const badgeClassFor = (model: (typeof models)[number]) =>
         ))
       }
     </div>
+
+    {
+      allComparisons.length > 0 && (
+        <section class="mt-16 border-t border-neutral-800 pt-16">
+          <h2 class="text-2xl font-bold tracking-tight text-white">Match-ups</h2>
+          <p class="mt-2 max-w-2xl text-neutral-400">
+            Head-to-head API cost and benchmark comparisons across every live model in the directory.
+          </p>
+          <ul class="mt-8 grid gap-2 sm:grid-cols-2 lg:grid-cols-3">
+            {
+              allComparisons.map((comparison) => (
+                <li>
+                  <a
+                    href={comparison.href}
+                    class="block rounded-xl border border-neutral-800 bg-neutral-950 px-4 py-3 text-sm text-neutral-300 transition hover:border-cyan-500/40 hover:bg-neutral-900 hover:text-cyan-300"
+                  >
+                    {comparison.label}
+                  </a>
+                </li>
+              ))
+            }
+          </ul>
+        </section>
+      )
+    }
   </section>
 </BaseLayout>
