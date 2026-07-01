@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://colinbuilds.com/sitemap.xml
