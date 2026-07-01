@@ -20,9 +20,9 @@ interface Props {
 }
 
 const { modelAEntry, modelBEntry, allComparisons } = Astro.props;
-const { title: titleA, cost_input_1m: inputA, cost_output_1m: outputA, context_window: contextA, mmlu_score: mmluA, cac_status: cacA } =
+const { title: titleA, cost_input_1m: inputA, cost_output_1m: outputA, context_window: contextA, mmlu_score: mmluA, chatbot_arena_score: arenaA, cac_filing_number: cacFilingA } =
   modelAEntry.data;
-const { title: titleB, cost_input_1m: inputB, cost_output_1m: outputB, context_window: contextB, mmlu_score: mmluB, cac_status: cacB } =
+const { title: titleB, cost_input_1m: inputB, cost_output_1m: outputB, context_window: contextB, mmlu_score: mmluB, chatbot_arena_score: arenaB, cac_filing_number: cacFilingB } =
   modelBEntry.data;
 
 const usd = (value: number) =>
@@ -80,18 +80,32 @@ const matrixRows = [
     valueB: contextB != null ? `${formatNumber(contextB)} tokens` : missing,
     highlight: contextA !== contextB,
   },
+  ...(arenaA != null || arenaB != null
+    ? [
+        {
+          label: 'Chatbot Arena Elo',
+          valueA: arenaA != null ? formatNumber(arenaA) : missing,
+          valueB: arenaB != null ? formatNumber(arenaB) : missing,
+          highlight: arenaA !== arenaB,
+        },
+      ]
+    : []),
   {
     label: 'MMLU score',
     valueA: mmluA != null ? `${mmluA}%` : missing,
     valueB: mmluB != null ? `${mmluB}%` : missing,
     highlight: mmluA !== mmluB,
   },
-  {
-    label: 'CAC status',
-    valueA: cacA,
-    valueB: cacB,
-    highlight: cacA !== cacB,
-  },
+  ...(cacFilingA || cacFilingB
+    ? [
+        {
+          label: 'CAC filing number',
+          valueA: cacFilingA ?? missing,
+          valueB: cacFilingB ?? missing,
+          highlight: cacFilingA !== cacFilingB,
+        },
+      ]
+    : []),
 ];
 ---
 

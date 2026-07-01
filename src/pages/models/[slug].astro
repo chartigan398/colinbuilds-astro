@@ -8,7 +8,9 @@ import { getCollection, render } from 'astro:content';
 
 export async function getStaticPaths() {
   const models = (await getCollection('models')).filter(
-    (entry) => entry.data.cost_input_1m != null && entry.data.cost_output_1m != null,
+    (entry) =>
+      entry.data.draft === true ||
+      (entry.data.cost_input_1m != null && entry.data.cost_output_1m != null),
   );
 
   return models.map((model) => ({
@@ -31,6 +33,7 @@ const comparisonModels = (await getCollection('models'))
   }));
 const {
   title,
+  draft,
   entry_type,
   entry_badge,
   context_label,
@@ -42,6 +45,8 @@ const {
   parameters_active,
   mmlu_score,
   mmlu_pro_score,
+  chatbot_arena_score,
+  chatbot_arena_source_date,
   pricing_source_date,
   pricing_model_version,
   pricing_note,
@@ -58,7 +63,25 @@ const parametersFallback = parameters_note ?? missing;
 const hasPricing = cost_input_1m != null && cost_output_1m != null;
 const hasPricingMeta = pricing_model_version && pricing_source_date;
 const hasContext = context_window != null;
-const hasBenchmarks = mmlu_score != null || mmlu_pro_score != null || parameters_active != null;
+const hasBenchmarks =
+  mmlu_score != null ||
+  mmlu_pro_score != null ||
+  parameters_active != null ||
+  chatbot_arena_score != null;
+
+const benchmarkCardCount = [
+  mmlu_score,
+  mmlu_pro_score,
+  parameters_active,
+  chatbot_arena_score,
+].filter((value) => value != null).length;
+
+const benchmarkGridClass =
+  benchmarkCardCount >= 4
+    ? 'sm:grid-cols-2 lg:grid-cols-4'
+    : benchmarkCardCount === 3
+      ? 'sm:grid-cols-2 lg:grid-cols-3'
+      : 'sm:grid-cols-2';
 
 const cacStatusKey = cac_status.toLowerCase();
 const showCac = Boolean(cac_source) || ['filed', 'pending'].includes(cacStatusKey);
@@ -111,6 +134,13 @@ const cacBadgeClass = `inline-flex items-center rounded-full border px-4 py-2 te
 
 <BaseLayout title={`${title} | ColinBuilds.com`} description={pageDescription}>
   <article>
+    {
+      draft === true && (
+        <div class="border-b border-amber-500/30 bg-amber-500/10 px-6 py-3 text-center text-sm text-amber-200">
+          Local draft preview only — not indexed, not in comparisons, not published.
+        </div>
+      )
+    }
     <section class="border-b border-neutral-800 bg-gradient-to-b from-neutral-950 to-black">
       <div class="mx-auto max-w-6xl px-6 py-16">
         <p class="mb-3 text-sm font-medium tracking-wide">
@@ -219,7 +249,23 @@ const cacBadgeClass = `inline-flex items-center rounded-full border px-4 py-2 te
               <h2 class="text-lg font-semibold text-white">Benchmark Matrix</h2>
               <p class="mt-1 text-sm text-neutral-400">Reported model metrics from published sources.</p>
             </div>
-            <div class={`grid gap-4 ${mmlu_pro_score != null ? 'sm:grid-cols-2 lg:grid-cols-3' : 'sm:grid-cols-2'}`}>
+            <div class={`grid gap-4 ${benchmarkGridClass}`}>
+              {chatbot_arena_score != null && (
+                <div class="rounded-xl border border-neutral-800 bg-black p-5">
+                  <p class="text-xs uppercase tracking-wider text-neutral-500">Chatbot Arena Elo</p>
+                  <p class="mt-2 text-4xl font-bold tabular-nums text-white">
+                    {formatNumber(chatbot_arena_score)}
+                  </p>
+                  <p class="mt-2 text-sm text-neutral-400">Human preference ranking from Chatbot Arena.</p>
+                  {
+                    chatbot_arena_source_date && (
+                      <p class="mt-2 text-xs text-neutral-500">
+                        As of {formatPricingDate(chatbot_arena_source_date)}.
+                      </p>
+                    )
+                  }
+                </div>
+              )}
               {mmlu_score != null && (
                 <div class="rounded-xl border border-neutral-800 bg-black p-5">
                   <p class="text-xs uppercase tracking-wider text-neutral-500">MMLU Score</p>

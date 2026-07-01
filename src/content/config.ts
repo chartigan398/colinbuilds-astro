@@ -16,10 +16,13 @@ const models = defineCollection({
     parameters_active: z.number().optional(),
     mmlu_score: z.number().optional(),
     mmlu_pro_score: z.number().optional(),
+    chatbot_arena_score: z.number().optional(),
+    chatbot_arena_source_date: z.string().optional(),
     pricing_source_date: z.string().optional(),
     pricing_model_version: z.string().optional(),
     pricing_note: z.string().optional(),
     cac_status: z.string().default('Not publicly verified'),
+    cac_filing_number: z.string().optional(),
     cac_source: z.string().url().optional(),
   }),
 });
