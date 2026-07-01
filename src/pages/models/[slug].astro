@@ -6,7 +6,9 @@ import ModelRoutingCalculator from '../../components/ModelRoutingCalculator.astr
 import { getCollection, render } from 'astro:content';
 
 export async function getStaticPaths() {
-  const models = await getCollection('models');
+  const models = (await getCollection('models')).filter(
+    (entry) => entry.data.cost_input_1m != null && entry.data.cost_output_1m != null,
+  );
 
   return models.map((model) => ({
     params: { slug: model.slug },

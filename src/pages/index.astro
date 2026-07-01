@@ -3,9 +3,12 @@ import BaseLayout from '../layouts/BaseLayout.astro';
 import Brand from '../components/Brand.astro';
 import { getCollection } from 'astro:content';
 
-const models = (await getCollection('models')).sort((a, b) =>
-  a.data.title.localeCompare(b.data.title),
-);
+const hasOfficialCalculatorPricing = (model: { data: { cost_input_1m?: number; cost_output_1m?: number } }) =>
+  model.data.cost_input_1m != null && model.data.cost_output_1m != null;
+
+const models = (await getCollection('models'))
+  .filter(hasOfficialCalculatorPricing)
+  .sort((a, b) => a.data.title.localeCompare(b.data.title));
 
 const usd = (value: number) =>
   new Intl.NumberFormat('en-US', {
