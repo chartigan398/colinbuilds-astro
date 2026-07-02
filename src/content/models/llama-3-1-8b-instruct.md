@@ -1,6 +1,5 @@
 ---
 title: "Llama 3.1 8B Instruct"
-draft: true
 entry_type: "open-weight"
 entry_badge: "Open-weight profile · provider pricing separate"
 context_label: "Published Meta context window"
@@ -10,9 +9,17 @@ context_window: 128000
 parameters_active: 8000000000
 mmlu_score: 69.4
 mmlu_pro_score: 48.3
-pricing_note: "No direct official Meta pay-as-you-go API price was found in the checked Meta/Llama sources on 2026-07-01. This page should be excluded from current-price calculators until a provider-labelled hosted route is added separately. Do not treat OpenRouter, Together, Fireworks, Replicate, Groq, or cloud-hosted prices as Meta official pricing."
-pricing_source_date: "2026-07-01"
+pricing_note: "Provider-hosted OpenRouter pricing added for Llama 3.1 8B Instruct. This is labelled provider pricing, not Meta official creator pricing."
+pricing_source_date: "2026-07-02"
 pricing_model_version: "Meta Llama 3.1 8B Instruct open-weight model; no direct official Meta API price recorded; provider/reseller pricing must be separate."
+providers:
+  - name: "OpenRouter"
+    cost_input_1m: 0.02
+    cost_output_1m: 0.03
+    source: "https://openrouter.ai/meta-llama/llama-3.1-8b-instruct/api"
+    source_date: "2026-07-02"
+    model_id: "meta-llama/llama-3.1-8b-instruct"
+    note: "Provider-hosted Llama 3.1 8B Instruct route; not Meta official pricing."
 cac_status: "Not publicly verified"
 ---
 Llama 3.1 8B Instruct is Meta's small, practical Llama 3.1 chat model: an open-weight assistant-style model that is light enough to appear in local, hosted, and edge-deployment workflows while still using the Llama 3.1 family's long 128K context window.
@@ -25,13 +32,9 @@ The important beginner lesson is that Llama 3.1 8B Instruct is an open-weight mo
 
 ## Pricing notes
 
-No direct official Meta pay-as-you-go API price was found for Llama 3.1 8B Instruct in the checked Meta/Llama sources on 2026-07-01.
+OpenRouter lists Llama 3.1 8B Instruct at $0.02 per 1M input tokens and $0.03 per 1M output tokens, checked on 2026-07-02: https://openrouter.ai/meta-llama/llama-3.1-8b-instruct/api
 
-This means:
-
-- leave `cost_input_1m` and `cost_output_1m` out of the draft frontmatter;
-- exclude this page from current-price calculator math until a provider-labelled route is added;
-- treat OpenRouter/Together/Fireworks/Groq/Replicate/cloud prices as separate hosted-provider records, not as Meta official pricing.
+This is provider-hosted OpenRouter pricing, not an official Meta creator price. Meta released the model weights under the Llama 3.1 Community License, so hosted API costs can vary by provider.
 
 ## Benchmarks and specs
 
@@ -51,14 +54,6 @@ Meta's Llama 3.1 model card reports these values for the instruction-tuned 8B mo
 - Local or self-hosted demos
 - Beginner education about open-weight vs hosted API pricing
 - Small-model baselines against Qwen, Mistral, DeepSeek, Gemma, and larger Llama variants
-
-## Verification notes
-
-Status: draft, needs Colin approval before website use.
-
-Checked on 2026-07-01 by Hermes and second-pass checked by Kratos. Main source facts come from Meta's Llama 3.1 model card and the Hugging Face API identity record. The pricing field is intentionally handled as a pricing note rather than numeric API costs because no direct official Meta API price was found in the checked sources on this date.
-
-License wording caution: describe this as an open-weight model released under the Llama 3.1 Community License. Do not label it as OSI-open-source, Apache, MIT, public domain, or unrestricted commercial use.
 
 ## Sources
 

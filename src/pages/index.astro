@@ -2,13 +2,11 @@
 import BaseLayout from '../layouts/BaseLayout.astro';
 import Brand from '../components/Brand.astro';
 import { getLiveComparisonPairs } from '../lib/compare';
+import { getEffectivePricing, getPricingOffers, hasVerifiedPricing } from '../lib/pricing';
 import { getCollection } from 'astro:content';
 
-const hasOfficialCalculatorPricing = (model: { data: { cost_input_1m?: number; cost_output_1m?: number } }) =>
-  model.data.cost_input_1m != null && model.data.cost_output_1m != null;
-
 const models = (await getCollection('models'))
-  .filter(hasOfficialCalculatorPricing)
+  .filter((entry) => entry.data.draft !== true && hasVerifiedPricing(entry.data))
   .sort((a, b) => a.data.title.localeCompare(b.data.title));
 
 const { allComparisons } = await getLiveComparisonPairs();
@@ -27,11 +25,15 @@ const formatContext = (value?: number) => {
 };
 
 const cardSummary = (model: (typeof models)[number]) => {
-  const { cost_input_1m, cost_output_1m, context_window, pricing_note } = model.data;
-  if (cost_input_1m != null && cost_output_1m != null) {
-    return `${usd(cost_input_1m)} in · ${usd(cost_output_1m)} out / 1M`;
+  const pricing = getEffectivePricing(model.data);
+  const offerCount = getPricingOffers(model.data).length;
+  const { context_window, pricing_note } = model.data;
+
+  if (pricing) {
+    const prefix = offerCount > 1 ? 'From ' : '';
+    return `${prefix}${usd(pricing.costInput1m)} in · ${usd(pricing.costOutput1m)} out / 1M`;
   }
-  if (pricing_note) return 'No official API price · see page';
+  if (pricing_note) return 'No verified API price · see page';
   const context = formatContext(context_window);
   if (context) return context;
   return model.data.entry_badge ?? 'Model profile';

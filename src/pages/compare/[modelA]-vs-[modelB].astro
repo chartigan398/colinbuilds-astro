@@ -7,6 +7,7 @@ import {
   pickRelated,
   type ModelEntry,
 } from '../../lib/compare';
+import { getEffectivePricing } from '../../lib/pricing';
 
 export async function getStaticPaths() {
   const { paths } = await getLiveComparisonPairs();
@@ -20,10 +21,16 @@ interface Props {
 }
 
 const { modelAEntry, modelBEntry, allComparisons } = Astro.props;
-const { title: titleA, cost_input_1m: inputA, cost_output_1m: outputA, context_window: contextA, mmlu_score: mmluA, chatbot_arena_score: arenaA, cac_filing_number: cacFilingA } =
+const pricingA = getEffectivePricing(modelAEntry.data)!;
+const pricingB = getEffectivePricing(modelBEntry.data)!;
+const { title: titleA, context_window: contextA, mmlu_score: mmluA, chatbot_arena_score: arenaA, cac_filing_number: cacFilingA } =
   modelAEntry.data;
-const { title: titleB, cost_input_1m: inputB, cost_output_1m: outputB, context_window: contextB, mmlu_score: mmluB, chatbot_arena_score: arenaB, cac_filing_number: cacFilingB } =
+const { title: titleB, context_window: contextB, mmlu_score: mmluB, chatbot_arena_score: arenaB, cac_filing_number: cacFilingB } =
   modelBEntry.data;
+const inputA = pricingA.costInput1m;
+const outputA = pricingA.costOutput1m;
+const inputB = pricingB.costInput1m;
+const outputB = pricingB.costOutput1m;
 
 const usd = (value: number) =>
   new Intl.NumberFormat('en-US', {

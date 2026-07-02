@@ -1,5 +1,15 @@
 import { defineCollection, z } from 'astro:content';
 
+const providerOfferSchema = z.object({
+  name: z.string(),
+  cost_input_1m: z.number(),
+  cost_output_1m: z.number(),
+  source: z.string().url(),
+  source_date: z.string().optional(),
+  model_id: z.string().optional(),
+  note: z.string().optional(),
+});
+
 const models = defineCollection({
   type: 'content',
   schema: z.object({
@@ -12,6 +22,7 @@ const models = defineCollection({
     parameters_note: z.string().optional(),
     cost_input_1m: z.number().optional(),
     cost_output_1m: z.number().optional(),
+    providers: z.array(providerOfferSchema).optional(),
     context_window: z.number().optional(),
     parameters_active: z.number().optional(),
     mmlu_score: z.number().optional(),

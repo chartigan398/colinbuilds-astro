@@ -1,4 +1,5 @@
 import type { CollectionEntry } from 'astro:content';
+import { getEffectivePricing, hasVerifiedPricing } from './pricing';
 
 export type ModelEntry = CollectionEntry<'models'>;
 
@@ -11,7 +12,7 @@ export type ComparisonLink = {
 
 export function isLiveComparisonModel(entry: ModelEntry) {
   if (entry.data.draft === true) return false;
-  return entry.data.cost_input_1m != null && entry.data.cost_output_1m != null;
+  return hasVerifiedPricing(entry.data) && getEffectivePricing(entry.data) != null;
 }
 
 export function comparisonPath(slugA: string, slugB: string) {

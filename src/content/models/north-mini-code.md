@@ -1,5 +1,6 @@
 ---
 title: "Cohere North Mini Code"
+draft: true
 entry_type: "open-weight"
 entry_badge: "Open-source Cohere coding model · hosted API price not shown"
 context_label: "Published context window"
@@ -7,9 +8,17 @@ benchmark_note: "Benchmarks not shown until exact North Mini Code evaluation sou
 parameters_note: "3B active / 30B total, Cohere pricing-page wording"
 context_window: 256000
 parameters_active: 3000000000
-pricing_note: "Cohere's public pages describe North Mini Code as open-source and available via Cohere API, Model Vault, Hugging Face, and OpenRouter. No official hosted API input/output token price is shown in the checked public pricing source, so this page is excluded from the calculator until a hosted API price is confirmed."
+pricing_note: "Provider-hosted OpenRouter free route added for North Mini Code. This is labelled provider pricing, not Cohere official creator pricing."
 pricing_source_date: "2026-06-30"
 pricing_model_version: "Open-source model availability confirmed; hosted Cohere API token pricing not confirmed from public pricing page"
+providers:
+  - name: "OpenRouter"
+    cost_input_1m: 0
+    cost_output_1m: 0
+    source: "https://openrouter.ai/cohere/north-mini-code:free/api"
+    source_date: "2026-07-01"
+    model_id: "cohere/north-mini-code:free"
+    note: "Provider-hosted OpenRouter free route; not Cohere official creator pricing. Free route may be subject to OpenRouter availability, moderation, rate limits, or free-tier conditions."
 cac_status: "Not publicly verified"
 ---
 Cohere North Mini Code is Cohere's agentic coding model for developers — a small, efficient coding model compared against larger, more expensive APIs.

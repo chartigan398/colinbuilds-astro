@@ -4,13 +4,12 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
 import Brand from '../../components/Brand.astro';
 import ModelRoutingCalculator from '../../components/ModelRoutingCalculator.astro';
 import { comparisonsForModel, getLiveComparisonPairs } from '../../lib/compare';
+import { getEffectivePricing, getCheapestOfferKeys, getPricingOffers, hasVerifiedPricing, offerKey } from '../../lib/pricing';
 import { getCollection, render } from 'astro:content';
 
 export async function getStaticPaths() {
   const models = (await getCollection('models')).filter(
-    (entry) =>
-      entry.data.draft === true ||
-      (entry.data.cost_input_1m != null && entry.data.cost_output_1m != null),
+    (entry) => entry.data.draft === true || hasVerifiedPricing(entry.data),
   );
 
   return models.map((model) => ({
@@ -24,13 +23,18 @@ const { Content } = await render(model);
 const { allComparisons } = await getLiveComparisonPairs();
 const modelComparisons = comparisonsForModel(model.slug, allComparisons);
 const comparisonModels = (await getCollection('models'))
-  .filter((entry) => entry.data.cost_input_1m != null && entry.data.cost_output_1m != null)
-  .map((entry) => ({
-    title: entry.data.title,
-    slug: entry.slug,
-    costInput1m: entry.data.cost_input_1m!,
-    costOutput1m: entry.data.cost_output_1m!,
-  }));
+  .filter((entry) => hasVerifiedPricing(entry.data))
+  .map((entry) => {
+    const pricing = getEffectivePricing(entry.data);
+    if (!pricing) return null;
+    return {
+      title: entry.data.title,
+      slug: entry.slug,
+      costInput1m: pricing.costInput1m,
+      costOutput1m: pricing.costOutput1m,
+    };
+  })
+  .filter((entry): entry is NonNullable<typeof entry> => entry != null);
 const {
   title,
   draft,
@@ -54,13 +58,20 @@ const {
   cac_source,
 } = model.data;
 
+const pricingOffers = getPricingOffers(model.data);
+const cheapestOfferKeys = getCheapestOfferKeys(pricingOffers);
+const effectivePricing = getEffectivePricing(model.data);
+const showProviderComparison = pricingOffers.length > 1;
+const singleOffer = pricingOffers.length === 1 ? pricingOffers[0] : null;
+
 const missing = '—';
 const entryBadge = entry_badge ?? (entry_type === 'reference' ? 'Reference entry' : 'AI Model Profile');
 const contextLabel = context_label ?? (entry_type === 'reference' ? 'Standard context window' : 'Context window');
 const benchmarkFallback = benchmark_note ?? missing;
 const parametersFallback = parameters_note ?? missing;
 
-const hasPricing = cost_input_1m != null && cost_output_1m != null;
+const hasPricing = pricingOffers.length > 0;
+const hasOfficialPricing = cost_input_1m != null && cost_output_1m != null;
 const hasPricingMeta = pricing_model_version && pricing_source_date;
 const hasContext = context_window != null;
 const hasBenchmarks =
@@ -94,8 +105,8 @@ const usd = (value: number) =>
     maximumFractionDigits: value < 1 ? 3 : 2,
   }).format(value);
 
-const pageDescription = hasPricing
-  ? `${title} on ColinBuilds.com — ${usd(cost_input_1m!)} input and ${usd(cost_output_1m!)} output per 1M tokens.`
+const pageDescription = effectivePricing
+  ? `${title} on ColinBuilds.com — ${usd(effectivePricing.costInput1m)} input and ${usd(effectivePricing.costOutput1m)} output per 1M tokens${pricingOffers.length > 1 ? ` (${effectivePricing.label})` : ''}.`
   : `${title} on ColinBuilds.com.`;
 
 const formatNumber = (value: number) =>
@@ -165,23 +176,109 @@ const cacBadgeClass = `inline-flex items-center rounded-full border px-4 py-2 te
     <div class="mx-auto max-w-6xl px-6 py-12">
       <div class={`grid gap-6 ${showCac ? 'lg:grid-cols-3' : ''}`}>
         <section class={`rounded-2xl border border-neutral-800 bg-neutral-950 p-6 shadow-xl shadow-black/40 ${showCac ? 'lg:col-span-2' : ''}`}>
-          <div class="mb-6 flex items-center justify-between">
+          <div class="mb-6 flex items-center justify-between gap-4">
             <h2 class="text-lg font-semibold text-white">API Economics</h2>
-            <span class="text-xs uppercase tracking-wider text-neutral-500">Input & output priced separately · USD</span>
+            <span class="text-xs uppercase tracking-wider text-neutral-500">
+              {showProviderComparison ? 'Provider-hosted routes · USD' : 'Input & output priced separately · USD'}
+            </span>
           </div>
           {
-            hasPricing ? (
-              <div class="grid gap-4 sm:grid-cols-2">
-                <div class="rounded-xl border border-cyan-500/30 bg-cyan-500/5 p-5">
-                  <p class="text-sm text-cyan-400">Input · per 1M tokens</p>
-                  <p class="mt-2 text-3xl font-bold text-white">{usd(cost_input_1m!)}</p>
-                  <p class="mt-2 text-xs text-neutral-500">What you pay for 1 million prompt tokens.</p>
+            showProviderComparison ? (
+              <div class="overflow-x-auto rounded-xl border border-neutral-800">
+                <table class="min-w-full text-left text-sm">
+                  <thead class="border-b border-neutral-800 bg-black/60 text-xs uppercase tracking-wider text-neutral-500">
+                    <tr>
+                      <th class="px-4 py-3 font-medium">Provider</th>
+                      <th class="px-4 py-3 font-medium">Input / 1M</th>
+                      <th class="px-4 py-3 font-medium">Output / 1M</th>
+                      <th class="px-4 py-3 font-medium">Source</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {
+                      pricingOffers.map((offer) => {
+                        const isCheapest = cheapestOfferKeys.has(offerKey(offer));
+                        return (
+                          <tr
+                            class={
+                              isCheapest
+                                ? 'border-t border-emerald-500/30 bg-emerald-500/10 text-white'
+                                : 'border-t border-neutral-800 text-neutral-300'
+                            }
+                          >
+                            <td class="px-4 py-4 font-medium">
+                              <div class="flex flex-wrap items-center gap-2">
+                                <span>{offer.name}</span>
+                                {offer.isOfficial && (
+                                  <span class="rounded-full border border-cyan-500/30 bg-cyan-500/10 px-2 py-0.5 text-[10px] uppercase tracking-wide text-cyan-300">
+                                    Official
+                                  </span>
+                                )}
+                                {isCheapest && (
+                                  <span class="rounded-full border border-emerald-500/40 bg-emerald-500/15 px-2 py-0.5 text-[10px] uppercase tracking-wide text-emerald-300">
+                                    Best deal
+                                  </span>
+                                )}
+                              </div>
+                            </td>
+                            <td class="px-4 py-4 tabular-nums">{usd(offer.costInput1m)}</td>
+                            <td class="px-4 py-4 tabular-nums">{usd(offer.costOutput1m)}</td>
+                            <td class="px-4 py-4">
+                              {
+                                offer.source ? (
+                                  <a
+                                    href={offer.source}
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    class="text-cyan-400 transition hover:text-cyan-300"
+                                  >
+                                    Provider docs
+                                  </a>
+                                ) : offer.sourceDate ? (
+                                  <span class="text-neutral-500">As of {formatPricingDate(offer.sourceDate)}</span>
+                                ) : (
+                                  <span class="text-neutral-500">Verified listing</span>
+                                )
+                              }
+                            </td>
+                          </tr>
+                        );
+                      })
+                    }
+                  </tbody>
+                </table>
+              </div>
+            ) : hasPricing && singleOffer ? (
+              <div>
+                <p class="mb-4 text-sm text-neutral-400">
+                  {singleOffer.isOfficial ? 'Official API pricing' : `Hosted via ${singleOffer.name}`}
+                </p>
+                <div class="grid gap-4 sm:grid-cols-2">
+                  <div class="rounded-xl border border-cyan-500/30 bg-cyan-500/5 p-5">
+                    <p class="text-sm text-cyan-400">Input · per 1M tokens</p>
+                    <p class="mt-2 text-3xl font-bold text-white">{usd(singleOffer.costInput1m)}</p>
+                    <p class="mt-2 text-xs text-neutral-500">What you pay for 1 million prompt tokens.</p>
+                  </div>
+                  <div class="rounded-xl border border-blue-500/30 bg-blue-500/5 p-5">
+                    <p class="text-sm text-blue-400">Output · per 1M tokens</p>
+                    <p class="mt-2 text-3xl font-bold text-white">{usd(singleOffer.costOutput1m)}</p>
+                    <p class="mt-2 text-xs text-neutral-500">What you pay for 1 million completion tokens.</p>
+                  </div>
                 </div>
-                <div class="rounded-xl border border-blue-500/30 bg-blue-500/5 p-5">
-                  <p class="text-sm text-blue-400">Output · per 1M tokens</p>
-                  <p class="mt-2 text-3xl font-bold text-white">{usd(cost_output_1m!)}</p>
-                  <p class="mt-2 text-xs text-neutral-500">What you pay for 1 million completion tokens.</p>
-                </div>
+                {
+                  singleOffer.source && (
+                    <p class="mt-4 text-xs text-neutral-500">
+                      <a
+                        href={singleOffer.source}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        class="text-cyan-400 transition hover:text-cyan-300"
+                      >
+                        View provider pricing source
+                      </a>
+                    </p>
+                  )
+                }
               </div>
             ) : (
               <div class="rounded-xl border border-neutral-800 bg-black p-5">
@@ -193,14 +290,22 @@ const cacBadgeClass = `inline-flex items-center rounded-full border px-4 py-2 te
             )
           }
           {
-            hasPricingMeta ? (
+            showProviderComparison && (
+              <p class="mt-4 text-xs leading-relaxed text-neutral-500">
+                Provider prices are verified from third-party docs — not official model-maker pricing unless
+                labelled Official. Best deal highlights the lowest combined input + output rate on this page.
+              </p>
+            )
+          }
+          {
+            hasOfficialPricing && hasPricingMeta ? (
               <p class="mt-4 text-xs leading-relaxed text-neutral-500">
                 Pricing applies to model version{' '}
                 <span class="font-medium text-neutral-300">{pricing_model_version}</span>
                 as of{' '}
                 <span class="font-medium text-neutral-300">{formatPricingDate(pricing_source_date!)}</span>.
               </p>
-            ) : pricing_note ? (
+            ) : !showProviderComparison && pricing_note ? (
               <p class="mt-4 text-xs leading-relaxed text-neutral-500">{pricing_note}</p>
             ) : null
           }
@@ -237,8 +342,8 @@ const cacBadgeClass = `inline-flex items-center rounded-full border px-4 py-2 te
       <ModelRoutingCalculator
         modelTitle={title}
         modelSlug={model.slug}
-        costInput1m={cost_input_1m}
-        costOutput1m={cost_output_1m}
+        costInput1m={effectivePricing?.costInput1m}
+        costOutput1m={effectivePricing?.costOutput1m}
         comparisonModels={comparisonModels}
       />
 
