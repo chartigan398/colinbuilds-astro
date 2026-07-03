@@ -35,3 +35,6 @@ pnpm-debug.log*
 
 # Internal Cursor handoff notes (not for deploy)
 CURSOR-UPDATE*.md
+
+# Hermes edit temp files (break Astro content collection in dev)
+**/.hermes-tmp*

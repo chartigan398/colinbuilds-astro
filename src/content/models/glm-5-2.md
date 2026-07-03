@@ -13,27 +13,31 @@ pricing_source_date: "2026-06-30"
 pricing_model_version: "Current Z.ai official GLM-5.2 API pricing; cached input listed separately at $0.26/1M"
 cac_status: "Not publicly verified"
 ---
-GLM-5.2 is Z.ai's large open-weight model profile and a key comparison point in the China-model ecosystem.
+GLM-5.2 is the ColinBuilds reference point for Z.ai's long-context open-weight model lane: a China-model ecosystem entry with official Z.ai API pricing, a 1M context claim, and a public Hugging Face release.
 
 ## What this model is
 
-GLM-5.2 combines a large MoE-style model profile with official Z.ai API pricing. It is useful for comparing Chinese model ecosystems against Qwen, DeepSeek, GPT-4o, Claude Sonnet, Mistral, and Kimi.
+Z.ai describes GLM-5.2 as a flagship model built for long-horizon tasks. The official docs position it around project-scale engineering context, long-running coding and refactoring work, and stronger stability across multi-step tasks.
+
+For ColinBuilds readers, GLM-5.2 is useful because it lets us compare a major Chinese open-weight/API model against Qwen, DeepSeek, GPT-4o, Claude Sonnet, Mistral, and Kimi without mixing official API pricing with third-party reseller pricing.
 
 ## Pricing notes
 
-Official Z.ai pricing checked on 2026-06-30:
+Z.ai's pricing page lists text-model prices per 1M tokens. For GLM-5.2 it lists $1.40 per 1M input tokens, $0.26 per 1M cached input tokens, limited-time free cached-input storage, and $4.40 per 1M output tokens.
 
-- Input: $1.40 / 1M tokens
-- Cached input: $0.26 / 1M tokens
-- Output: $4.40 / 1M tokens
+The ColinBuilds calculator uses the standard input and output prices: $1.40 input and $4.40 output per 1M tokens. Cached-input pricing is listed separately because it depends on workload shape and should not be silently blended into the default comparison.
 
-The calculator uses standard input and output pricing. Cached-input pricing is noted separately.
+## Benchmarks and specs
+
+Z.ai's GLM-5.2 documentation lists a 1M context length and 128K maximum output tokens. The same docs describe text input and text output, multiple thinking modes, streaming output, context caching, and structured output support.
+
+The Hugging Face model page lists the public `zai-org/GLM-5.2` repository and shows a total model size of 753B parameters. This is separate from any active-parameter figure shown elsewhere. This page keeps benchmark claims conservative: Z.ai publishes coding and long-horizon benchmark comparisons, but ColinBuilds should only surface exact benchmark panels when the specific benchmark source and evaluation settings are attached.
 
 ## Best fit
 
-- China-model ecosystem comparisons
-- Long-context and coding/agent workloads with source-attributed benchmarks
-- Comparing official API prices against provider/reseller routes
+GLM-5.2 is best for long-context engineering tasks, codebase-level analysis, refactoring plans, and China-model ecosystem comparisons where official Z.ai API pricing matters.
+
+For ColinBuilds readers, it belongs in the “long-context builder model” bucket: the useful question is whether its 1M context and coding focus are worth the higher official API price compared with cheaper DeepSeek/Qwen-style routes.
 
 ## Sources
 

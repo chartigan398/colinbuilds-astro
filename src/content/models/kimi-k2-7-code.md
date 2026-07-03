@@ -12,29 +12,33 @@ pricing_source_date: "2026-06-29"
 pricing_model_version: "Alibaba Cloud Model Studio international (Singapore) hosted pricing for kimi-k2.7-code; $0.95 input and $4.00 output per 1M tokens"
 cac_status: "Not publicly verified"
 ---
-Kimi K2.7 Code is Moonshot AI's coding-focused Kimi model. This page tracks **Alibaba Cloud Model Studio hosted pricing** for that model — not Moonshot direct API pricing.
+Kimi K2.7 Code is Moonshot AI's coding-focused Kimi model, tracked here through Alibaba Cloud Model Studio hosted pricing so ColinBuilds can compare it against Qwen, DeepSeek, GLM, Mistral, GPT-4o, and Claude Sonnet on a consistent provider-priced basis.
 
 ## What this model is
 
-Kimi K2.7 Code is a strong comparison point for coding assistants and code-generation workloads. Benchmark scores are not listed here until a verified evaluation source is attached.
+Moonshot describes Kimi K2.7 Code as a coding-focused agentic model built on Kimi K2.6. The Hugging Face model card says it improves real-world long-horizon coding tasks, strengthens end-to-end completion across complex software engineering workflows, and reduces thinking-token usage by about 30% compared with Kimi K2.6.
+
+The same model card lists a Mixture-of-Experts architecture with 1T total parameters, 32B activated parameters, a 256K context length, and image/video input support. This page is still cautious about public benchmark panels: Kimi publishes benchmark tables, but ColinBuilds should only surface exact benchmark cards when the source, settings, and comparison conditions are attached.
 
 ## Pricing notes
 
-Alibaba Cloud Model Studio hosted pricing checked on 2026-06-29 for `kimi-k2.7-code` **international (Singapore) service**:
+This page uses Alibaba Cloud Model Studio hosted pricing, not Moonshot direct API pricing. Alibaba lists `kimi-k2.7-code` in Model Studio's third-party model catalogue, and the billing page lists token prices by region/deployment scope.
 
-- Input: $0.95 / 1M tokens
-- Output: $4.00 / 1M tokens
-- Context window: 262,144 tokens
+For the Singapore International service, Alibaba lists `kimi-k2.7-code` at $0.95 per 1M input tokens and $4.00 per 1M output tokens. The ColinBuilds calculator uses those International rates so this page stays consistent with the other Alibaba Model Studio priced entries in the directory.
 
-This is Moonshot's Kimi model accessed through Alibaba Cloud Model Studio. It is not pricing from a Moonshot direct API. Rates come from Alibaba's public Model Studio listing and may be dynamic; third-party reseller routes are not used for the headline price panel.
+Alibaba also lists lower Global rates in some regions, including $0.894 input and $3.713 output per 1M tokens. Those are useful context, but they are not the headline calculator rate on this page.
 
-Alibaba also lists lower Global rates in some regions (for example Frankfurt/Hong Kong at $0.894 input and $3.713 output per 1M). This page uses the **International** tier so it matches the Qwen Model Studio pages in this directory.
+## Benchmarks and specs
+
+The Hugging Face card for `moonshotai/Kimi-K2.7-Code` lists 1T total parameters, 32B activated parameters, 61 layers, 384 experts, 8 selected experts per token, and a 256K context length. It also says K2.7 Code supports image and video input.
+
+The model card includes benchmark comparisons for coding and agentic tasks, but this page keeps benchmark wording general until ColinBuilds attaches exact benchmark values and settings in the page data.
 
 ## Best fit
 
-- Coding assistants and code-generation experiments
-- Comparing Alibaba-hosted Kimi pricing against Qwen, DeepSeek, and Western references
-- Cost planning where input/output split matters
+Kimi K2.7 Code is best for coding assistants, code-generation experiments, long-horizon software tasks, and comparisons where Moonshot's model is accessed through Alibaba Cloud rather than through a direct Moonshot account.
+
+For ColinBuilds readers, this is a good “coding model with regional/provider pricing” example: the model identity comes from Moonshot, while the headline price shown here comes from Alibaba Cloud Model Studio.
 
 ## Sources
 
