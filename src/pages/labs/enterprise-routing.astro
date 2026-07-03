@@ -1,0 +1,65 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import Brand from '../../components/Brand.astro';
+import EnterpriseRoutingCalculator from '../../components/EnterpriseRoutingCalculator.astro';
+import { getEffectivePricing, hasVerifiedPricing } from '../../lib/pricing';
+import { getCollection } from 'astro:content';
+
+const models = (await getCollection('models'))
+  .filter((entry) => entry.data.draft !== true && hasVerifiedPricing(entry.data))
+  .map((entry) => {
+    const pricing = getEffectivePricing(entry.data);
+    if (!pricing) return null;
+    return {
+      title: entry.data.title,
+      slug: entry.slug,
+      costInput1m: pricing.costInput1m,
+      costOutput1m: pricing.costOutput1m,
+    };
+  })
+  .filter((entry): entry is NonNullable<typeof entry> => entry != null);
+---
+
+<BaseLayout
+  title="Enterprise model routing calculator (preview) | ColinBuilds.com"
+  description="Preview: estimate monthly API savings when routing routine traffic to low-cost models and reserving premium models for complex tasks."
+  noIndex={true}
+>
+  <div class="border-b border-amber-500/30 bg-amber-500/10 px-6 py-3 text-center text-sm text-amber-100">
+    Labs preview — not indexed, not linked from the public directory. Chief approval required before launch.
+  </div>
+
+  <section class="mx-auto max-w-6xl px-6 py-14">
+    <p class="mb-3 text-sm font-medium tracking-wide">
+      <Brand />
+      <span class="text-neutral-500"> · Labs preview</span>
+    </p>
+    <h1 class="max-w-3xl text-4xl font-bold tracking-tight text-white sm:text-5xl">
+      Cut AI API spend with model routing
+    </h1>
+    <p class="mt-4 max-w-3xl text-lg text-neutral-400">
+      Enterprise teams often overpay by sending every request to a frontier model. This calculator shows what happens
+      when you route routine work to a verified low-cost model and keep premium capacity for the hardest 20%.
+    </p>
+
+    <EnterpriseRoutingCalculator models={models} />
+
+    <div class="mt-10 rounded-2xl border border-neutral-800 bg-neutral-950 p-6 text-sm text-neutral-400">
+      <h2 class="text-base font-semibold text-white">How the math works</h2>
+      <ul class="mt-3 list-disc space-y-2 pl-5">
+        <li>
+          <span class="text-neutral-300">All premium</span> = your full monthly input and output volume priced entirely
+          on the premium model's verified per-1M rates.
+        </li>
+        <li>
+          <span class="text-neutral-300">Routed stack</span> = 80% of input and output on the economical model + 20% on
+          the premium model.
+        </li>
+        <li>
+          <span class="text-neutral-300">Savings</span> = all-premium bill minus routed bill (same token volumes, same
+          published rates).
+        </li>
+      </ul>
+    </div>
+  </section>
+</BaseLayout>
