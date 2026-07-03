@@ -1,9 +1,25 @@
+import type { CollectionEntry } from 'astro:content';
+import { getEffectivePricing } from './pricing';
+
 export type RoutingModel = {
   title: string;
   slug: string;
   costInput1m: number;
   costOutput1m: number;
 };
+
+/** Build calculator rates from a content-collection model entry (frontmatter + providers). */
+export function routingModelFromEntry(entry: CollectionEntry<'models'>): RoutingModel | null {
+  const pricing = getEffectivePricing(entry.data);
+  if (!pricing) return null;
+
+  return {
+    title: entry.data.title,
+    slug: entry.slug,
+    costInput1m: pricing.costInput1m,
+    costOutput1m: pricing.costOutput1m,
+  };
+}
 
 /** Share of monthly traffic treated as routine (routed to the economical model). */
 export const ROUTINE_TRAFFIC_SHARE = 0.8;

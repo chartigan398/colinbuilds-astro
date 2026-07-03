@@ -2,28 +2,22 @@
 import BaseLayout from '../../layouts/BaseLayout.astro';
 import Brand from '../../components/Brand.astro';
 import EnterpriseRoutingCalculator from '../../components/EnterpriseRoutingCalculator.astro';
-import { getEffectivePricing, hasVerifiedPricing } from '../../lib/pricing';
+import { routingModelFromEntry } from '../../lib/enterpriseRouting';
+import { hasVerifiedPricing } from '../../lib/pricing';
 import { getCollection } from 'astro:content';
 
-const models = (await getCollection('models'))
-  .filter((entry) => entry.data.draft !== true && hasVerifiedPricing(entry.data))
-  .map((entry) => {
-    const pricing = getEffectivePricing(entry.data);
-    if (!pricing) return null;
-    return {
-      title: entry.data.title,
-      slug: entry.slug,
-      costInput1m: pricing.costInput1m,
-      costOutput1m: pricing.costOutput1m,
-    };
-  })
-  .filter((entry): entry is NonNullable<typeof entry> => entry != null);
+const liveEntries = (await getCollection('models')).filter(
+  (entry) => entry.data.draft !== true && hasVerifiedPricing(entry.data),
+);
 
-const modelA = models.find((model) => model.slug === 'gpt-4o') ?? models[0];
-const modelB =
-  models.find((model) => model.slug === 'deepseek-v4-flash' && model.slug !== modelA?.slug) ??
-  models.find((model) => model.slug !== modelA?.slug) ??
-  models[1];
+const modelAEntry = liveEntries.find((entry) => entry.slug === 'gpt-4o') ?? liveEntries[0];
+const modelBEntry =
+  liveEntries.find((entry) => entry.slug === 'deepseek-v4-flash') ??
+  liveEntries.find((entry) => entry.slug !== modelAEntry?.slug) ??
+  liveEntries[1];
+
+const modelA = modelAEntry ? routingModelFromEntry(modelAEntry) : null;
+const modelB = modelBEntry ? routingModelFromEntry(modelBEntry) : null;
 ---
 
 <BaseLayout
@@ -44,7 +38,7 @@ const modelB =
       Cut AI API spend with model routing
     </h1>
     <p class="mt-4 max-w-3xl text-lg text-neutral-400">
-      Sample pair preview. On comparison pages, this component uses the two models on that page automatically.
+      Sample pair preview. On comparison pages, rates load from each model&apos;s database file automatically.
     </p>
 
     {
@@ -56,21 +50,5 @@ const modelB =
         <p class="mt-10 text-sm text-neutral-500">Needs two priced live models.</p>
       )
     }
-
-    <div class="mt-10 rounded-2xl border border-neutral-800 bg-neutral-950 p-6 text-sm text-neutral-400">
-      <h2 class="text-base font-semibold text-white">How the math works</h2>
-      <ul class="mt-3 list-disc space-y-2 pl-5">
-        <li>
-          <span class="text-neutral-300">Premium</span> = the pricier model on the pair (higher combined input +
-          output per-1M rate).
-        </li>
-        <li>
-          <span class="text-neutral-300">All premium</span> = full monthly volume on the premium route.
-        </li>
-        <li>
-          <span class="text-neutral-300">Routed stack</span> = 80% on economical + 20% on premium.
-        </li>
-      </ul>
-    </div>
   </section>
 </BaseLayout>

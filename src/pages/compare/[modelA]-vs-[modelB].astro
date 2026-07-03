@@ -9,6 +9,7 @@ import {
   type ModelEntry,
 } from '../../lib/compare';
 import { getEffectivePricing } from '../../lib/pricing';
+import { routingModelFromEntry } from '../../lib/enterpriseRouting';
 
 export async function getStaticPaths() {
   const { paths } = await getLiveComparisonPairs();
@@ -22,6 +23,8 @@ interface Props {
 }
 
 const { modelAEntry, modelBEntry, allComparisons } = Astro.props;
+const routingModelA = routingModelFromEntry(modelAEntry)!;
+const routingModelB = routingModelFromEntry(modelBEntry)!;
 const pricingA = getEffectivePricing(modelAEntry.data)!;
 const pricingB = getEffectivePricing(modelBEntry.data)!;
 const { title: titleA, context_window: contextA, mmlu_score: mmluA, chatbot_arena_score: arenaA, cac_filing_number: cacFilingA } =
@@ -48,18 +51,8 @@ const pageTitle = `${titleA} vs ${titleB}: API Cost & Benchmark Comparison`;
 const pageDescription = `Compare ${titleA} and ${titleB} API pricing, context windows, and benchmarks. Input ${usd(inputA!)} vs ${usd(inputB!)} per 1M tokens.`;
 
 const pairModels = {
-  modelA: {
-    title: titleA,
-    slug: modelAEntry.slug,
-    costInput1m: inputA!,
-    costOutput1m: outputA!,
-  },
-  modelB: {
-    title: titleB,
-    slug: modelBEntry.slug,
-    costInput1m: inputB!,
-    costOutput1m: outputB!,
-  },
+  modelA: routingModelA,
+  modelB: routingModelB,
 };
 
 const currentPath = comparisonPath(modelAEntry.slug, modelBEntry.slug);

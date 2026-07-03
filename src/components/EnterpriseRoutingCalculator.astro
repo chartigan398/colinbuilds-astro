@@ -96,6 +96,16 @@ const isCompare = variant === 'compare';
             <p class="mt-1 text-xs text-neutral-500">
               {usd(premium.costInput1m)} in · {usd(premium.costOutput1m)} out / 1M
             </p>
+            {
+              isCompare && (
+                <a
+                  href={`/models/${premium.slug}/`}
+                  class="mt-2 inline-block text-xs text-cyan-400 transition hover:text-cyan-300"
+                >
+                  View profile →
+                </a>
+              )
+            }
           </div>
           <div class="rounded-lg border border-neutral-800 bg-black/40 px-4 py-3">
             <p class="text-xs font-medium uppercase tracking-wide text-neutral-500">Economical model</p>
@@ -103,6 +113,16 @@ const isCompare = variant === 'compare';
             <p class="mt-1 text-xs text-neutral-500">
               {usd(economical.costInput1m)} in · {usd(economical.costOutput1m)} out / 1M
             </p>
+            {
+              isCompare && (
+                <a
+                  href={`/models/${economical.slug}/`}
+                  class="mt-2 inline-block text-xs text-cyan-400 transition hover:text-cyan-300"
+                >
+                  View profile →
+                </a>
+              )
+            }
           </div>
         </div>
 
@@ -178,7 +198,8 @@ const isCompare = variant === 'compare';
               {formatPercent(initial.savingsPercent)} lower
             </p>
             <p class="mt-3 text-xs leading-relaxed text-neutral-500">
-              Illustration using verified per-1M rates on this page. Production routing needs quality gates and monitoring.
+              Rates pulled from this page&apos;s model database entries ({premium.slug}, {economical.slug}) — same
+              per-1M input/output figures as Tale of the tape. Production routing needs quality gates and monitoring.
             </p>
           </div>
         </div>
@@ -188,48 +209,14 @@ const isCompare = variant === 'compare';
 }
 
 <script>
+  import { calculateEnterpriseRouting } from '../lib/enterpriseRouting';
+
   type RoutingModel = {
     title: string;
     slug: string;
     costInput1m: number;
     costOutput1m: number;
   };
-
-  type EnterpriseRoutingResult = {
-    premiumOnly: number;
-    routedTotal: number;
-    routineCost: number;
-    premiumSliceCost: number;
-    savings: number;
-    savingsPercent: number;
-  };
-
-  function monthlyBill(model: RoutingModel, inputMillions: number, outputMillions: number) {
-    return inputMillions * model.costInput1m + outputMillions * model.costOutput1m;
-  }
-
-  function calculateEnterpriseRouting(
-    premium: RoutingModel,
-    economical: RoutingModel,
-    inputMillions: number,
-    outputMillions: number,
-    routineShare: number,
-  ): EnterpriseRoutingResult {
-    const premiumShare = 1 - routineShare;
-    const routineInputMillions = inputMillions * routineShare;
-    const routineOutputMillions = outputMillions * routineShare;
-    const premiumInputMillions = inputMillions * premiumShare;
-    const premiumOutputMillions = outputMillions * premiumShare;
-
-    const premiumOnly = monthlyBill(premium, inputMillions, outputMillions);
-    const routineCost = monthlyBill(economical, routineInputMillions, routineOutputMillions);
-    const premiumSliceCost = monthlyBill(premium, premiumInputMillions, premiumOutputMillions);
-    const routedTotal = routineCost + premiumSliceCost;
-    const savings = premiumOnly - routedTotal;
-    const savingsPercent = premiumOnly > 0 ? (savings / premiumOnly) * 100 : 0;
-
-    return { premiumOnly, routedTotal, routineCost, premiumSliceCost, savings, savingsPercent };
-  }
 
   function formatUsd(value: number) {
     return new Intl.NumberFormat('en-US', {
@@ -292,13 +279,13 @@ const isCompare = variant === 'compare';
     };
 
     const update = () => {
-      const result = calculateEnterpriseRouting(
+      const result = calculateEnterpriseRouting({
         premium,
         economical,
-        parseMillions(inputEl.value),
-        parseMillions(outputEl.value),
+        inputMillions: parseMillions(inputEl.value),
+        outputMillions: parseMillions(outputEl.value),
         routineShare,
-      );
+      });
 
       premiumOnlyEl.textContent = formatUsd(result.premiumOnly);
       routedTotalEl.textContent = formatUsd(result.routedTotal);
