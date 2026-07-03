@@ -19,6 +19,21 @@ export function monthlyBill(
   return inputMillions * model.costInput1m + outputMillions * model.costOutput1m;
 }
 
+/** Combined per-1M input + output rate used to rank the pair. */
+export function combinedPer1mRate(model: RoutingModel): number {
+  return model.costInput1m + model.costOutput1m;
+}
+
+/** Premium = pricier model; economical = cheaper model (ties → modelA is premium). */
+export function resolveRoutingPair(modelA: RoutingModel, modelB: RoutingModel) {
+  const totalA = combinedPer1mRate(modelA);
+  const totalB = combinedPer1mRate(modelB);
+  if (totalA >= totalB) {
+    return { premium: modelA, economical: modelB };
+  }
+  return { premium: modelB, economical: modelA };
+}
+
 export type EnterpriseRoutingResult = {
   premiumOnly: number;
   routedTotal: number;

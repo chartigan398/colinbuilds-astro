@@ -1,6 +1,7 @@
 ---
 import BaseLayout from '../../layouts/BaseLayout.astro';
 import ComparisonPairCalculator from '../../components/ComparisonPairCalculator.astro';
+import EnterpriseRoutingCalculator from '../../components/EnterpriseRoutingCalculator.astro';
 import {
   comparisonPath,
   getLiveComparisonPairs,
@@ -186,6 +187,14 @@ const matrixRows = [
 
       <div class="mt-6">
         <ComparisonPairCalculator modelA={pairModels.modelA} modelB={pairModels.modelB} />
+      </div>
+
+      <div class="mt-6">
+        <EnterpriseRoutingCalculator
+          modelA={pairModels.modelA}
+          modelB={pairModels.modelB}
+          variant="compare"
+        />
       </div>
 
       {

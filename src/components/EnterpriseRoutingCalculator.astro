@@ -2,43 +2,36 @@
 import {
   calculateEnterpriseRouting,
   PREMIUM_TRAFFIC_SHARE,
+  resolveRoutingPair,
   ROUTINE_TRAFFIC_SHARE,
   type RoutingModel,
 } from '../lib/enterpriseRouting';
 
 interface Props {
-  models: RoutingModel[];
-  defaultPremiumSlug?: string;
-  defaultEconomicalSlug?: string;
+  modelA: RoutingModel;
+  modelB: RoutingModel;
   defaultInputMillions?: number;
   defaultOutputMillions?: number;
+  /** Shorter copy on comparison pages */
+  variant?: 'default' | 'compare';
 }
 
 const {
-  models,
-  defaultPremiumSlug = 'gpt-4o',
-  defaultEconomicalSlug = 'deepseek-v4-flash',
+  modelA,
+  modelB,
   defaultInputMillions = 50,
   defaultOutputMillions = 50,
+  variant = 'default',
 } = Astro.props;
 
-const pricedModels = models
-  .filter((model) => Number.isFinite(model.costInput1m) && Number.isFinite(model.costOutput1m))
-  .sort((a, b) => a.title.localeCompare(b.title));
+const hasValidPricing =
+  Number.isFinite(modelA.costInput1m) &&
+  Number.isFinite(modelA.costOutput1m) &&
+  Number.isFinite(modelB.costInput1m) &&
+  Number.isFinite(modelB.costOutput1m);
 
-const modelsBySlug = new Map(pricedModels.map((model) => [model.slug, model]));
-const defaultPremium =
-  modelsBySlug.get(defaultPremiumSlug) ??
-  pricedModels.find((model) => model.slug.includes('gpt')) ??
-  pricedModels[0];
-const defaultEconomical =
-  modelsBySlug.get(defaultEconomicalSlug) ??
-  pricedModels.find((model) => model.slug.includes('deepseek')) ??
-  pricedModels.find((model) => model.slug !== defaultPremium?.slug) ??
-  pricedModels[1];
-
+const { premium, economical } = resolveRoutingPair(modelA, modelB);
 const calculatorId = `enterprise-routing-${Math.random().toString(36).slice(2, 9)}`;
-const canCalculate = pricedModels.length >= 2 && defaultPremium && defaultEconomical;
 
 const usd = (value: number) =>
   new Intl.NumberFormat('en-US', {
@@ -55,66 +48,62 @@ const formatPercent = (value: number) =>
     maximumFractionDigits: 1,
   }).format(value / 100);
 
-const initial =
-  defaultPremium && defaultEconomical
-    ? calculateEnterpriseRouting({
-        premium: defaultPremium,
-        economical: defaultEconomical,
-        inputMillions: defaultInputMillions,
-        outputMillions: defaultOutputMillions,
-      })
-    : null;
+const initial = hasValidPricing
+  ? calculateEnterpriseRouting({
+      premium,
+      economical,
+      inputMillions: defaultInputMillions,
+      outputMillions: defaultOutputMillions,
+    })
+  : null;
+
+const isCompare = variant === 'compare';
 ---
 
 {
-  canCalculate && initial && defaultPremium && defaultEconomical ? (
+  hasValidPricing && initial ? (
     <section
       class="enterprise-routing-calculator overflow-hidden rounded-2xl border border-neutral-800 bg-neutral-950 shadow-xl shadow-black/40"
       data-calculator-id={calculatorId}
-      data-models={JSON.stringify(pricedModels)}
+      data-premium={JSON.stringify(premium)}
+      data-economical={JSON.stringify(economical)}
       data-routine-share={ROUTINE_TRAFFIC_SHARE}
       data-premium-share={PREMIUM_TRAFFIC_SHARE}
     >
       <div class="border-b border-neutral-800 bg-gradient-to-r from-neutral-950 via-neutral-950 to-cyan-950/20 px-6 py-5">
-        <p class="text-xs font-medium uppercase tracking-wider text-cyan-400">Enterprise cost planning</p>
-        <h2 class="mt-1 text-xl font-semibold text-white">Model routing savings calculator</h2>
+        {
+          !isCompare && (
+            <p class="text-xs font-medium uppercase tracking-wider text-cyan-400">Enterprise cost planning</p>
+          )
+        }
+        <h2 class={`${isCompare ? '' : 'mt-1 '}text-lg font-semibold text-white`}>
+          Model routing savings
+        </h2>
         <p class="mt-2 max-w-3xl text-sm text-neutral-400">
-          Compare sending every request to a premium model versus routing{' '}
-          <span class="font-medium text-neutral-200">{ROUTINE_TRAFFIC_SHARE * 100}%</span> of routine traffic to a
-          low-cost open-weight model and keeping{' '}
-          <span class="font-medium text-neutral-200">{PREMIUM_TRAFFIC_SHARE * 100}%</span> on premium for hard tasks.
+          {
+            isCompare
+              ? `Uses this page's verified rates. ${premium.title} is the premium route (higher combined per-1M cost); ${economical.title} handles routine traffic.`
+              : `Compare sending every request to ${premium.title} versus routing ${ROUTINE_TRAFFIC_SHARE * 100}% of routine traffic to ${economical.title} and keeping ${PREMIUM_TRAFFIC_SHARE * 100}% on premium for hard tasks.`
+          }
         </p>
       </div>
 
       <div class="px-6 py-6">
-        <div class="grid gap-3 lg:grid-cols-2">
-          <label class="block text-xs font-medium uppercase tracking-wide text-neutral-500" for={`${calculatorId}-premium`}>
-            Premium model (100% baseline)
-            <select
-              id={`${calculatorId}-premium`}
-              class="mt-1.5 w-full rounded-lg border border-neutral-800 bg-black px-3 py-2.5 text-sm font-medium text-white outline-none focus:border-cyan-400"
-            >
-              {pricedModels.map((model) => (
-                <option value={model.slug} selected={model.slug === defaultPremium.slug}>
-                  {model.title}
-                </option>
-              ))}
-            </select>
-          </label>
-
-          <label class="block text-xs font-medium uppercase tracking-wide text-neutral-500" for={`${calculatorId}-economical`}>
-            Economical model (routine traffic)
-            <select
-              id={`${calculatorId}-economical`}
-              class="mt-1.5 w-full rounded-lg border border-neutral-800 bg-black px-3 py-2.5 text-sm font-medium text-white outline-none focus:border-cyan-400"
-            >
-              {pricedModels.map((model) => (
-                <option value={model.slug} selected={model.slug === defaultEconomical.slug}>
-                  {model.title}
-                </option>
-              ))}
-            </select>
-          </label>
+        <div class="grid gap-3 sm:grid-cols-2">
+          <div class="rounded-lg border border-neutral-800 bg-black/40 px-4 py-3">
+            <p class="text-xs font-medium uppercase tracking-wide text-neutral-500">Premium model</p>
+            <p class="enterprise-premium-label mt-1 text-sm font-semibold text-white">{premium.title}</p>
+            <p class="mt-1 text-xs text-neutral-500">
+              {usd(premium.costInput1m)} in · {usd(premium.costOutput1m)} out / 1M
+            </p>
+          </div>
+          <div class="rounded-lg border border-neutral-800 bg-black/40 px-4 py-3">
+            <p class="text-xs font-medium uppercase tracking-wide text-neutral-500">Economical model</p>
+            <p class="enterprise-economical-label mt-1 text-sm font-semibold text-white">{economical.title}</p>
+            <p class="mt-1 text-xs text-neutral-500">
+              {usd(economical.costInput1m)} in · {usd(economical.costOutput1m)} out / 1M
+            </p>
+          </div>
         </div>
 
         <div class="mt-5 grid gap-3 sm:grid-cols-2">
@@ -146,27 +135,27 @@ const initial =
         <div class="mt-6 grid gap-4 lg:grid-cols-3">
           <div class="rounded-xl border border-rose-500/20 bg-rose-500/5 p-5">
             <p class="text-xs font-medium uppercase tracking-wide text-rose-300">All premium</p>
-            <p class="enterprise-premium-label mt-2 text-sm font-medium text-white">{defaultPremium.title}</p>
+            <p class="mt-2 text-sm font-medium text-white">{premium.title}</p>
             <p class="enterprise-premium-only mt-4 text-3xl font-bold tabular-nums text-white">
               {usd(initial.premiumOnly)}
             </p>
             <p class="mt-2 text-xs text-neutral-500">100% of input and output on the premium route</p>
           </div>
 
-          <div class="rounded-xl border border-emerald-500/30 bg-emerald-500/5 p-5 lg:col-span-1">
+          <div class="rounded-xl border border-emerald-500/30 bg-emerald-500/5 p-5">
             <p class="text-xs font-medium uppercase tracking-wide text-emerald-300">Routed stack</p>
             <p class="mt-2 text-sm text-neutral-300">
               <span class="enterprise-routine-share font-medium text-white">{ROUTINE_TRAFFIC_SHARE * 100}%</span>
-              {' '}→ <span class="enterprise-economical-label text-emerald-200">{defaultEconomical.title}</span>
+              {' '}→ <span class="enterprise-economical-route-label text-emerald-200">{economical.title}</span>
             </p>
             <p class="mt-1 text-sm text-neutral-300">
               <span class="enterprise-premium-share font-medium text-white">{PREMIUM_TRAFFIC_SHARE * 100}%</span>
-              {' '}→ <span class="enterprise-premium-route-label text-cyan-200">{defaultPremium.title}</span>
+              {' '}→ <span class="enterprise-premium-route-label text-cyan-200">{premium.title}</span>
             </p>
             <p class="enterprise-routed-total mt-4 text-3xl font-bold tabular-nums text-white">
               {usd(initial.routedTotal)}
             </p>
-            <dl class="enterprise-routed-breakdown mt-3 space-y-1 text-xs text-neutral-400">
+            <dl class="mt-3 space-y-1 text-xs text-neutral-400">
               <div class="flex justify-between gap-3">
                 <dt>Routine slice</dt>
                 <dd class="enterprise-routine-cost tabular-nums text-neutral-300">{usd(initial.routineCost)}</dd>
@@ -188,20 +177,14 @@ const initial =
             <p class="enterprise-savings-percent mt-2 text-lg font-semibold tabular-nums text-cyan-300">
               {formatPercent(initial.savingsPercent)} lower
             </p>
-            <p class="enterprise-savings-note mt-3 text-xs leading-relaxed text-neutral-500">
-              Illustration only. Uses verified per-1M rates from this directory; real routing needs quality gates and
-              monitoring.
+            <p class="mt-3 text-xs leading-relaxed text-neutral-500">
+              Illustration using verified per-1M rates on this page. Production routing needs quality gates and monitoring.
             </p>
           </div>
         </div>
       </div>
     </section>
-  ) : (
-    <section class="rounded-2xl border border-neutral-800 bg-neutral-950 p-6">
-      <h2 class="text-lg font-semibold text-white">Model routing savings calculator</h2>
-      <p class="mt-2 text-sm text-neutral-500">Needs pricing on at least two live models.</p>
-    </section>
-  )
+  ) : null
 }
 
 <script>
@@ -266,21 +249,17 @@ const initial =
   }
 
   function initEnterpriseCalculator(root: HTMLElement) {
-    const models = JSON.parse(root.dataset.models ?? '[]') as RoutingModel[];
-    const modelsBySlug = new Map(models.map((model) => [model.slug, model]));
+    const premium = JSON.parse(root.dataset.premium ?? 'null') as RoutingModel | null;
+    const economical = JSON.parse(root.dataset.economical ?? 'null') as RoutingModel | null;
+    if (!premium || !economical) return;
+
     const routineShare = Number(root.dataset.routineShare ?? '0.8');
     const premiumShare = Number(root.dataset.premiumShare ?? '0.2');
     const id = root.dataset.calculatorId ?? '';
 
-    const premiumSelect = root.querySelector<HTMLSelectElement>(`#${id}-premium`);
-    const economicalSelect = root.querySelector<HTMLSelectElement>(`#${id}-economical`);
     const inputEl = root.querySelector<HTMLInputElement>(`#${id}-input-millions`);
     const outputEl = root.querySelector<HTMLInputElement>(`#${id}-output-millions`);
-
     const premiumOnlyEl = root.querySelector('.enterprise-premium-only');
-    const premiumLabelEl = root.querySelector('.enterprise-premium-label');
-    const economicalLabelEl = root.querySelector('.enterprise-economical-label');
-    const premiumRouteLabelEl = root.querySelector('.enterprise-premium-route-label');
     const routedTotalEl = root.querySelector('.enterprise-routed-total');
     const routineCostEl = root.querySelector('.enterprise-routine-cost');
     const premiumSliceCostEl = root.querySelector('.enterprise-premium-slice-cost');
@@ -290,14 +269,9 @@ const initial =
     const premiumShareEl = root.querySelector('.enterprise-premium-share');
 
     if (
-      !premiumSelect ||
-      !economicalSelect ||
       !inputEl ||
       !outputEl ||
       !premiumOnlyEl ||
-      !premiumLabelEl ||
-      !economicalLabelEl ||
-      !premiumRouteLabelEl ||
       !routedTotalEl ||
       !routineCostEl ||
       !premiumSliceCostEl ||
@@ -318,23 +292,14 @@ const initial =
     };
 
     const update = () => {
-      const premium = modelsBySlug.get(premiumSelect.value);
-      const economical = modelsBySlug.get(economicalSelect.value);
-      if (!premium || !economical) return;
-
-      const inputMillions = parseMillions(inputEl.value);
-      const outputMillions = parseMillions(outputEl.value);
       const result = calculateEnterpriseRouting(
         premium,
         economical,
-        inputMillions,
-        outputMillions,
+        parseMillions(inputEl.value),
+        parseMillions(outputEl.value),
         routineShare,
       );
 
-      premiumLabelEl.textContent = premium.title;
-      economicalLabelEl.textContent = economical.title;
-      premiumRouteLabelEl.textContent = premium.title;
       premiumOnlyEl.textContent = formatUsd(result.premiumOnly);
       routedTotalEl.textContent = formatUsd(result.routedTotal);
       routineCostEl.textContent = formatUsd(result.routineCost);
@@ -343,8 +308,6 @@ const initial =
       savingsPercentEl.textContent = `${formatPercent(result.savingsPercent)} lower`;
     };
 
-    premiumSelect.addEventListener('change', update);
-    economicalSelect.addEventListener('change', update);
     inputEl.addEventListener('input', update);
     outputEl.addEventListener('input', update);
     update();

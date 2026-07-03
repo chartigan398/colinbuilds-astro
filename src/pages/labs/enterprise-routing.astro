@@ -18,6 +18,12 @@ const models = (await getCollection('models'))
     };
   })
   .filter((entry): entry is NonNullable<typeof entry> => entry != null);
+
+const modelA = models.find((model) => model.slug === 'gpt-4o') ?? models[0];
+const modelB =
+  models.find((model) => model.slug === 'deepseek-v4-flash' && model.slug !== modelA?.slug) ??
+  models.find((model) => model.slug !== modelA?.slug) ??
+  models[1];
 ---
 
 <BaseLayout
@@ -38,26 +44,31 @@ const models = (await getCollection('models'))
       Cut AI API spend with model routing
     </h1>
     <p class="mt-4 max-w-3xl text-lg text-neutral-400">
-      Enterprise teams often overpay by sending every request to a frontier model. This calculator shows what happens
-      when you route routine work to a verified low-cost model and keep premium capacity for the hardest 20%.
+      Sample pair preview. On comparison pages, this component uses the two models on that page automatically.
     </p>
 
-    <EnterpriseRoutingCalculator models={models} />
+    {
+      modelA && modelB ? (
+        <div class="mt-10">
+          <EnterpriseRoutingCalculator modelA={modelA} modelB={modelB} />
+        </div>
+      ) : (
+        <p class="mt-10 text-sm text-neutral-500">Needs two priced live models.</p>
+      )
+    }
 
     <div class="mt-10 rounded-2xl border border-neutral-800 bg-neutral-950 p-6 text-sm text-neutral-400">
       <h2 class="text-base font-semibold text-white">How the math works</h2>
       <ul class="mt-3 list-disc space-y-2 pl-5">
         <li>
-          <span class="text-neutral-300">All premium</span> = your full monthly input and output volume priced entirely
-          on the premium model's verified per-1M rates.
+          <span class="text-neutral-300">Premium</span> = the pricier model on the pair (higher combined input +
+          output per-1M rate).
         </li>
         <li>
-          <span class="text-neutral-300">Routed stack</span> = 80% of input and output on the economical model + 20% on
-          the premium model.
+          <span class="text-neutral-300">All premium</span> = full monthly volume on the premium route.
         </li>
         <li>
-          <span class="text-neutral-300">Savings</span> = all-premium bill minus routed bill (same token volumes, same
-          published rates).
+          <span class="text-neutral-300">Routed stack</span> = 80% on economical + 20% on premium.
         </li>
       </ul>
     </div>
