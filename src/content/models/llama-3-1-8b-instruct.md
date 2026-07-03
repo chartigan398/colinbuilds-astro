@@ -28,13 +28,13 @@ Llama 3.1 8B Instruct is Meta's small, practical Llama 3.1 chat model: an open-w
 
 This is the 8B instruction-tuned member of the Llama 3.1 family. For builders, it is useful because it sits in the sweet spot between capability, cost control, and deployment flexibility. It will not beat frontier closed models on hard reasoning, but it is often the kind of model people can actually run, fine-tune, host, or compare across multiple providers.
 
-The important beginner lesson is that Llama 3.1 8B Instruct is an open-weight model, not a single official hosted API product with one Meta price. A builder may see many hosted prices for this model across providers, but those are provider-labelled prices and must not be copied into this page as Meta official pricing.
+The important beginner lesson is that Llama 3.1 8B Instruct is an open-weight model, not a single official hosted API product with one Meta price. A builder may see many hosted prices for this model across providers, but those are provider-labelled prices and must not be presented as Meta official pricing.
 
 ## Pricing notes
 
-OpenRouter lists Llama 3.1 8B Instruct at $0.02 per 1M input tokens and $0.03 per 1M output tokens, checked on 2026-07-02: https://openrouter.ai/meta-llama/llama-3.1-8b-instruct/api
+OpenRouter lists Llama 3.1 8B Instruct at $0.02 per 1M input tokens and $0.03 per 1M output tokens, checked on 2026-07-02.
 
-This is provider-hosted OpenRouter pricing, not an official Meta creator price. Meta released the model weights under the Llama 3.1 Community License, so hosted API costs can vary by provider.
+The calculator on this page uses those OpenRouter rates. This is provider-hosted pricing, not an official Meta creator price. Meta released the model weights under the Llama 3.1 Community License, so hosted API costs can vary by provider.
 
 ## Benchmarks and specs
 
@@ -59,4 +59,5 @@ Meta's Llama 3.1 model card reports these values for the instruction-tuned 8B mo
 
 - https://raw.githubusercontent.com/meta-llama/llama-models/main/models/llama3_1/MODEL_CARD.md
 - https://www.llama.com/docs/model-cards-and-prompt-formats/llama3_1/
+- [OpenRouter Llama 3.1 8B pricing](https://openrouter.ai/meta-llama/llama-3.1-8b-instruct/api)
 - https://huggingface.co/api/models/meta-llama/Llama-3.1-8B-Instruct

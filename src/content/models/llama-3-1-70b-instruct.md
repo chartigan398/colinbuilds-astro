@@ -28,13 +28,13 @@ Llama 3.1 70B Instruct is Meta's larger, stronger Llama 3.1 chat model for build
 
 This is the 70B instruction-tuned member of the Llama 3.1 family. It is the serious builder comparison point: large enough to be useful for high-quality chat, reasoning, multilingual work, coding assistance, and retrieval workflows, while still being open-weight and available across multiple hosting routes.
 
-The main thing to understand is that Llama 3.1 70B Instruct is not one single priced API product. Meta provides the model weights under the Llama 3.1 Community License. Hosted inference prices depend on the provider, region, quantization, throughput tier, and serving setup. That is why this draft stores model facts and benchmark data, but does not invent one Meta official API price.
+The main thing to understand is that Llama 3.1 70B Instruct is not one single priced API product. Meta provides the model weights under the Llama 3.1 Community License. Hosted inference prices depend on the provider, region, quantization, throughput tier, and serving setup. This page records model facts and benchmark data from Meta's model card, but does not invent one Meta official API price.
 
 ## Pricing notes
 
-OpenRouter lists Llama 3.1 70B Instruct at $0.40 per 1M input tokens and $0.40 per 1M output tokens, checked on 2026-07-02: https://openrouter.ai/meta-llama/llama-3.1-70b-instruct/api
+OpenRouter lists Llama 3.1 70B Instruct at $0.40 per 1M input tokens and $0.40 per 1M output tokens, checked on 2026-07-02.
 
-This is provider-hosted OpenRouter pricing, not an official Meta creator price. Meta released the model weights under the Llama 3.1 Community License, so hosted API costs can vary by provider.
+The calculator on this page uses those OpenRouter rates. This is provider-hosted pricing, not an official Meta creator price. Meta released the model weights under the Llama 3.1 Community License, so hosted API costs can vary by provider.
 
 ## Benchmarks and specs
 
@@ -59,4 +59,5 @@ Meta's Llama 3.1 model card reports these values for the instruction-tuned 70B m
 
 - https://raw.githubusercontent.com/meta-llama/llama-models/main/models/llama3_1/MODEL_CARD.md
 - https://www.llama.com/docs/model-cards-and-prompt-formats/llama3_1/
+- [OpenRouter Llama 3.1 70B pricing](https://openrouter.ai/meta-llama/llama-3.1-70b-instruct/api)
 - https://huggingface.co/api/models/meta-llama/Llama-3.1-70B-Instruct
