@@ -24,7 +24,7 @@ The same model card lists a Mixture-of-Experts architecture with 1T total parame
 
 This page uses Alibaba Cloud Model Studio hosted pricing, not Moonshot direct API pricing. Alibaba lists `kimi-k2.7-code` in Model Studio's third-party model catalogue, and the billing page lists token prices by region/deployment scope.
 
-For the Singapore International service, Alibaba lists `kimi-k2.7-code` at $0.95 per 1M input tokens and $4.00 per 1M output tokens. The calculator on this page uses those International rates so it stays consistent with the other Alibaba Model Studio priced entries in the directory.
+For the International (Singapore) service, Alibaba lists `kimi-k2.7-code` at $0.95 per 1M input tokens and $4.00 per 1M output tokens. The calculator on this page uses those International rates.
 
 Alibaba also lists lower Global rates in some regions, including $0.894 input and $3.713 output per 1M tokens. Those are useful context, but they are not the headline calculator rate on this page.
 
@@ -32,7 +32,7 @@ Alibaba also lists lower Global rates in some regions, including $0.894 input an
 
 The Hugging Face card for `moonshotai/Kimi-K2.7-Code` lists 1T total parameters, 32B activated parameters, 61 layers, 384 experts, 8 selected experts per token, and a 256K context length. It also says K2.7 Code supports image and video input.
 
-The model card includes benchmark comparisons for coding and agentic tasks. This page keeps benchmark wording general until exact benchmark values and settings are verified in the page data.
+The model card includes benchmark comparisons for coding and agentic tasks. This page does not list specific benchmark scores until they are tied to a named public source and test setup.
 
 ## Best fit
 

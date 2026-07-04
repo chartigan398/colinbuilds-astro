@@ -37,7 +37,7 @@ The same Qwen3-Coder announcement frames the model around agentic coding and rep
 
 ## Best fit
 
-Qwen3-Coder-480B-A35B-Instruct is best for coding assistant cost comparisons, long-context coding-agent experiments, tool-use workflows, and Qwen vs DeepSeek vs Kimi vs Claude/GPT reference pages.
+Qwen3-Coder-480B-A35B-Instruct is best for coding assistant cost comparisons, long-context coding-agent experiments, tool-use workflows, and Qwen vs DeepSeek vs Kimi vs Claude/GPT cost comparisons.
 
 The practical warning is that the headline tier may not match a long repo-scale run. Bigger context windows move into higher Alibaba pricing tiers.
 
