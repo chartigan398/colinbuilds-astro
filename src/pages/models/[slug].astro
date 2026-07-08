@@ -305,7 +305,7 @@ const cacBadgeClass = `inline-flex items-center rounded-full border px-4 py-2 te
                 as of{' '}
                 <span class="font-medium text-neutral-300">{formatPricingDate(pricing_source_date!)}</span>.
               </p>
-            ) : !showProviderComparison && pricing_note ? (
+            ) : !showProviderComparison && hasPricing && pricing_note ? (
               <p class="mt-4 text-xs leading-relaxed text-neutral-500">{pricing_note}</p>
             ) : null
           }
@@ -339,13 +339,17 @@ const cacBadgeClass = `inline-flex items-center rounded-full border px-4 py-2 te
         }
       </div>
 
-      <ModelRoutingCalculator
-        modelTitle={title}
-        modelSlug={model.slug}
-        costInput1m={effectivePricing?.costInput1m}
-        costOutput1m={effectivePricing?.costOutput1m}
-        comparisonModels={comparisonModels}
-      />
+      {
+        hasPricing && (
+          <ModelRoutingCalculator
+            modelTitle={title}
+            modelSlug={model.slug}
+            costInput1m={effectivePricing?.costInput1m}
+            costOutput1m={effectivePricing?.costOutput1m}
+            comparisonModels={comparisonModels}
+          />
+        )
+      }
 
       {
         hasBenchmarks && (
