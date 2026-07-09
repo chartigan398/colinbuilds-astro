@@ -83,6 +83,30 @@ In LETTER section 2, state which path each model used: **official** or **provide
 
 ---
 
+## Frontmatter — `entry_type`
+
+Allowed values only (Astro schema):
+
+- `model` — closed/API and coding API pages (Claude, Codestral, Grok, etc.)
+- `open-weight` — open-weight / provider-hosted open models
+- `reference` — pricing reference pages
+- `router-hosted` — router/aggregator-hosted offers when that is the page type
+- `local-self-hosted` — local/self-hosted profiles
+
+Do **not** invent values like `closed-api` or `coding-api` — the build will fail.
+
+---
+
+## Three fact-checkers (Colin order 2026-07-09)
+
+1. **Hermes** — live research + draft
+2. **Kratos** — independent source verification
+3. **Cursor** — re-fetches live primary sources before preview/push; does not rubber-stamp Kratos
+
+If any checker disagrees with a live official page, keep `draft: true` and report the conflict in LETTER.
+
+---
+
 ## Sources
 
 - Link official pricing/docs first.
@@ -113,6 +137,7 @@ In LETTER section 2, state which path each model used: **official** or **provide
 - [ ] Pricing notes match frontmatter / calculator intent
 - [ ] Context window honest
 - [ ] No "Unknown" in body
+- [ ] `entry_type` is a schema-allowed value
 - [ ] Kratos PASS or PASS WITH CAUTIONS
 - [ ] Files saved in `posts/models/`
 
