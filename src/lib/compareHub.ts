@@ -70,7 +70,13 @@ export function buildCompareHubRows(
 ): CompareHubRow[] {
   return entries
     .filter((entry) => entry.data.draft !== true && hasVerifiedPricing(entry.data))
-    .sort((a, b) => a.data.title.localeCompare(b.data.title))
+    .sort((a, b) => {
+      // Newest first so fresh models land above the fold on the hub.
+      const dateA = a.data.pricing_source_date ?? '';
+      const dateB = b.data.pricing_source_date ?? '';
+      if (dateA !== dateB) return dateB.localeCompare(dateA);
+      return a.data.title.localeCompare(b.data.title);
+    })
     .map((entry) => {
       const offers = getPricingOffers(entry.data);
       const effective = getEffectivePricing(entry.data);
