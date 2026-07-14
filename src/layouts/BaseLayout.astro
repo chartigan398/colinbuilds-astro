@@ -36,9 +36,12 @@ const canonicalURL = new URL(Astro.url.pathname, Astro.site);
         <a href="/" class="text-sm font-semibold tracking-wide">
           <Brand />
         </a>
-        <span class="rounded-full border border-neutral-700 px-3 py-1 text-xs text-neutral-400">
-          AI Model Directory
-        </span>
+        <nav class="flex items-center gap-4 text-xs">
+          <a href="/compare/" class="text-neutral-400 transition hover:text-cyan-300">Compare</a>
+          <span class="rounded-full border border-neutral-700 px-3 py-1 text-neutral-400">
+            AI Model Directory
+          </span>
+        </nav>
       </div>
     </header>
     <main>

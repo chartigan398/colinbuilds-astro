@@ -11,7 +11,7 @@ export const GET: APIRoute = async () => {
   );
   const { allComparisons } = await getLiveComparisonPairs();
 
-  const paths = ['/', ...models.map((model) => `/models/${model.slug}/`), ...allComparisons.map((c) => c.href)];
+  const paths = ['/', '/compare/', ...models.map((model) => `/models/${model.slug}/`), ...allComparisons.map((c) => c.href)];
 
   const urlEntries = paths
     .map(

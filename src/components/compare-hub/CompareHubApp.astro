@@ -1,0 +1,596 @@
+---
+import type { ComparisonLink } from '../../lib/compare';
+import type { CompareHubRow } from '../../lib/compareHub';
+
+interface Props {
+  rows: CompareHubRow[];
+  comparisons: ComparisonLink[];
+}
+
+const { rows, comparisons } = Astro.props;
+---
+
+<div
+  id="compare-hub"
+  class="compare-hub"
+  data-rows={JSON.stringify(rows)}
+  data-comparisons={JSON.stringify(comparisons)}
+>
+  <div class="compare-hub-toolbar sticky top-0 z-20 -mx-6 border-b border-neutral-800 bg-black/95 px-6 py-3 backdrop-blur">
+    <div class="flex flex-wrap items-center gap-3">
+      <label class="min-w-[12rem] flex-1">
+        <span class="sr-only">Search models</span>
+        <input
+          id="hub-search"
+          type="search"
+          placeholder="Filter models…"
+          class="w-full rounded-lg border border-neutral-800 bg-neutral-950 px-3 py-2 text-sm text-white outline-none placeholder:text-neutral-600 focus:border-cyan-500/50"
+          autocomplete="off"
+        />
+      </label>
+
+      <button
+        id="hub-open-matchups"
+        type="button"
+        class="rounded-lg border border-neutral-700 bg-neutral-950 px-3 py-2 text-xs font-medium text-neutral-200 hover:border-cyan-500/40 hover:text-cyan-300"
+      >
+        Head-to-heads
+      </button>
+
+      <span id="hub-count" class="text-xs text-neutral-500">{rows.length}</span>
+    </div>
+  </div>
+
+  <div class="compare-hub-table-wrap mt-4 overflow-hidden rounded-xl border border-neutral-800">
+    <div class="max-h-[min(72vh,40rem)] overflow-auto">
+      <table id="hub-table" class="hub-table w-full text-left">
+        <thead class="sticky top-0 z-10 border-b border-neutral-800 bg-neutral-950 text-xs uppercase tracking-wider text-neutral-500">
+          <tr>
+            <th class="w-10 px-2 py-2 font-medium" scope="col">
+              <span class="sr-only">Select</span>
+            </th>
+            <th class="px-3 py-2 font-medium" scope="col">Model</th>
+            <th class="px-3 py-2 font-medium tabular-nums" scope="col">Input / 1M</th>
+            <th class="px-3 py-2 font-medium tabular-nums" scope="col">Output / 1M</th>
+            <th class="px-3 py-2 font-medium tabular-nums" scope="col">Context</th>
+            <th class="px-3 py-2 font-medium" scope="col">Type</th>
+            <th class="px-3 py-2 font-medium" scope="col">Trust</th>
+          </tr>
+        </thead>
+        <tbody id="hub-tbody"></tbody>
+      </table>
+    </div>
+  </div>
+
+  <p id="hub-empty" class="mt-4 hidden text-sm text-neutral-500">No models match that filter.</p>
+
+  <div
+    id="hub-cta"
+    class="fixed bottom-0 left-0 right-0 z-30 hidden border-t border-cyan-500/30 bg-neutral-950/95 px-6 py-3 backdrop-blur"
+  >
+    <div class="mx-auto flex max-w-6xl flex-wrap items-center justify-between gap-3">
+      <p id="hub-cta-label" class="text-sm text-neutral-300"></p>
+      <div class="flex flex-wrap gap-2">
+        <button
+          id="hub-cta-drawer"
+          type="button"
+          class="rounded-lg border border-neutral-700 px-4 py-2 text-sm text-white hover:border-neutral-500"
+        >
+          Open details
+        </button>
+        <button
+          id="hub-cta-matchups"
+          type="button"
+          class="rounded-lg border border-cyan-500/40 bg-cyan-500/15 px-4 py-2 text-sm font-medium text-cyan-300 hover:bg-cyan-500/25"
+        >
+          Head-to-heads
+        </button>
+        <a
+          id="hub-cta-model"
+          href="#"
+          class="rounded-lg border border-neutral-700 px-4 py-2 text-sm text-neutral-300 hover:border-neutral-500 hover:text-white"
+        >
+          Model page →
+        </a>
+      </div>
+    </div>
+  </div>
+
+  <div id="hub-backdrop" class="fixed inset-0 z-40 hidden bg-black/60" aria-hidden="true"></div>
+
+  <aside
+    id="hub-drawer"
+    class="fixed right-0 top-0 z-50 flex h-full w-full max-w-md translate-x-full flex-col border-l border-neutral-800 bg-neutral-950 shadow-2xl transition-transform duration-200"
+    aria-hidden="true"
+  >
+    <div class="flex items-center justify-between border-b border-neutral-800 px-5 py-4">
+      <h2 id="hub-drawer-title" class="text-lg font-semibold text-white"></h2>
+      <button
+        id="hub-drawer-close"
+        type="button"
+        class="rounded-lg border border-neutral-700 px-2 py-1 text-sm text-neutral-400 hover:text-white"
+        aria-label="Close drawer"
+      >
+        ✕
+      </button>
+    </div>
+    <div id="hub-drawer-body" class="flex-1 overflow-y-auto px-5 py-4 text-sm"></div>
+    <div class="space-y-2 border-t border-neutral-800 px-5 py-4">
+      <button
+        id="hub-drawer-matchups"
+        type="button"
+        class="block w-full rounded-lg border border-neutral-700 py-2.5 text-center text-sm font-medium text-neutral-200 hover:border-cyan-500/40 hover:text-cyan-300"
+      >
+        Head-to-heads
+      </button>
+      <a
+        id="hub-drawer-profile"
+        href="#"
+        class="block w-full rounded-lg border border-cyan-500/40 bg-cyan-500/10 py-2.5 text-center text-sm font-medium text-cyan-300 hover:bg-cyan-500/20"
+      >
+        Model page
+      </a>
+    </div>
+  </aside>
+
+  <div
+    id="hub-matchup-modal"
+    class="fixed inset-0 z-[60] hidden items-center justify-center p-4"
+    aria-hidden="true"
+    role="dialog"
+    aria-modal="true"
+    aria-labelledby="hub-matchup-title"
+  >
+    <div class="flex max-h-[min(85vh,40rem)] w-full max-w-xl flex-col overflow-hidden rounded-2xl border border-neutral-700 bg-neutral-950 shadow-2xl">
+      <div class="flex items-center justify-between gap-3 border-b border-neutral-800 px-5 py-4">
+        <h2 id="hub-matchup-title" class="text-lg font-semibold text-white">Head-to-heads</h2>
+        <button
+          id="hub-matchup-close"
+          type="button"
+          class="rounded-lg border border-neutral-700 px-2 py-1 text-sm text-neutral-400 hover:text-white"
+          aria-label="Close head-to-heads"
+        >
+          ✕
+        </button>
+      </div>
+
+      <div class="border-b border-neutral-800 px-5 py-3">
+        <label class="block">
+          <span class="sr-only">Search head-to-heads</span>
+          <input
+            id="hub-matchup-search"
+            type="search"
+            placeholder="Search comparisons…"
+            class="w-full rounded-lg border border-neutral-800 bg-black px-3 py-2 text-sm text-white outline-none placeholder:text-neutral-600 focus:border-cyan-500/50"
+            autocomplete="off"
+          />
+        </label>
+        <p id="hub-matchup-count" class="mt-2 text-xs text-neutral-500"></p>
+      </div>
+
+      <ul id="hub-matchup-list" class="flex-1 space-y-1 overflow-y-auto px-3 py-3"></ul>
+      <p id="hub-matchup-empty" class="hidden px-5 py-8 text-center text-sm text-neutral-500">
+        No comparisons match that search.
+      </p>
+    </div>
+  </div>
+</div>
+
+<script>
+  import type { ComparisonLink } from '../../lib/compare';
+  import type { CompareHubRow } from '../../lib/compareHub';
+
+  const usd = (value: number) =>
+    new Intl.NumberFormat('en-US', {
+      style: 'currency',
+      currency: 'USD',
+      minimumFractionDigits: 2,
+      maximumFractionDigits: value < 1 ? 3 : 2,
+    }).format(value);
+
+  const formatContext = (value: number | null) => {
+    if (value == null) return '—';
+    if (value >= 1_000_000) return `${(value / 1_000_000).toFixed(value % 1_000_000 === 0 ? 0 : 1)}M`;
+    return new Intl.NumberFormat('en-US').format(value);
+  };
+
+  const trustIcon = (level: CompareHubRow['trustLevel']) => {
+    if (level === 'high') return '✓';
+    if (level === 'medium') return '◐';
+    return '◇';
+  };
+
+  const root = document.getElementById('compare-hub');
+  if (!root) throw new Error('compare-hub root missing');
+
+  const rows: CompareHubRow[] = JSON.parse(root.dataset.rows ?? '[]');
+  const allComparisons: ComparisonLink[] = JSON.parse(root.dataset.comparisons ?? '[]');
+  const tbody = document.getElementById('hub-tbody')!;
+  const search = document.getElementById('hub-search') as HTMLInputElement;
+  const countEl = document.getElementById('hub-count')!;
+  const emptyEl = document.getElementById('hub-empty')!;
+  const ctaBar = document.getElementById('hub-cta')!;
+  const ctaLabel = document.getElementById('hub-cta-label')!;
+  const ctaModel = document.getElementById('hub-cta-model') as HTMLAnchorElement;
+  const ctaDrawer = document.getElementById('hub-cta-drawer')!;
+  const ctaMatchups = document.getElementById('hub-cta-matchups')!;
+  const openMatchupsBtn = document.getElementById('hub-open-matchups')!;
+  const drawer = document.getElementById('hub-drawer')!;
+  const backdrop = document.getElementById('hub-backdrop')!;
+  const drawerTitle = document.getElementById('hub-drawer-title')!;
+  const drawerBody = document.getElementById('hub-drawer-body')!;
+  const drawerProfile = document.getElementById('hub-drawer-profile') as HTMLAnchorElement;
+  const drawerMatchups = document.getElementById('hub-drawer-matchups')!;
+  const drawerClose = document.getElementById('hub-drawer-close')!;
+  const matchupModal = document.getElementById('hub-matchup-modal')!;
+  const matchupTitle = document.getElementById('hub-matchup-title')!;
+  const matchupSearch = document.getElementById('hub-matchup-search') as HTMLInputElement;
+  const matchupCount = document.getElementById('hub-matchup-count')!;
+  const matchupList = document.getElementById('hub-matchup-list')!;
+  const matchupEmpty = document.getElementById('hub-matchup-empty')!;
+  const matchupClose = document.getElementById('hub-matchup-close')!;
+
+  let selected = new Set<string>();
+  let activeSlug: string | null = null;
+  let filterQuery = '';
+  let matchupPool: ComparisonLink[] = allComparisons;
+  let matchupFilter = '';
+  let matchupScope: 'all' | 'model' | 'pair' = 'all';
+
+  const rowBySlug = new Map(rows.map((r) => [r.slug, r]));
+
+  function comparePath(a: string, b: string) {
+    const [slugA, slugB] = [a, b].sort();
+    return `/compare/${slugA}-vs-${slugB}/`;
+  }
+
+  const typeLabel = (entryType: string) => {
+    if (entryType === 'open-weight') return 'Open-weight';
+    if (entryType === 'reference') return 'Reference';
+    if (entryType === 'router-hosted') return 'Router';
+    if (entryType === 'local-self-hosted') return 'Self-hosted';
+    return 'Model';
+  };
+
+  function filteredRows() {
+    const q = filterQuery.trim().toLowerCase();
+    if (!q) return rows;
+    return rows.filter(
+      (r) =>
+        r.title.toLowerCase().includes(q) ||
+        r.slug.includes(q) ||
+        r.entryBadge.toLowerCase().includes(q),
+    );
+  }
+
+  function renderTable() {
+    const visible = filteredRows();
+    tbody.innerHTML = '';
+
+    for (const row of visible) {
+      const tr = document.createElement('tr');
+      tr.dataset.slug = row.slug;
+      tr.className =
+        'hub-row cursor-pointer border-t border-neutral-800/80 text-neutral-300 transition hover:bg-cyan-500/5' +
+        (selected.has(row.slug) ? ' bg-cyan-500/10' : '') +
+        (activeSlug === row.slug ? ' ring-1 ring-inset ring-cyan-500/40' : '');
+
+      const priceIn = row.costInput1m != null ? usd(row.costInput1m) : '—';
+      const priceOut = row.costOutput1m != null ? usd(row.costOutput1m) : '—';
+
+      tr.innerHTML = `
+        <td class="px-2 py-2">
+          <input type="checkbox" class="hub-check rounded border-neutral-700 bg-black text-cyan-500" data-slug="${row.slug}" ${selected.has(row.slug) ? 'checked' : ''} aria-label="Select ${row.title}" />
+        </td>
+        <td class="px-3 py-2 font-medium text-white">
+          <span class="text-sm">${row.title}</span>
+        </td>
+        <td class="hub-price px-3 py-2 tabular-nums text-cyan-300/90">${priceIn}</td>
+        <td class="hub-price px-3 py-2 tabular-nums text-blue-300/90">${priceOut}</td>
+        <td class="px-3 py-2 tabular-nums text-sm">${formatContext(row.contextWindow)}</td>
+        <td class="px-3 py-2">
+          <span class="rounded border border-neutral-700 px-1.5 py-0.5 text-[10px] uppercase tracking-wide text-neutral-400">${typeLabel(row.entryType)}</span>
+        </td>
+        <td class="px-3 py-2">
+          <span class="inline-flex items-center gap-1.5 text-xs ${row.trustLevel === 'high' ? 'text-emerald-400' : row.trustLevel === 'medium' ? 'text-amber-400' : 'text-neutral-500'}">
+            <span aria-hidden="true">${trustIcon(row.trustLevel)}</span>
+            ${row.trustLabel}
+          </span>
+        </td>
+      `;
+
+      tbody.appendChild(tr);
+    }
+
+    countEl.textContent =
+      visible.length === rows.length
+        ? `${rows.length} models`
+        : `${visible.length} of ${rows.length}`;
+
+    emptyEl.classList.toggle('hidden', visible.length > 0);
+  }
+
+  function scoreBar(label: string, value: number | null, max = 100) {
+    if (value == null) return '';
+    const pct = Math.min(100, Math.round((value / max) * 100));
+    return `
+      <div class="mb-3">
+        <div class="mb-1 flex justify-between text-xs">
+          <span class="text-neutral-400">${label}</span>
+          <span class="tabular-nums text-white">${value}${max === 100 ? '%' : ''}</span>
+        </div>
+        <div class="h-1.5 overflow-hidden rounded-full bg-neutral-800">
+          <div class="h-full rounded-full bg-cyan-500/70" style="width:${pct}%"></div>
+        </div>
+      </div>
+    `;
+  }
+
+  function openDrawer(slug: string) {
+    const row = rowBySlug.get(slug);
+    if (!row) return;
+
+    activeSlug = slug;
+    closeMatchups();
+    drawerTitle.textContent = row.title;
+    drawerProfile.href = row.modelHref;
+
+    const offersHtml =
+      row.offers.length > 0
+        ? `<div class="mb-5">
+            <h3 class="mb-2 text-xs font-semibold uppercase tracking-wider text-neutral-500">Provider pricing</h3>
+            <div class="space-y-2">
+              ${row.offers
+                .map(
+                  (o) => `
+                <div class="rounded-lg border border-neutral-800 bg-black/40 p-3">
+                  <div class="flex items-center justify-between gap-2">
+                    <span class="font-medium text-white">${o.name}</span>
+                    ${o.isOfficial ? '<span class="text-[10px] uppercase text-cyan-400">Official</span>' : ''}
+                  </div>
+                  <p class="mt-1 tabular-nums text-sm text-neutral-400">${usd(o.costInput1m)} in · ${usd(o.costOutput1m)} out / 1M</p>
+                  ${o.source ? `<a href="${o.source}" target="_blank" rel="noopener noreferrer" class="mt-1 block text-xs text-cyan-400 hover:text-cyan-300">Source →</a>` : ''}
+                </div>`,
+                )
+                .join('')}
+            </div>
+          </div>`
+        : '';
+
+    const benchHtml =
+      row.mmluScore != null ||
+      row.mmluProScore != null ||
+      row.chatbotArenaScore != null ||
+      row.parametersActive != null
+        ? `<div class="mb-5">
+            <h3 class="mb-2 text-xs font-semibold uppercase tracking-wider text-neutral-500">Benchmarks</h3>
+            ${scoreBar('MMLU', row.mmluScore)}
+            ${scoreBar('MMLU-Pro', row.mmluProScore)}
+            ${scoreBar('Chatbot Arena', row.chatbotArenaScore)}
+            ${row.parametersActive != null ? `<p class="text-xs text-neutral-400">Active params: ${row.parametersActive}B</p>` : ''}
+          </div>`
+        : '';
+
+    const notes = [row.benchmarkNote, row.parametersNote, row.pricingNote].filter(Boolean);
+    const notesHtml =
+      notes.length > 0
+        ? `<div class="mb-5">
+            <h3 class="mb-2 text-xs font-semibold uppercase tracking-wider text-neutral-500">Notes</h3>
+            ${notes.map((n) => `<p class="mb-2 text-xs leading-relaxed text-neutral-400">${n}</p>`).join('')}
+          </div>`
+        : '';
+
+    const metaHtml =
+      row.pricingModelVersion || row.pricingSourceDate
+        ? `<p class="text-xs text-neutral-600">${[row.pricingModelVersion, row.pricingSourceDate ? `as of ${row.pricingSourceDate}` : ''].filter(Boolean).join(' · ')}</p>`
+        : '';
+
+    drawerBody.innerHTML = `
+      <p class="mb-4 text-xs text-neutral-500">${typeLabel(row.entryType)} · ${row.trustLabel}</p>
+      <dl class="mb-5 grid grid-cols-3 gap-2">
+        <div class="rounded-lg border border-neutral-800 p-2 text-center">
+          <dt class="text-[10px] uppercase text-neutral-600">Input</dt>
+          <dd class="mt-0.5 tabular-nums text-sm font-semibold text-cyan-300">${row.costInput1m != null ? usd(row.costInput1m) : '—'}</dd>
+        </div>
+        <div class="rounded-lg border border-neutral-800 p-2 text-center">
+          <dt class="text-[10px] uppercase text-neutral-600">Output</dt>
+          <dd class="mt-0.5 tabular-nums text-sm font-semibold text-blue-300">${row.costOutput1m != null ? usd(row.costOutput1m) : '—'}</dd>
+        </div>
+        <div class="rounded-lg border border-neutral-800 p-2 text-center">
+          <dt class="text-[10px] uppercase text-neutral-600">Context</dt>
+          <dd class="mt-0.5 tabular-nums text-sm font-semibold text-white">${formatContext(row.contextWindow)}</dd>
+        </div>
+      </dl>
+      ${offersHtml}
+      ${benchHtml}
+      ${notesHtml}
+      ${metaHtml}
+    `;
+
+    drawer.classList.remove('translate-x-full');
+    drawer.setAttribute('aria-hidden', 'false');
+    backdrop.classList.remove('hidden');
+    document.body.style.overflow = 'hidden';
+    renderTable();
+    updateCta();
+  }
+
+  function closeDrawer() {
+    drawer.classList.add('translate-x-full');
+    drawer.setAttribute('aria-hidden', 'true');
+    if (matchupModal.classList.contains('hidden')) {
+      backdrop.classList.add('hidden');
+      document.body.style.overflow = '';
+    }
+  }
+
+  function renderMatchups() {
+    const q = matchupFilter.trim().toLowerCase();
+    const visible = matchupPool.filter((c) => !q || c.label.toLowerCase().includes(q));
+
+    matchupList.innerHTML = '';
+    for (const comparison of visible) {
+      const li = document.createElement('li');
+      li.innerHTML = `
+        <a
+          href="${comparison.href}"
+          class="block rounded-lg border border-transparent px-3 py-2 text-sm text-neutral-300 transition hover:border-cyan-500/30 hover:bg-cyan-500/5 hover:text-cyan-300"
+        >
+          ${comparison.label}
+        </a>
+      `;
+      matchupList.appendChild(li);
+    }
+
+    matchupCount.textContent =
+      visible.length === matchupPool.length
+        ? `${matchupPool.length} comparisons`
+        : `${visible.length} of ${matchupPool.length}`;
+    matchupEmpty.classList.toggle('hidden', visible.length > 0);
+    matchupList.classList.toggle('hidden', visible.length === 0);
+  }
+
+  function openMatchups(scope: 'all' | 'model' | 'pair' = 'all') {
+    matchupScope = scope;
+    matchupFilter = '';
+    matchupSearch.value = '';
+
+    if (scope === 'pair' && selected.size === 2) {
+      const [a, b] = [...selected];
+      const href = comparePath(a, b);
+      const pair = allComparisons.find((c) => c.href === href);
+      matchupPool = pair
+        ? [pair]
+        : [
+            {
+              slugA: a,
+              slugB: b,
+              href,
+              label: `${rowBySlug.get(a)?.title ?? a} vs ${rowBySlug.get(b)?.title ?? b}`,
+            },
+          ];
+      matchupTitle.textContent = `${rowBySlug.get(a)?.title ?? a} vs ${rowBySlug.get(b)?.title ?? b}`;
+    } else if (scope === 'model') {
+      const slug = activeSlug ?? [...selected][0];
+      const row = slug ? rowBySlug.get(slug) : null;
+      matchupPool = row?.comparisons ?? [];
+      matchupTitle.textContent = row ? `${row.title} comparisons` : 'Comparisons';
+    } else {
+      matchupPool = allComparisons;
+      matchupTitle.textContent = 'Head-to-heads';
+    }
+
+    closeDrawer();
+    matchupModal.classList.remove('hidden');
+    matchupModal.classList.add('flex');
+    matchupModal.setAttribute('aria-hidden', 'false');
+    backdrop.classList.remove('hidden');
+    document.body.style.overflow = 'hidden';
+    renderMatchups();
+    matchupSearch.focus();
+  }
+
+  function closeMatchups() {
+    matchupModal.classList.add('hidden');
+    matchupModal.classList.remove('flex');
+    matchupModal.setAttribute('aria-hidden', 'true');
+    if (drawer.classList.contains('translate-x-full')) {
+      backdrop.classList.add('hidden');
+      document.body.style.overflow = '';
+    }
+  }
+
+  function updateCta() {
+    const n = selected.size;
+    if (n === 0 && !activeSlug) {
+      ctaBar.classList.add('hidden');
+      return;
+    }
+
+    ctaBar.classList.remove('hidden');
+
+    if (n === 0 && activeSlug) {
+      ctaLabel.textContent = rowBySlug.get(activeSlug)?.title ?? 'Model';
+    } else {
+      const names = [...selected].map((s) => rowBySlug.get(s)?.title).filter(Boolean);
+      ctaLabel.textContent =
+        n === 1 ? `${names[0]}` : n === 2 ? `${names[0]} vs ${names[1]}` : `${n} selected`;
+    }
+
+    ctaMatchups.textContent = n === 2 ? 'Compare →' : 'Head-to-heads';
+
+    const first = [...selected][0] ?? activeSlug;
+    if (first) ctaModel.href = rowBySlug.get(first)?.modelHref ?? '#';
+  }
+
+  search.addEventListener('input', () => {
+    filterQuery = search.value;
+    renderTable();
+  });
+
+  const params = new URLSearchParams(window.location.search);
+  const preset = params.get('q') ?? params.get('model') ?? '';
+  if (preset) {
+    search.value = preset.replace(/-/g, ' ');
+    filterQuery = search.value;
+  }
+
+  matchupSearch.addEventListener('input', () => {
+    matchupFilter = matchupSearch.value;
+    renderMatchups();
+  });
+
+  tbody.addEventListener('click', (e) => {
+    const target = e.target as HTMLElement;
+    if (target.classList.contains('hub-check')) {
+      e.stopPropagation();
+      const slug = (target as HTMLInputElement).dataset.slug!;
+      if ((target as HTMLInputElement).checked) selected.add(slug);
+      else selected.delete(slug);
+      updateCta();
+      renderTable();
+      return;
+    }
+
+    const tr = target.closest('tr.hub-row') as HTMLTableRowElement | null;
+    if (tr?.dataset.slug) openDrawer(tr.dataset.slug);
+  });
+
+  openMatchupsBtn.addEventListener('click', () => openMatchups('all'));
+  ctaMatchups.addEventListener('click', () => {
+    if (selected.size === 2) openMatchups('pair');
+    else if (selected.size === 1 || activeSlug) openMatchups('model');
+    else openMatchups('all');
+  });
+  drawerMatchups.addEventListener('click', () => openMatchups('model'));
+  ctaDrawer.addEventListener('click', () => {
+    const slug = [...selected][0] ?? activeSlug;
+    if (slug) openDrawer(slug);
+  });
+
+  drawerClose.addEventListener('click', closeDrawer);
+  matchupClose.addEventListener('click', closeMatchups);
+  backdrop.addEventListener('click', () => {
+    closeMatchups();
+    closeDrawer();
+  });
+
+  document.addEventListener('keydown', (e) => {
+    if (e.key !== 'Escape') return;
+    if (!matchupModal.classList.contains('hidden')) closeMatchups();
+    else closeDrawer();
+  });
+
+  renderTable();
+</script>
+
+<style>
+  .hub-price {
+    font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+    font-size: 0.8125rem;
+  }
+
+  .hub-row td {
+    vertical-align: middle;
+  }
+</style>
