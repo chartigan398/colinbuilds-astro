@@ -1,14 +1,14 @@
 ---
 title: "Gemini 2.5 Flash"
 entry_type: "model"
-entry_badge: "Official Google Gemini API pricing"
+entry_badge: "Previous-generation Gemini API model · still available"
 context_label: "Official Google context window"
 benchmark_note: "Benchmark panel intentionally not shown until exact public benchmark values are verified for Gemini 2.5 Flash."
 parameters_note: "Not publicly disclosed"
 cost_input_1m: 0.30
 cost_output_1m: 2.50
 context_window: 1000000
-pricing_source_date: "2026-07-04"
+pricing_source_date: "2026-08-25"
 pricing_model_version: "Google Gemini API gemini-2.5-flash standard paid tier; input $0.30/1M text, image, or video tokens, $1.00/1M audio input tokens, and output $2.50/1M tokens including thinking tokens."
 pricing_note: "Calculator uses official Google Gemini API standard paid-tier text/image/video rates: $0.30 input and $2.50 output per 1M tokens. Audio input, context caching, grounding, and batch pricing are separate."
 cac_status: "Not publicly verified"

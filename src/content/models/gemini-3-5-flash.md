@@ -1,15 +1,15 @@
 ---
 title: "Gemini 3.5 Flash"
 entry_type: "model"
-entry_badge: "Official Google Gemini API pricing"
+entry_badge: "Previous Flash generation · still available"
 context_label: "Official Google input token limit"
 benchmark_note: "Benchmark panel intentionally not shown until exact public benchmark values are verified for Gemini 3.5 Flash."
 parameters_note: "Not publicly disclosed"
 cost_input_1m: 1.50
 cost_output_1m: 9.00
 context_window: 1048576
-pricing_source_date: "2026-07-17"
-pricing_model_version: "Google Gemini API gemini-3.5-flash standard paid tier; input $1.50/1M tokens and output $9.00/1M tokens including thinking tokens. Batch, Flex, Priority, context caching, storage, Google Search grounding, and Google Maps grounding have separate official rates."
+pricing_source_date: "2026-08-25"
+pricing_model_version: "Google Gemini API gemini-3.5-flash standard paid tier; input $1.50/1M tokens and output $9.00/1M tokens including thinking tokens. Still available. Google's latest Flash model is gemini-3.7-flash."
 pricing_note: "Calculator uses official Google Gemini API standard paid-tier text input/output rates: $1.50 input and $9.00 output per 1M tokens. Batch, Flex, Priority, context caching, storage, Google Search grounding, and Google Maps grounding are separate."
 cac_status: "Not publicly verified"
 ---

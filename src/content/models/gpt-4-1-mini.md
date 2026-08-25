@@ -1,18 +1,19 @@
 ---
 title: "GPT-4.1 mini"
 entry_type: "model"
-entry_badge: "Current official OpenAI API pricing"
+entry_badge: "Previous-generation OpenAI API model · still available"
 context_label: "OpenAI-published context window"
 benchmark_note: "No benchmark panel added until exact benchmark values are tied to a named source and test setup"
 parameters_note: "OpenAI does not publish a parameter count for GPT-4.1 mini in the checked model page"
 cost_input_1m: 0.40
 cost_output_1m: 1.60
-pricing_source_date: "2026-07-09"
-pricing_model_version: "GPT-4.1 mini / gpt-4.1-mini; OpenAI pricing row lists standard pricing at $0.40 input, $0.10 cached input, and $1.60 output per 1M tokens"
+pricing_source_date: "2026-08-25"
+pricing_model_version: "GPT-4.1 mini / gpt-4.1-mini; OpenAI model page lists standard pricing at $0.40 input, $0.10 cached input, and $1.60 output per 1M tokens. Still available; OpenAI recommends starting with GPT-5 Mini for more complex tasks."
+pricing_note: "Calculator uses official OpenAI gpt-4.1-mini rates: $0.40 input and $1.60 output per 1M tokens. Cached input is $0.10/1M."
 context_window: 1047576
 cac_status: "Not publicly verified"
 ---
-GPT-4.1 mini is OpenAI's smaller, faster GPT-4.1-family API model for instruction-following, tool calling, and long-context text or image-input work at a lower price than GPT-4.1.
+GPT-4.1 mini is OpenAI's still-available smaller, faster GPT-4.1-family API model for instruction-following, tool calling, and long-context text or image-input work at a lower price than GPT-4.1. It is previous-generation relative to GPT-5.6 Luna.
 
 ## What this model is
 

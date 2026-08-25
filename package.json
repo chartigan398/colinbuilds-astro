@@ -8,7 +8,8 @@
   "scripts": {
     "dev": "astro dev",
     "clean": "node --input-type=module -e \"import { rmSync } from 'node:fs'; rmSync('.astro',{ recursive:true, force:true });\"",
-    "prebuild": "npm run clean",
+    "pack:nebula-x": "node scripts/pack-nebula-x.mjs",
+    "prebuild": "npm run clean && npm run pack:nebula-x",
     "build": "astro build",
     "preview": "astro preview",
     "astro": "astro"

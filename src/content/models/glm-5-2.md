@@ -1,7 +1,7 @@
 ---
 title: "GLM-5.2"
 entry_type: "open-weight"
-entry_badge: "Current official Z.ai API pricing"
+entry_badge: "Previous-generation Z.ai API model · still available"
 context_label: "Official context window"
 benchmark_note: "Benchmarks not shown until exact GLM-5.2 evaluation source is verified"
 parameters_note: "753B total parameters on Hugging Face; active-parameter count not verified in checked live sources"
@@ -9,11 +9,12 @@ cost_input_1m: 1.4
 cost_output_1m: 4.4
 context_window: 1048576
 
-pricing_source_date: "2026-06-30"
-pricing_model_version: "Current Z.ai official GLM-5.2 API pricing; cached input listed separately at $0.26/1M"
+pricing_source_date: "2026-08-25"
+pricing_model_version: "Z.ai official GLM-5.2 API pricing; input $1.40/1M, cached input $0.26/1M, output $4.40/1M. Cached-input storage listed as limited-time free. Current Z.ai flagship is GLM-5.3 at the same token rates."
+pricing_note: "Calculator uses official Z.ai GLM-5.2 rates: $1.40 input and $4.40 output per 1M tokens. Cached input is $0.26/1M."
 cac_status: "Not publicly verified"
 ---
-GLM-5.2 is Z.ai's long-context open-weight model: a China-model ecosystem entry with official Z.ai API pricing, a 1M context claim, and a public Hugging Face release.
+GLM-5.2 is Z.ai's previous flagship snapshot. It remains listed on Z.ai's pricing page at the same token rates as GLM-5.3. Z.ai now describes GLM-5.3 as the latest flagship.
 
 ## What this model is
 

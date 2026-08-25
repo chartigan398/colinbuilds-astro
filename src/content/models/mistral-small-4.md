@@ -7,8 +7,8 @@ benchmark_note: "No benchmark panel added until exact Mistral Small 4 source/eva
 parameters_note: "Not recorded from current pricing page"
 cost_input_1m: 0.15
 cost_output_1m: 0.60
-pricing_source_date: "2026-06-30"
-pricing_model_version: "Current official Mistral API pricing for mistral-small-latest / Mistral Small 4"
+pricing_source_date: "2026-08-25"
+pricing_model_version: "Current official Mistral API pricing for mistral-small-latest / Mistral Small 4: $0.15 input and $0.60 output per 1M tokens. Cached input is listed as up to 90% off input on the Mistral API pricing page. Context window was not verified on a live model card on 2026-08-25."
 cac_status: "Not publicly verified"
 ---
 Mistral Small 4 is Mistral's current Small-model reference: a European open-model lane entry for efficient general work, coding/reasoning hybrids, and official Mistral API cost comparisons.

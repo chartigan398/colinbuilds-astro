@@ -7,8 +7,8 @@ benchmark_note: "No benchmark panel added until exact Mistral Large 3 benchmark 
 parameters_note: "Mistral model card reports 675B total parameters and 41B active parameters for Mistral Large 3; active parameter value is used for the comparison field"
 cost_input_1m: 0.50
 cost_output_1m: 1.50
-pricing_source_date: "2026-07-08"
-pricing_model_version: "Current official Mistral API pricing for mistral-large-2512 / mistral-large-latest on the Mistral Large 3 model card"
+pricing_source_date: "2026-08-25"
+pricing_model_version: "Current official Mistral API pricing for mistral-large-2512 / mistral-large-latest: $0.50 input and $1.50 output per 1M tokens. Mistral's API pricing page also lists cached input as up to 90% off input."
 context_window: 256000
 parameters_active: 41000000000
 cac_status: "Not publicly verified"

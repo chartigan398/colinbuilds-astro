@@ -8,8 +8,8 @@ parameters_note: "37B active-parameter value is sourced from DeepSeek's original
 context_window: 163840
 parameters_active: 37000000000
 pricing_note: "No current official DeepSeek API price is recorded for an R1 API route. DeepSeek's current API docs list deepseek-v4-flash and deepseek-v4-pro, while deepseek-reasoner is deprecated and currently routes to deepseek-v4-flash thinking mode. OpenRouter pricing is provider-hosted, not official DeepSeek creator pricing."
-pricing_source_date: "2026-07-07"
-pricing_model_version: "Current R1 version checked as DeepSeek-R1-0528; provider-hosted OpenRouter route deepseek/deepseek-r1-0528 used for calculator pricing"
+pricing_source_date: "2026-08-25"
+pricing_model_version: "Current R1 version checked as DeepSeek-R1-0528. Official DeepSeek API docs no longer list an R1 API route; live IDs are deepseek-v4-flash and deepseek-v4-pro. Calculator still uses previously recorded OpenRouter provider-hosted pricing for deepseek/deepseek-r1-0528 from 2026-07-07 and was not re-verified against OpenRouter on 2026-08-25."
 providers:
   - name: "OpenRouter"
     cost_input_1m: 0.50
@@ -26,7 +26,7 @@ DeepSeek-R1-0528 is the current DeepSeek R1 open-weight update checked here. It 
 
 DeepSeek's R1 line is its open-weight reasoning model family. The DeepSeek-R1-0528 model card says the R1 model received a minor version upgrade, with improved reasoning depth, reduced hallucination rate, function-calling support, and better coding experience.
 
-For API use, the current DeepSeek docs need careful wording. The live Models & Pricing page lists `deepseek-v4-flash` and `deepseek-v4-pro` as the currently supported model IDs. The same pricing page says `deepseek-chat` and `deepseek-reasoner` will be deprecated on 2026-07-24 15:59 UTC and currently correspond to `deepseek-v4-flash` non-thinking and thinking modes. That means this page does not present `deepseek-reasoner` as a current official R1 API price.
+For API use, the current DeepSeek docs need careful wording. The live Models & Pricing page lists `deepseek-v4-flash`, `deepseek-v4-pro`, and experimental `deepseek-v4-flash-vision-exp` as the currently supported model IDs. DeepSeek's V4 preview notes said `deepseek-chat` and `deepseek-reasoner` would be fully retired after 2026-07-24 15:59 UTC. That means this page does not present `deepseek-reasoner` as a current official R1 API price.
 
 ## Pricing notes
 

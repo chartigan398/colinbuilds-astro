@@ -1,0 +1,20 @@
+Nebula X — free music visualizer
+ColinBuilds.com
+
+This is yours to run on your own computer. No account. No install.
+
+How to start
+1. Unzip this folder.
+2. Windows: double-click start-windows.bat
+   Mac or Linux: run start-mac-linux.sh
+3. Your browser should open Nebula X.
+4. Click File and pick a song, or click Mic to use your microphone.
+
+If the start script cannot run
+Double-click index.html instead, then use File to pick a song.
+Microphone often needs the start script (or any local web server), not a direct file open.
+
+Then watch. Press ? on the keyboard if you want help.
+
+This copy is the same visualizer as the one on the site.
+Use it here: https://colinbuilds.com/builds/nebula-x/

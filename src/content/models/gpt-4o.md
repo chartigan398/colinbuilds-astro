@@ -1,19 +1,19 @@
 ---
 title: "GPT-4o"
 entry_type: "reference"
-entry_badge: "Official OpenAI API pricing reference"
+entry_badge: "Previous-generation OpenAI API model · still available"
 context_label: "Official context window"
 benchmark_note: "Benchmark panel intentionally not shown until exact GPT-4o source/eval is verified"
 parameters_note: "Not publicly disclosed"
 cost_input_1m: 2.5
 cost_output_1m: 10.0
 context_window: 128000
-pricing_source_date: "2026-06-29"
-pricing_model_version: "OpenAI gpt-4o official API pricing; input $2.50/1M, output $10.00/1M"
-pricing_note: "Calculator uses input $2.50/1M and output $10.00/1M for gpt-4o."
+pricing_source_date: "2026-08-25"
+pricing_model_version: "OpenAI gpt-4o official API pricing; input $2.50/1M, cached input $1.25/1M, output $10.00/1M. Snapshot gpt-4o-2024-05-13 is listed as deprecated; the gpt-4o alias remains available."
+pricing_note: "Calculator uses official OpenAI gpt-4o rates: $2.50 input and $10.00 output per 1M tokens. Cached input is $1.25/1M."
 cac_status: "Not publicly verified"
 ---
-OpenAI's GPT-4o is a dependable general-purpose multimodal API model: text and image in, text out, strong enough for everyday assistants, research workflows, content help, and production tool use.
+OpenAI's GPT-4o is a still-available previous-generation multimodal API model: text and image in, text out, strong enough for everyday assistants, research workflows, content help, and production tool use. GPT-5.6 is the current flagship family.
 
 ## What this model is
 

@@ -8,8 +8,9 @@ parameters_note: "Not publicly disclosed"
 cost_input_1m: 2.0
 cost_output_1m: 10.0
 context_window: 1000000
-pricing_source_date: "2026-06-30"
-pricing_model_version: "Anthropic Claude Sonnet 5 introductory API pricing through 2026-08-31; $2 input and $10 output per 1M tokens"
+pricing_source_date: "2026-08-25"
+pricing_model_version: "Anthropic Claude Sonnet 5 standard API pricing is $2 input and $10 output per 1M tokens. The previously advertised 2026-09-01 increase to $3/$15 will not occur. Claude Sonnet 4.6 remains listed at $3/$15."
+pricing_note: "Calculator uses current Claude Sonnet 5 standard rates: $2 input and $10 output per 1M tokens. This is no longer treated as temporary introductory pricing."
 cac_status: "Not publicly verified"
 ---
 Claude Sonnet is Anthropic's balanced model tier: strong enough for writing, coding, long-context reading, and business analysis, but cheaper than Anthropic's higher-priced Opus and Fable models.
@@ -22,9 +23,11 @@ The useful comparison is not just “which model is smartest?” It is whether S
 
 ## Pricing notes
 
-Anthropic's pricing page lists Claude Sonnet 5 at introductory pricing of $2 per 1M input tokens and $10 per 1M output tokens through August 31, 2026, then $3 input and $15 output per 1M tokens starting September 1, 2026. The same page lists Claude Sonnet 4.6 at $3 input and $15 output per 1M tokens, current Opus 4.x entries at $5 input and $25 output per 1M tokens, and Claude Fable 5 at $10 input and $50 output per 1M tokens.
+Anthropic's pricing page lists Claude Sonnet 5 at $2 per 1M input tokens and $10 per 1M output tokens. Those figures were announced at launch as introductory pricing through August 31, 2026. Anthropic now states that $2/$10 is the standard price and that the previously scheduled increase to $3/$15 on September 1, 2026 will not occur.
 
-The calculator on this page uses the current Sonnet 5 introductory rates: $2 input and $10 output per 1M tokens. Cache writes, cache hits, Batch API discounts, cloud marketplace routing, and data-residency multipliers can change real bills, so check Anthropic's pricing page before using this as a production cost estimate.
+The same page lists Claude Sonnet 4.6 at $3 input and $15 output per 1M tokens, current Opus 5 and legacy Opus 4.x entries at $5 input and $25 output per 1M tokens, and Claude Fable 5 at $10 input and $50 output per 1M tokens.
+
+The calculator on this page uses the current Sonnet 5 standard rates: $2 input and $10 output per 1M tokens. Cache writes, cache hits, Batch API discounts, cloud marketplace routing, and data-residency multipliers can change real bills, so check Anthropic's pricing page before using this as a production cost estimate.
 
 ## Benchmarks and specs
 
@@ -40,5 +43,5 @@ Sonnet is the “pay for judgment” comparison: use it when the cost of a slopp
 
 ## Sources
 
-- [Anthropic Claude pricing](https://docs.anthropic.com/en/docs/about-claude/pricing)
-- [Anthropic models overview](https://docs.anthropic.com/en/docs/about-claude/models/overview)
+- [Anthropic Claude pricing](https://platform.claude.com/docs/en/about-claude/pricing)
+- [Anthropic models overview](https://platform.claude.com/docs/en/about-claude/models/overview)

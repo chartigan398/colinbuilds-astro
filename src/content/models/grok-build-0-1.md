@@ -8,7 +8,7 @@ parameters_note: "Not publicly disclosed"
 cost_input_1m: 1.00
 cost_output_1m: 2.00
 context_window: 256000
-pricing_source_date: "2026-07-06"
+pricing_source_date: "2026-08-25"
 pricing_model_version: "xAI grok-build-0.1 official API pricing; input $1.00/1M tokens, cached input $0.20/1M tokens, output $2.00/1M tokens. xAI lists a 256,000-token context window and separately notes different rates for requests exceeding 200K context."
 pricing_note: "Calculator uses official xAI grok-build-0.1 base API rates: $1.00 input and $2.00 output per 1M tokens. Cached input and the separate >200K-context rate note should be checked directly before production estimates."
 cac_status: "Not publicly verified"

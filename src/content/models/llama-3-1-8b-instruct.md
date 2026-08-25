@@ -9,9 +9,9 @@ context_window: 128000
 parameters_active: 8000000000
 mmlu_score: 69.4
 mmlu_pro_score: 48.3
-pricing_note: "Provider-hosted OpenRouter pricing added for Llama 3.1 8B Instruct. This is labelled provider pricing, not Meta official creator pricing."
+pricing_note: "Provider-hosted OpenRouter pricing recorded for Llama 3.1 8B Instruct. This is labelled provider pricing, not Meta official creator pricing. OpenRouter rates were last recorded 2026-07-02 and were not re-verified on 2026-08-25."
 pricing_source_date: "2026-07-02"
-pricing_model_version: "Meta Llama 3.1 8B Instruct open-weight model; no direct official Meta API price recorded; provider/reseller pricing must be separate."
+pricing_model_version: "Meta Llama 3.1 8B Instruct open-weight model; no direct official Meta API price recorded. Provider/reseller prices last recorded 2026-07-02 and were not re-fetched on 2026-08-25."
 providers:
   - name: "OpenRouter"
     cost_input_1m: 0.02

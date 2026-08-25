@@ -8,7 +8,7 @@ parameters_note: "1T total / 32B activated parameters, Hugging Face model card"
 cost_input_1m: 0.95
 cost_output_1m: 4.0
 context_window: 262144
-pricing_source_date: "2026-06-29"
+pricing_source_date: "2026-08-25"
 pricing_model_version: "Alibaba Cloud Model Studio international (Singapore) hosted pricing for kimi-k2.7-code; $0.95 input and $4.00 output per 1M tokens"
 cac_status: "Not publicly verified"
 ---

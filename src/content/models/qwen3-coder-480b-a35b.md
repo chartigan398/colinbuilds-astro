@@ -9,8 +9,8 @@ cost_input_1m: 1.5
 cost_output_1m: 7.5
 context_window: 262144
 parameters_active: 35000000000
-pricing_source_date: "2026-06-30"
-pricing_model_version: "Current Alibaba Cloud Model Studio international pricing for qwen3-coder-480b-a35b-instruct; 0-32K token tier used for calculator; larger context tiers cost more"
+pricing_source_date: "2026-08-25"
+pricing_model_version: "Alibaba Cloud Model Studio International pricing for qwen3-coder-480b-a35b-instruct; 0-32K token tier $1.50 input and $7.50 output per 1M tokens. Larger context tiers cost more. Still listed."
 cac_status: "Not publicly verified"
 ---
 Qwen3-Coder-480B-A35B-Instruct is Alibaba/Qwen's large coding-focused open-weight MoE model, tracked here with Alibaba Cloud Model Studio hosted pricing for software-building and agentic coding comparisons.

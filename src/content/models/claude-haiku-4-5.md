@@ -7,8 +7,9 @@ benchmark_note: "No benchmark panel added until exact benchmark values are tied 
 parameters_note: "Anthropic does not publish a parameter count for Claude Haiku 4.5"
 cost_input_1m: 1
 cost_output_1m: 5
-pricing_source_date: "2026-07-09"
-pricing_model_version: "Claude Haiku 4.5 / claude-haiku-4-5-20251001; Anthropic model pricing row lists $1 per MTok input and $5 per MTok output"
+pricing_source_date: "2026-08-25"
+pricing_model_version: "Claude Haiku 4.5 / claude-haiku-4-5-20251001; Anthropic pricing row lists $1 per MTok input and $5 per MTok output. Cache hits $0.10/1M; 5-minute cache writes $1.25/1M; 1-hour cache writes $2/1M. Context 200K; max output 64K."
+pricing_note: "Calculator uses official Anthropic Claude Haiku 4.5 rates: $1 input and $5 output per 1M tokens. Prompt caching and Batch API are separate."
 context_window: 200000
 cac_status: "Not publicly verified"
 ---
@@ -28,7 +29,7 @@ This is Anthropic official API pricing, not a cloud marketplace, reseller, or pr
 
 ## Benchmarks and specs
 
-Anthropic's models overview lists a 200k-token context window for Claude Haiku 4.5 and a July 2025 training-data cutoff. Anthropic does not publish a parameter count in the checked model overview, so no parameter field is stored here.
+Anthropic's models overview lists a 200k-token context window and a 64k-token maximum output for Claude Haiku 4.5, with a July 2025 training-data cutoff and a February 2025 reliable knowledge cutoff. Anthropic does not publish a parameter count in the checked model overview, so no parameter field is stored here.
 
 No benchmark score is shown until an exact benchmark source and model identity are matched to Claude Haiku 4.5.
 

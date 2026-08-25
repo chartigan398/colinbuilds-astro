@@ -1,18 +1,19 @@
 ---
 title: "GPT-4.1"
 entry_type: "model"
-entry_badge: "Current official OpenAI API pricing"
+entry_badge: "Previous-generation OpenAI API model · still available"
 context_label: "OpenAI-published context window"
 benchmark_note: "No benchmark panel added until exact benchmark values are tied to a named source and test setup"
 parameters_note: "OpenAI does not publish a parameter count for GPT-4.1 in the checked model page"
 cost_input_1m: 2
 cost_output_1m: 8
-pricing_source_date: "2026-07-09"
-pricing_model_version: "GPT-4.1 / gpt-4.1; OpenAI pricing row lists standard pricing at $2 input, $0.50 cached input, and $8 output per 1M tokens"
+pricing_source_date: "2026-08-25"
+pricing_model_version: "GPT-4.1 / gpt-4.1; OpenAI model page lists standard pricing at $2.00 input, $0.50 cached input, and $8.00 output per 1M tokens. Still available; OpenAI recommends starting with GPT-5-family models for complex tasks."
+pricing_note: "Calculator uses official OpenAI gpt-4.1 rates: $2.00 input and $8.00 output per 1M tokens. Cached input is $0.50/1M."
 context_window: 1047576
 cac_status: "Not publicly verified"
 ---
-GPT-4.1 is OpenAI's current non-reasoning GPT-4.1 API model for instruction-following, tool calling, and long-context text or image-input work.
+GPT-4.1 is OpenAI's still-available non-reasoning GPT-4.1 API model for instruction-following, tool calling, and long-context text or image-input work. It is previous-generation relative to GPT-5.6.
 
 ## What this model is
 

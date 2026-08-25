@@ -1,0 +1,32 @@
+---
+---
+
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="robots" content="noindex, nofollow" />
+    <title>Opening Nebula X</title>
+    <script defer src="/_vercel/insights/script.js"></script>
+    <script is:inline>
+      (function () {
+        var sent = false;
+        function go() {
+          if (sent) return;
+          sent = true;
+          location.replace('/nebula-x/index.html');
+        }
+        window.addEventListener('load', function () {
+          setTimeout(go, 400);
+        });
+        setTimeout(go, 2500);
+      })();
+    </script>
+  </head>
+  <body style="background:#000;color:#a3a3a3;font-family:sans-serif;padding:2rem">
+    <p>
+      Opening Nebula X in your browser.
+      <a href="/nebula-x/index.html" style="color:#22d3ee">Continue</a>
+    </p>
+  </body>
+</html>

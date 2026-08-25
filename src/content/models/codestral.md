@@ -7,8 +7,8 @@ benchmark_note: "No benchmark panel added until exact benchmark values are tied 
 parameters_note: "Mistral's checked overview does not publish a parameter count for the current Codestral API row"
 cost_input_1m: 0.30
 cost_output_1m: 0.90
-pricing_source_date: "2026-07-09"
-pricing_model_version: "Codestral / codestral-latest on Mistral API pricing; Mistral model card lists current Codestral 25.08 API endpoint as codestral-2508"
+pricing_source_date: "2026-08-25"
+pricing_model_version: "Codestral / codestral-latest on Mistral API pricing: $0.30 input and $0.90 output per 1M tokens. Mistral model card lists current Codestral 25.08 API endpoint as codestral-2508. Cached input is listed as up to 90% off input."
 context_window: 128000
 cac_status: "Not publicly verified"
 ---

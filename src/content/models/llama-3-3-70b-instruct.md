@@ -9,9 +9,9 @@ context_window: 128000
 parameters_active: 70000000000
 mmlu_score: 86.0
 mmlu_pro_score: 68.9
-pricing_note: "Provider-hosted OpenRouter, DeepInfra Turbo, and Groq pricing recorded for Llama 3.3 70B Instruct. These are labelled provider pricing, not Meta official creator pricing."
+pricing_note: "Provider-hosted OpenRouter, DeepInfra Turbo, and Groq pricing recorded for Llama 3.3 70B Instruct. These are labelled provider pricing, not Meta official creator pricing. Provider rates were last recorded 2026-07-08 and were not re-verified on 2026-08-25."
 pricing_source_date: "2026-07-08"
-pricing_model_version: "Meta Llama 3.3 70B Instruct open-weight model; no direct official Meta API price recorded; provider/reseller pricing must be separate."
+pricing_model_version: "Meta Llama 3.3 70B Instruct open-weight model; no direct official Meta API price recorded. Provider/reseller prices last recorded 2026-07-08 and were not re-fetched on 2026-08-25."
 providers:
   - name: "OpenRouter"
     cost_input_1m: 0.10

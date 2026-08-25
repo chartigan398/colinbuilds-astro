@@ -53,6 +53,7 @@ const searchHref = isHome ? '#sections' : '/compare/';
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <link rel="canonical" href={canonicalURL} />
     <title>{title}</title>
+    <script defer src="/_vercel/insights/script.js"></script>
   </head>
   <body class:list={['bg-black text-white antialiased', hideFooter ? 'flex h-dvh flex-col overflow-hidden' : 'min-h-screen']}>
     <header class:list={['border-b border-neutral-800 bg-black/95 backdrop-blur', hideFooter && 'shrink-0']}>

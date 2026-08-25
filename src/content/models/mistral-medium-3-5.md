@@ -7,8 +7,8 @@ benchmark_note: "No benchmark panel added until exact benchmark values are tied 
 parameters_note: "Mistral does not publish a parameter count for Mistral Medium 3.5 in the checked model card"
 cost_input_1m: 1.50
 cost_output_1m: 7.50
-pricing_source_date: "2026-07-09"
-pricing_model_version: "Mistral Medium 3.5 / mistral-medium-latest on Mistral API pricing; Mistral model card lists Mistral Medium 3.5 v26.04 with API ID mistral-medium-3-5"
+pricing_source_date: "2026-08-25"
+pricing_model_version: "Mistral Medium 3.5 / mistral-medium-latest on Mistral API pricing: $1.50 input and $7.50 output per 1M tokens. Cached input is listed as up to 90% off input."
 context_window: 256000
 cac_status: "Not publicly verified"
 ---

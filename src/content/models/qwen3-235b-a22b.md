@@ -1,7 +1,7 @@
 ---
 title: "Qwen3-235B-A22B"
 entry_type: "open-weight"
-entry_badge: "Alibaba Cloud Model Studio hosted pricing"
+entry_badge: "Previous Qwen3 generation · still listed on Model Studio"
 context_label: "Native 32K context (131K with YaRN scaling)"
 benchmark_note: "Benchmarks not shown until exact Qwen3-235B-A22B evaluation source is verified"
 parameters_note: "22B active parameters, model-card/provider-reported"
@@ -9,8 +9,8 @@ cost_input_1m: 0.7
 cost_output_1m: 2.8
 context_window: 32768
 parameters_active: 22000000000
-pricing_source_date: "2026-06-30"
-pricing_model_version: "Current Alibaba Cloud Model Studio international pricing for qwen3-235b-a22b; non-thinking output $2.80/1M, thinking output $8.40/1M"
+pricing_source_date: "2026-08-25"
+pricing_model_version: "Alibaba Cloud Model Studio International pricing for qwen3-235b-a22b; input $0.70/1M, non-thinking output $2.80/1M, thinking output $8.40/1M. Still listed. Newer hosted Plus/Flash routes are qwen3.7-plus and qwen3.6-flash."
 cac_status: "Not publicly verified"
 ---
 Qwen3-235B-A22B is Alibaba/Qwen's large open-weight Mixture-of-Experts model for builders who want a serious China-model alternative to closed frontier APIs, with Alibaba Cloud Model Studio pricing used for practical cost comparison.

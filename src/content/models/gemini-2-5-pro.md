@@ -1,14 +1,14 @@
 ---
 title: "Gemini 2.5 Pro"
 entry_type: "model"
-entry_badge: "Official Google Gemini API pricing"
+entry_badge: "Previous-generation Gemini API model · still available"
 context_label: "Official Google context window"
 benchmark_note: "Benchmark panel intentionally not shown until exact public benchmark values are verified for Gemini 2.5 Pro."
 parameters_note: "Not publicly disclosed"
 cost_input_1m: 1.25
 cost_output_1m: 10.00
 context_window: 1048576
-pricing_source_date: "2026-07-06"
+pricing_source_date: "2026-08-25"
 pricing_model_version: "Google Gemini API gemini-2.5-pro standard paid tier for prompts up to 200K tokens; input $1.25/1M tokens and output $10.00/1M tokens including thinking tokens. Prompts over 200K tokens are listed at $2.50 input and $15.00 output per 1M tokens."
 pricing_note: "Calculator uses official Google Gemini API standard paid-tier rates for prompts up to 200K tokens: $1.25 input and $10.00 output per 1M tokens. Longer prompts use higher listed rates; batch, caching, and grounding have separate listed prices; Flex and Priority are separate consumption options with terms to confirm before production estimates."
 cac_status: "Not publicly verified"
