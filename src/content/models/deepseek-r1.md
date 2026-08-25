@@ -9,13 +9,13 @@ context_window: 163840
 parameters_active: 37000000000
 pricing_note: "No current official DeepSeek API price is recorded for an R1 API route. DeepSeek's current API docs list deepseek-v4-flash and deepseek-v4-pro, while deepseek-reasoner is deprecated and currently routes to deepseek-v4-flash thinking mode. OpenRouter pricing is provider-hosted, not official DeepSeek creator pricing."
 pricing_source_date: "2026-08-25"
-pricing_model_version: "Current R1 version checked as DeepSeek-R1-0528. Official DeepSeek API docs no longer list an R1 API route; live IDs are deepseek-v4-flash and deepseek-v4-pro. Calculator still uses previously recorded OpenRouter provider-hosted pricing for deepseek/deepseek-r1-0528 from 2026-07-07 and was not re-verified against OpenRouter on 2026-08-25."
+pricing_model_version: "Current R1 version checked as DeepSeek-R1-0528. Official DeepSeek API docs no longer list an R1 API route; live IDs are deepseek-v4-flash and deepseek-v4-pro. Calculator uses OpenRouter provider-hosted pricing for deepseek/deepseek-r1-0528, re-checked 2026-08-25."
 providers:
   - name: "OpenRouter"
     cost_input_1m: 0.50
     cost_output_1m: 2.15
     source: "https://openrouter.ai/api/v1/models"
-    source_date: "2026-07-07"
+    source_date: "2026-08-25"
     model_id: "deepseek/deepseek-r1-0528"
     note: "Provider-hosted DeepSeek-R1-0528 route. OpenRouter API lists prompt $0.0000005/token, completion $0.00000215/token, and input cache read $0.00000035/token; calculator uses non-cache prompt and completion rates."
 cac_status: "Not publicly verified"
@@ -32,7 +32,7 @@ For API use, the current DeepSeek docs need careful wording. The live Models & P
 
 No current official DeepSeek API price is recorded here for a DeepSeek-R1 API route. The historical DeepSeek-R1 release post used `model=deepseek-reasoner`, but the live API docs now route that compatibility name to V4-Flash thinking mode and mark it for retirement.
 
-The calculator on this page uses provider-hosted OpenRouter pricing for `deepseek/deepseek-r1-0528`: $0.50 per 1M input tokens and $2.15 per 1M output tokens, checked on 2026-07-07 through OpenRouter's public models API. OpenRouter also lists an input cache-read price of $0.35 per 1M tokens, but the calculator uses the non-cache input rate for safer comparison.
+The calculator on this page uses provider-hosted OpenRouter pricing for `deepseek/deepseek-r1-0528`: $0.50 per 1M input tokens and $2.15 per 1M output tokens, checked on 2026-08-25 through OpenRouter's public models API. OpenRouter also lists an input cache-read price of $0.35 per 1M tokens, but the calculator uses the non-cache input rate for safer comparison.
 
 OpenRouter pricing is provider-hosted marketplace pricing for `deepseek/deepseek-r1-0528`; it is not official DeepSeek creator/API pricing. Hosted R1 costs can vary by provider and route.
 

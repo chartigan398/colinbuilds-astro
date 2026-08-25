@@ -9,15 +9,15 @@ context_window: 128000
 parameters_active: 70000000000
 mmlu_score: 83.6
 mmlu_pro_score: 66.4
-pricing_note: "Provider-hosted OpenRouter pricing recorded for Llama 3.1 70B Instruct. This is labelled provider pricing, not Meta official creator pricing. OpenRouter rates were last recorded 2026-07-02 and were not re-verified on 2026-08-25."
-pricing_source_date: "2026-07-02"
-pricing_model_version: "Meta Llama 3.1 70B Instruct open-weight model; no direct official Meta API price recorded. Provider/reseller prices last recorded 2026-07-02 and were not re-fetched on 2026-08-25."
+pricing_note: "Provider-hosted OpenRouter pricing recorded for Llama 3.1 70B Instruct. This is labelled provider pricing, not Meta official creator pricing."
+pricing_source_date: "2026-08-25"
+pricing_model_version: "Meta Llama 3.1 70B Instruct open-weight model; no direct official Meta API price recorded. OpenRouter lists $0.40 input and $0.40 output per 1M tokens as of 2026-08-25."
 providers:
   - name: "OpenRouter"
     cost_input_1m: 0.40
     cost_output_1m: 0.40
     source: "https://openrouter.ai/meta-llama/llama-3.1-70b-instruct/api"
-    source_date: "2026-07-02"
+    source_date: "2026-08-25"
     model_id: "meta-llama/llama-3.1-70b-instruct"
     note: "Provider-hosted Llama 3.1 70B Instruct route; not Meta official pricing."
 cac_status: "Not publicly verified"
@@ -32,7 +32,7 @@ The main thing to understand is that Llama 3.1 70B Instruct is not one single pr
 
 ## Pricing notes
 
-OpenRouter lists Llama 3.1 70B Instruct at $0.40 per 1M input tokens and $0.40 per 1M output tokens, checked on 2026-07-02.
+OpenRouter lists Llama 3.1 70B Instruct at $0.40 per 1M input tokens and $0.40 per 1M output tokens, checked on 2026-08-25.
 
 The calculator on this page uses those OpenRouter rates. This is provider-hosted pricing, not an official Meta creator price. Meta released the model weights under the Llama 3.1 Community License, so hosted API costs can vary by provider.
 

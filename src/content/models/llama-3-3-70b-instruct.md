@@ -9,31 +9,24 @@ context_window: 128000
 parameters_active: 70000000000
 mmlu_score: 86.0
 mmlu_pro_score: 68.9
-pricing_note: "Provider-hosted OpenRouter, DeepInfra Turbo, and Groq pricing recorded for Llama 3.3 70B Instruct. These are labelled provider pricing, not Meta official creator pricing. Provider rates were last recorded 2026-07-08 and were not re-verified on 2026-08-25."
-pricing_source_date: "2026-07-08"
-pricing_model_version: "Meta Llama 3.3 70B Instruct open-weight model; no direct official Meta API price recorded. Provider/reseller prices last recorded 2026-07-08 and were not re-fetched on 2026-08-25."
+pricing_note: "Provider-hosted OpenRouter and DeepInfra Turbo pricing recorded for Llama 3.3 70B Instruct. These are labelled provider pricing, not Meta official creator pricing. Groq still hosts llama-3.3-70b-versatile but lists price as Contact Sales, so no Groq dollar rate is stored."
+pricing_source_date: "2026-08-25"
+pricing_model_version: "Meta Llama 3.3 70B Instruct open-weight model; no direct official Meta API price recorded. OpenRouter and DeepInfra Turbo both list $0.10 input and $0.32 output per 1M tokens as of 2026-08-25."
 providers:
   - name: "OpenRouter"
     cost_input_1m: 0.10
     cost_output_1m: 0.32
     source: "https://openrouter.ai/meta-llama/llama-3.3-70b-instruct/api"
-    source_date: "2026-07-08"
+    source_date: "2026-08-25"
     model_id: "meta-llama/llama-3.3-70b-instruct"
     note: "Provider-hosted Llama 3.3 70B Instruct route; not Meta official pricing."
   - name: "DeepInfra"
     cost_input_1m: 0.10
     cost_output_1m: 0.32
     source: "https://deepinfra.com/meta-llama/Llama-3.3-70B-Instruct-Turbo/api"
-    source_date: "2026-07-08"
+    source_date: "2026-08-25"
     model_id: "meta-llama/Llama-3.3-70B-Instruct-Turbo"
     note: "Provider-hosted DeepInfra Turbo route; not Meta official pricing."
-  - name: "Groq"
-    cost_input_1m: 0.59
-    cost_output_1m: 0.79
-    source: "https://console.groq.com/docs/model/llama-3.3-70b-versatile"
-    source_date: "2026-07-08"
-    model_id: "llama-3.3-70b-versatile"
-    note: "Provider-hosted Groq Llama 3.3 70B Versatile route; not Meta official pricing."
 cac_status: "Not publicly verified"
 ---
 Llama 3.3 70B Instruct is Meta's updated 70B open-weight chat model: a December 2024 refresh of the Llama 3.1 70B tier with stronger published benchmark scores while keeping the 128K context window.
@@ -46,11 +39,11 @@ The main thing to understand is that Llama 3.3 70B Instruct is not one single pr
 
 ## Pricing notes
 
-OpenRouter lists Llama 3.3 70B Instruct at $0.10 per 1M input tokens and $0.32 per 1M output tokens, checked on 2026-07-08.
+OpenRouter lists Llama 3.3 70B Instruct at $0.10 per 1M input tokens and $0.32 per 1M output tokens, checked on 2026-08-25.
 
-DeepInfra lists Llama 3.3 70B Instruct Turbo at $0.10 per 1M input tokens and $0.32 per 1M output tokens, checked on 2026-07-08.
+DeepInfra lists Llama 3.3 70B Instruct Turbo at $0.10 per 1M input tokens and $0.32 per 1M output tokens, checked on 2026-08-25.
 
-Groq lists Llama 3.3 70B Versatile at $0.59 per 1M input tokens and $0.79 per 1M output tokens, checked on 2026-07-08.
+Groq still lists `llama-3.3-70b-versatile`, but its models table now shows price as Contact Sales, not a public per-token rate. No Groq dollar figure is stored here.
 
 The calculator on this page uses the lowest combined provider rate on this page (OpenRouter and DeepInfra tie at $0.10 input / $0.32 output). This is provider-hosted pricing, not an official Meta creator price.
 
@@ -79,5 +72,5 @@ Meta's Llama 3.3 model card reports these values for the instruction-tuned 70B m
 - https://www.llama.com/docs/model-cards-and-prompt-formats/llama3_3/
 - [OpenRouter Llama 3.3 70B pricing](https://openrouter.ai/meta-llama/llama-3.3-70b-instruct/api)
 - [DeepInfra Llama 3.3 70B Instruct Turbo pricing](https://deepinfra.com/meta-llama/Llama-3.3-70B-Instruct-Turbo/api)
-- [Groq Llama 3.3 70B Versatile pricing](https://console.groq.com/docs/model/llama-3.3-70b-versatile)
+- [Groq supported models](https://console.groq.com/docs/models)
 - https://huggingface.co/api/models/meta-llama/Llama-3.3-70B-Instruct
