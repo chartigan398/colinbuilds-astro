@@ -1,0 +1,33 @@
+---
+import BaseLayout from '../../../layouts/BaseLayout.astro';
+---
+
+<BaseLayout
+  title="Nebula X | ColinBuilds"
+  description="Nebula X turns music into moving lights. Use a song or your microphone and watch it react."
+  hideFooter={true}
+>
+  <div class="flex min-h-0 flex-1 flex-col">
+    <section class="shrink-0 border-b border-neutral-800 px-6 py-5">
+      <p class="text-sm text-neutral-500">
+        <a href="/" class="transition hover:text-cyan-400">Home</a>
+        <span> · Builds · Nebula X</span>
+      </p>
+      <h1 class="mt-2 text-2xl font-bold tracking-tight text-white sm:text-3xl">Nebula X</h1>
+      <p class="mt-2 max-w-2xl text-sm text-neutral-400">
+        Nebula X is a music visualizer. Play a song or use your microphone, and the lights move with the sound.
+      </p>
+      <p class="mt-2 max-w-2xl text-sm text-neutral-400">
+        To start: click <strong class="font-medium text-neutral-200">Mic</strong> to use your microphone, or
+        <strong class="font-medium text-neutral-200">File</strong> to pick a song. Then watch. Press
+        <strong class="font-medium text-neutral-200">?</strong> if you want help.
+      </p>
+    </section>
+    <iframe
+      src="/nebula-x/index.html"
+      title="Nebula X"
+      class="min-h-0 w-full flex-1 border-0 bg-black"
+      allow="microphone; autoplay; fullscreen; clipboard-write"
+    ></iframe>
+  </div>
+</BaseLayout>
