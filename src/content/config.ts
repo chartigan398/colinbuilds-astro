@@ -38,4 +38,15 @@ const models = defineCollection({
   }),
 });
 
-export const collections = { models };
+const guides = defineCollection({
+  type: 'content',
+  schema: z.object({
+    title: z.string(),
+    description: z.string(),
+    pubDate: z.coerce.date(),
+    updatedDate: z.coerce.date().optional(),
+    draft: z.boolean().optional(),
+  }),
+});
+
+export const collections = { models, guides };

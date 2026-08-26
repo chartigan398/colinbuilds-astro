@@ -9,9 +9,18 @@ export const GET: APIRoute = async () => {
   const models = (await getCollection('models')).filter(
     (entry) => entry.data.draft !== true && hasVerifiedPricing(entry.data),
   );
+  const guides = (await getCollection('guides')).filter((entry) => entry.data.draft !== true);
   const { allComparisons } = await getLiveComparisonPairs();
 
-  const paths = ['/', '/compare/', '/builds/nebula-x/', ...models.map((model) => `/models/${model.slug}/`), ...allComparisons.map((c) => c.href)];
+  const paths = [
+    '/',
+    '/compare/',
+    '/builds/nebula-x/',
+    '/guides/',
+    ...guides.map((guide) => `/guides/${guide.slug}/`),
+    ...models.map((model) => `/models/${model.slug}/`),
+    ...allComparisons.map((c) => c.href),
+  ];
 
   const urlEntries = paths
     .map(

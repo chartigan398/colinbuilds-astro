@@ -1,0 +1,137 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import { getCollection, render } from 'astro:content';
+
+export async function getStaticPaths() {
+  const guides = (await getCollection('guides')).filter((entry) => entry.data.draft !== true);
+
+  return guides.map((guide) => ({
+    params: { slug: guide.slug },
+    props: { guide },
+  }));
+}
+
+const { guide } = Astro.props;
+const { Content } = await render(guide);
+const published = guide.data.pubDate.toLocaleDateString('en-GB', {
+  day: 'numeric',
+  month: 'long',
+  year: 'numeric',
+});
+---
+
+<BaseLayout title={`${guide.data.title} | ColinBuilds`} description={guide.data.description}>
+  <article class="mx-auto max-w-3xl px-6 py-12 pb-20">
+    <p class="text-sm text-neutral-500">
+      <a href="/" class="transition hover:text-cyan-400">Home</a>
+      <span> · </span>
+      <a href="/guides/" class="transition hover:text-cyan-400">Guides</a>
+    </p>
+    <h1 class="mt-3 text-3xl font-bold tracking-tight text-cyan-400 sm:text-4xl">{guide.data.title}</h1>
+    <p class="mt-3 text-sm text-neutral-500">{published}</p>
+    <p class="mt-4 text-neutral-400">{guide.data.description}</p>
+    <div class="guide-prose mt-10">
+      <Content />
+    </div>
+  </article>
+</BaseLayout>
+
+<script>
+  document.querySelectorAll<HTMLImageElement>('.guide-prose img').forEach((img, index) => {
+    img.decoding = 'async';
+    if (index > 0) img.loading = 'lazy';
+  });
+</script>
+
+<style>
+  .guide-prose :global(img) {
+    display: block;
+    width: 100%;
+    height: auto;
+    margin: 0;
+    aspect-ratio: 16 / 9;
+    object-fit: contain;
+    background: #000;
+    border-radius: 0.75rem;
+    border: 1px solid #262626;
+  }
+
+  .guide-prose :global(p:has(img)) {
+    margin-top: 2.75rem;
+    margin-bottom: 0.75rem;
+  }
+
+  .guide-prose :global(p:has(img) + h2) {
+    margin-top: 0;
+  }
+
+  .guide-prose :global(h2) {
+    margin-top: 2.5rem;
+    margin-bottom: 0.75rem;
+    font-size: 1.25rem;
+    font-weight: 600;
+    letter-spacing: -0.02em;
+    color: #22d3ee;
+  }
+
+  .guide-prose :global(h3) {
+    margin-top: 1.5rem;
+    margin-bottom: 0.5rem;
+    font-size: 1.05rem;
+    font-weight: 600;
+    color: #22d3ee;
+  }
+
+  .guide-prose :global(p) {
+    margin-top: 0.85rem;
+    line-height: 1.7;
+    color: #a3a3a3;
+  }
+
+  .guide-prose :global(ul) {
+    margin-top: 0.85rem;
+    padding-left: 1.25rem;
+    color: #a3a3a3;
+    line-height: 1.7;
+    list-style: disc;
+  }
+
+  .guide-prose :global(ol) {
+    margin-top: 0.85rem;
+    padding-left: 1.25rem;
+    color: #a3a3a3;
+    line-height: 1.75;
+    list-style: decimal;
+  }
+
+  .guide-prose :global(li) {
+    margin-top: 0.35rem;
+  }
+
+  .guide-prose :global(blockquote) {
+    margin-top: 1rem;
+    border-left: 2px solid #22d3ee;
+    padding-left: 1rem;
+    color: #d4d4d4;
+    font-style: italic;
+  }
+
+  .guide-prose :global(a) {
+    color: #22d3ee;
+    text-decoration: underline;
+    text-underline-offset: 3px;
+  }
+
+  .guide-prose :global(a:hover) {
+    color: #67e8f9;
+  }
+
+  .guide-prose :global(em) {
+    color: #d4d4d4;
+  }
+
+  .guide-prose :global(strong) {
+    color: #e5e5e5;
+    font-weight: 600;
+  }
+</style>
