@@ -260,6 +260,7 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
       btn.textContent = q.options[i];
       btn.disabled = false;
       btn.dataset.state = 'idle';
+      btn.blur();
       btn.classList.remove('qs-in');
       void btn.offsetWidth;
       btn.style.animationDelay = `${i * 55}ms`;
@@ -381,16 +382,28 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
     font-weight: 600;
     color: #ffffff;
     cursor: pointer;
+    -webkit-tap-highlight-color: transparent;
     transition:
       border-color 0.15s ease,
       background-color 0.15s ease;
   }
 
-  .qs-option:hover:not(:disabled),
+  .qs-option:focus {
+    outline: none;
+  }
+
   .qs-option:focus-visible {
-    border-color: #22d3ee;
     outline: 2px solid #22d3ee;
     outline-offset: 2px;
+    border-color: #22d3ee;
+  }
+
+  @media (hover: hover) and (pointer: fine) {
+    .qs-option:hover:not(:disabled) {
+      border-color: #22d3ee;
+      outline: 2px solid #22d3ee;
+      outline-offset: 2px;
+    }
   }
 
   .qs-option[data-state='right'] {
