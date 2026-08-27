@@ -1,5 +1,6 @@
 import type { APIRoute } from 'astro';
 import { getCollection } from 'astro:content';
+import { games } from '../data/games.js';
 import { getLiveComparisonPairs } from '../lib/compare';
 import { hasVerifiedPricing } from '../lib/pricing';
 
@@ -12,11 +13,15 @@ export const GET: APIRoute = async () => {
   const guides = (await getCollection('guides')).filter((entry) => entry.data.draft !== true);
   const { allComparisons } = await getLiveComparisonPairs();
 
+  const liveGames = games.filter((game) => game.live);
+
   const paths = [
     '/',
     '/compare/',
     '/builds/nebula-x/',
     '/guides/',
+    '/games/',
+    ...liveGames.map((game) => `/games/${game.slug}/`),
     ...guides.map((guide) => `/guides/${guide.slug}/`),
     ...models.map((model) => `/models/${model.slug}/`),
     ...allComparisons.map((c) => c.href),

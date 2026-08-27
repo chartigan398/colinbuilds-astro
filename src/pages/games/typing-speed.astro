@@ -1,0 +1,593 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+---
+
+<BaseLayout
+  title="Typing Speed | ColinBuilds"
+  description="Type the line as fast and as accurately as you can. Four difficulty levels."
+>
+  <div class="mx-auto max-w-3xl px-6 py-12 pb-20">
+    <p class="text-sm text-neutral-500">
+      <a href="/" class="transition hover:text-cyan-400">Home</a>
+      <span> · </span>
+      <a href="/games/" class="transition hover:text-cyan-400">Games</a>
+    </p>
+    <h1 class="mt-3 text-3xl font-bold tracking-tight text-brand-cyan sm:text-4xl">Typing Speed</h1>
+    <p class="mt-3 max-w-2xl text-neutral-400">
+      60 seconds. Type each line, then press Enter for the next. The clock does not reset. The last 20 seconds count down.
+    </p>
+
+    <div class="mt-6 flex justify-end">
+      <button
+        type="button"
+        id="ts-sound"
+        aria-pressed="true"
+        class="inline-flex items-center rounded-lg border border-neutral-600 bg-neutral-950 px-3 py-2 text-sm font-medium text-white transition hover:border-cyan-400 hover:text-cyan-300 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-cyan-400"
+      >
+        Sound on
+      </button>
+    </div>
+
+    <div id="typing-speed" class="mt-6">
+      <section data-screen="pick" aria-label="Choose difficulty">
+        <h2 class="text-sm font-semibold tracking-widest text-cyan-400">Choose a level</h2>
+        <ul class="mt-4 grid grid-cols-1 gap-3 sm:grid-cols-2">
+          <li>
+            <button
+              type="button"
+              data-difficulty="beginner"
+              class="flex h-full w-full flex-col rounded-xl border border-neutral-800 bg-neutral-950 p-5 text-left transition hover:border-cyan-400 focus-visible:border-cyan-400 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-cyan-400"
+            >
+              <span class="text-lg font-semibold text-brand-cyan">Beginner</span>
+              <span class="mt-1 text-sm text-neutral-400">Short sentences.</span>
+            </button>
+          </li>
+          <li>
+            <button
+              type="button"
+              data-difficulty="intermediate"
+              class="flex h-full w-full flex-col rounded-xl border border-neutral-800 bg-neutral-950 p-5 text-left transition hover:border-cyan-400 focus-visible:border-cyan-400 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-cyan-400"
+            >
+              <span class="text-lg font-semibold text-brand-cyan">Intermediate</span>
+              <span class="mt-1 text-sm text-neutral-400">Medium phrases.</span>
+            </button>
+          </li>
+          <li>
+            <button
+              type="button"
+              data-difficulty="pro"
+              class="flex h-full w-full flex-col rounded-xl border border-neutral-800 bg-neutral-950 p-5 text-left transition hover:border-cyan-400 focus-visible:border-cyan-400 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-cyan-400"
+            >
+              <span class="text-lg font-semibold text-brand-cyan">Pro</span>
+              <span class="mt-1 text-sm text-neutral-400">Longer sentences.</span>
+            </button>
+          </li>
+          <li>
+            <button
+              type="button"
+              data-difficulty="superstar"
+              class="flex h-full w-full flex-col rounded-xl border border-neutral-800 bg-neutral-950 p-5 text-left transition hover:border-cyan-400 focus-visible:border-cyan-400 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-cyan-400"
+            >
+              <span class="text-lg font-semibold text-brand-cyan">Superstar</span>
+              <span class="mt-1 text-sm text-neutral-400">Longer quotes.</span>
+            </button>
+          </li>
+        </ul>
+      </section>
+
+      <section data-screen="play" hidden aria-label="Typing in progress">
+        <div
+          id="ts-hud"
+          class="grid grid-cols-3 gap-3 rounded-xl border border-neutral-800 bg-neutral-950 p-4 text-center"
+        >
+          <div>
+            <p id="ts-time" class="text-3xl font-bold tabular-nums text-brand-cyan">60</p>
+            <p class="mt-1 text-xs text-neutral-500">Seconds</p>
+          </div>
+          <div>
+            <p id="ts-accuracy" class="text-3xl font-bold tabular-nums text-brand-cyan">100%</p>
+            <p class="mt-1 text-xs text-neutral-500">Accuracy</p>
+          </div>
+          <div>
+            <p id="ts-lines" class="text-3xl font-bold tabular-nums text-brand-cyan">0</p>
+            <p class="mt-1 text-xs text-neutral-500">Lines</p>
+          </div>
+        </div>
+        <p
+          id="ts-hurry"
+          class="mt-4 hidden text-center text-xl font-semibold tracking-tight text-brand-cyan"
+          aria-live="polite"
+        >
+        </p>
+
+        <div class="mt-6 rounded-xl border border-neutral-800 bg-neutral-950 p-6 sm:p-8">
+          <p id="ts-prompt" class="ts-prompt" aria-live="polite"></p>
+          <label class="sr-only" for="ts-input">Type the line</label>
+          <input
+            id="ts-input"
+            type="text"
+            autocomplete="off"
+            autocorrect="off"
+            autocapitalize="off"
+            spellcheck="false"
+            class="mt-6 w-full rounded-lg border border-neutral-700 bg-black px-4 py-4 font-mono text-xl text-white outline-none transition focus:border-cyan-400"
+            placeholder="Type the line, then press Enter"
+          />
+          <p id="ts-hint" class="mt-3 min-h-6 text-sm text-neutral-500" aria-live="polite">
+            Type the line, then press Enter.
+          </p>
+          <p id="ts-count" class="mt-1 text-sm text-neutral-500">0 / 0 characters</p>
+        </div>
+      </section>
+
+      <section data-screen="done" hidden aria-label="Results">
+        <div class="rounded-xl border border-neutral-800 bg-neutral-950 p-6 text-center sm:p-10">
+          <h2 class="text-2xl font-bold tracking-tight text-brand-cyan">Time’s up</h2>
+          <div class="mt-8 grid grid-cols-3 gap-3">
+            <div class="rounded-lg border border-neutral-800 p-4">
+              <p id="ts-final-lines" class="text-3xl font-bold tabular-nums text-brand-cyan">0</p>
+              <p class="mt-1 text-xs text-neutral-500">Lines</p>
+            </div>
+            <div class="rounded-lg border border-neutral-800 p-4">
+              <p id="ts-final-wpm" class="text-3xl font-bold tabular-nums text-brand-cyan">0</p>
+              <p class="mt-1 text-xs text-neutral-500">WPM</p>
+            </div>
+            <div class="rounded-lg border border-neutral-800 p-4">
+              <p id="ts-final-accuracy" class="text-3xl font-bold tabular-nums text-brand-cyan">0%</p>
+              <p class="mt-1 text-xs text-neutral-500">Accuracy</p>
+            </div>
+          </div>
+          <div class="mt-8 flex flex-col gap-3 sm:flex-row sm:justify-center">
+            <button
+              type="button"
+              id="ts-again"
+              class="inline-flex items-center justify-center rounded-lg bg-cyan-400 px-4 py-2.5 text-sm font-medium text-black transition hover:bg-cyan-300 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-cyan-400"
+            >
+              Play again
+            </button>
+            <a
+              href="/games/"
+              class="inline-flex items-center justify-center rounded-lg border border-neutral-600 bg-neutral-950 px-4 py-2.5 text-sm font-medium text-white transition hover:border-cyan-400 hover:text-cyan-300 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-cyan-400"
+            >
+              Back to Games
+            </a>
+          </div>
+        </div>
+      </section>
+    </div>
+  </div>
+</BaseLayout>
+
+<script>
+  const SOUND_KEY = 'colinbuilds-typing-speed-sound';
+  const TEXTS = {
+    beginner: [
+      'I love pizza.',
+      'The cat is happy.',
+      'We play games.',
+      'My dog runs fast.',
+      'I can do this.',
+      'The sun is bright.',
+      'Birds fly high.',
+      'I like to read.',
+      'School is fun.',
+      'We are friends.',
+    ],
+    intermediate: [
+      'The quick brown fox jumps over the lazy dog.',
+      'I love learning new things every single day.',
+      'Practice makes perfect when you try your best.',
+      'Reading books helps you grow smarter.',
+      'Every day is a chance to learn something amazing.',
+      'Hard work pays off in the end.',
+    ],
+    pro: [
+      'Knowledge is power, but enthusiasm pulls the switch.',
+      'The beautiful thing about learning is nobody can take it away.',
+      'Education is the most powerful tool you can use to change the world.',
+      'Every expert was once a beginner who never gave up trying.',
+    ],
+    superstar: [
+      'The mind is not a vessel to be filled, but a fire to be kindled.',
+      'The capacity to learn is a gift, the ability to learn is a skill, the willingness to learn is a choice.',
+      'Education is not preparation for life, education is life itself.',
+    ],
+  };
+
+  const root = document.getElementById('typing-speed');
+  if (!root) {
+    throw new Error('Typing Speed root missing');
+  }
+
+  const screens = {
+    pick: root.querySelector('[data-screen="pick"]'),
+    play: root.querySelector('[data-screen="play"]'),
+    done: root.querySelector('[data-screen="done"]'),
+  };
+
+  const hudEl = document.getElementById('ts-hud');
+  const timeEl = document.getElementById('ts-time');
+  const accuracyEl = document.getElementById('ts-accuracy');
+  const linesEl = document.getElementById('ts-lines');
+  const hurryEl = document.getElementById('ts-hurry');
+  const promptEl = document.getElementById('ts-prompt');
+  const inputEl = document.getElementById('ts-input');
+  const hintEl = document.getElementById('ts-hint');
+  const countEl = document.getElementById('ts-count');
+  const finalLinesEl = document.getElementById('ts-final-lines');
+  const finalWpmEl = document.getElementById('ts-final-wpm');
+  const finalAccuracyEl = document.getElementById('ts-final-accuracy');
+  const againEl = document.getElementById('ts-again');
+  const soundBtn = document.getElementById('ts-sound');
+
+  let soundOn = window.localStorage.getItem(SOUND_KEY) !== 'off';
+  /** @type {AudioContext | null} */
+  let audioCtx = null;
+
+  /** @type {{ difficulty: string, text: string, input: string, timeLeft: number, startTime: number | null, timer: number | null, finished: boolean, lines: number, hits: number, misses: number, correctChars: number }} */
+  const state = {
+    difficulty: 'beginner',
+    text: '',
+    input: '',
+    timeLeft: 60,
+    startTime: null,
+    timer: null,
+    finished: false,
+    lines: 0,
+    hits: 0,
+    misses: 0,
+    correctChars: 0,
+  };
+
+  function getAudio() {
+    const AC = window.AudioContext || window.webkitAudioContext;
+    if (!AC) return null;
+    if (!audioCtx) audioCtx = new AC();
+    if (audioCtx.state === 'suspended') audioCtx.resume();
+    return audioCtx;
+  }
+
+  function beep({ freq, dur = 0.09, type = 'sine', vol = 0.1, delay = 0, slide = 0 }) {
+    if (!soundOn) return;
+    const c = getAudio();
+    if (!c) return;
+    const t0 = c.currentTime + delay;
+    const osc = c.createOscillator();
+    const g = c.createGain();
+    osc.type = type;
+    osc.frequency.setValueAtTime(freq, t0);
+    if (slide) osc.frequency.linearRampToValueAtTime(freq + slide, t0 + dur);
+    g.gain.setValueAtTime(vol, t0);
+    g.gain.exponentialRampToValueAtTime(0.001, t0 + dur);
+    osc.connect(g);
+    g.connect(c.destination);
+    osc.start(t0);
+    osc.stop(t0 + dur + 0.02);
+  }
+
+  function playStart() {
+    beep({ freq: 523, dur: 0.08, vol: 0.09 });
+    beep({ freq: 784, dur: 0.12, vol: 0.09, delay: 0.08 });
+  }
+
+  function playKey() {
+    beep({ freq: 980, dur: 0.035, vol: 0.05 });
+  }
+
+  function playCorrect() {
+    beep({ freq: 880, dur: 0.07, vol: 0.09 });
+    beep({ freq: 1175, dur: 0.12, vol: 0.09, delay: 0.07 });
+  }
+
+  function playWrong() {
+    beep({ freq: 180, dur: 0.14, type: 'square', vol: 0.07 });
+  }
+
+  function playWarn() {
+    beep({ freq: 523, dur: 0.12, vol: 0.1 });
+    beep({ freq: 784, dur: 0.16, vol: 0.1, delay: 0.14 });
+  }
+
+  function playTick(secondsLeft) {
+    const freq = 720 + (20 - secondsLeft) * 55;
+    beep({ freq, dur: 0.05, vol: 0.07 });
+  }
+
+  function playEnd() {
+    beep({ freq: 392, dur: 0.16, vol: 0.09 });
+    beep({ freq: 262, dur: 0.28, vol: 0.09, delay: 0.14, slide: -40 });
+  }
+
+  function paintSoundButton() {
+    if (!soundBtn) return;
+    soundBtn.textContent = soundOn ? 'Sound on' : 'Sound off';
+    soundBtn.setAttribute('aria-pressed', soundOn ? 'true' : 'false');
+  }
+
+  function show(name) {
+    for (const [key, el] of Object.entries(screens)) {
+      if (el) el.hidden = key !== name;
+    }
+  }
+
+  function stopTimer() {
+    if (state.timer !== null) {
+      window.clearInterval(state.timer);
+      state.timer = null;
+    }
+  }
+
+  function pickText() {
+    const bank = TEXTS[state.difficulty] || TEXTS.beginner;
+    let next = bank[Math.floor(Math.random() * bank.length)];
+    if (bank.length > 1) {
+      let guard = 0;
+      while (next === state.text && guard < 8) {
+        next = bank[Math.floor(Math.random() * bank.length)];
+        guard += 1;
+      }
+    }
+    return next;
+  }
+
+  function getAccuracy() {
+    const total = state.hits + state.misses;
+    if (total === 0) return 100;
+    return Math.round((state.hits / total) * 100);
+  }
+
+  function elapsedSeconds() {
+    if (!state.startTime) return 0;
+    return Math.max(0.1, (Date.now() - state.startTime) / 1000);
+  }
+
+  function getWpm() {
+    const seconds = elapsedSeconds();
+    if (seconds <= 0) return 0;
+    const currentCorrect = [...state.input].filter((ch, i) => ch === state.text[i]).length;
+    const chars = state.correctChars + currentCorrect;
+    return Math.round((chars / 5 / seconds) * 60);
+  }
+
+  function lineComplete() {
+    return state.input === state.text && state.text.length > 0;
+  }
+
+  function paintPrompt() {
+    if (!promptEl) return;
+    promptEl.replaceChildren();
+    const frag = document.createDocumentFragment();
+    for (let i = 0; i < state.text.length; i += 1) {
+      const span = document.createElement('span');
+      span.className = 'ts-char';
+      span.textContent = state.text[i];
+      if (i < state.input.length) {
+        span.classList.add(state.input[i] === state.text[i] ? 'is-correct' : 'is-wrong');
+      } else if (i === state.input.length) {
+        span.classList.add('is-current');
+      } else {
+        span.classList.add('is-waiting');
+      }
+      frag.appendChild(span);
+    }
+    promptEl.appendChild(frag);
+  }
+
+  function paintPlay() {
+    const hurry = state.timeLeft <= 20 && state.timeLeft > 0;
+    if (timeEl) {
+      timeEl.textContent = String(state.timeLeft);
+      timeEl.classList.toggle('ts-pulse', hurry);
+    }
+    if (hudEl) hudEl.classList.toggle('ts-hurry-hud', hurry);
+    if (hurryEl) {
+      hurryEl.hidden = !hurry;
+      hurryEl.classList.toggle('hidden', !hurry);
+      if (hurry) {
+        hurryEl.textContent =
+          state.timeLeft === 1 ? '1 second left' : `${state.timeLeft} seconds left`;
+      }
+    }
+    if (accuracyEl) accuracyEl.textContent = `${getAccuracy()}%`;
+    if (linesEl) linesEl.textContent = String(state.lines);
+    if (countEl) countEl.textContent = `${state.input.length} / ${state.text.length} characters`;
+    if (hintEl) {
+      hintEl.textContent = lineComplete()
+        ? 'Press Enter for the next line.'
+        : 'Type the line, then press Enter.';
+    }
+    if (inputEl) inputEl.classList.toggle('ts-ready', lineComplete());
+    paintPrompt();
+  }
+
+  function clearHurry() {
+    if (timeEl) timeEl.classList.remove('ts-pulse');
+    if (hudEl) hudEl.classList.remove('ts-hurry-hud');
+    if (hurryEl) {
+      hurryEl.hidden = true;
+      hurryEl.classList.add('hidden');
+    }
+  }
+
+  function loadLine() {
+    state.text = pickText();
+    state.input = '';
+    if (inputEl) {
+      inputEl.value = '';
+      inputEl.classList.remove('ts-ready');
+    }
+    paintPlay();
+  }
+
+  function acceptLine() {
+    if (!lineComplete() || state.finished) return;
+    state.lines += 1;
+    state.correctChars += state.text.length;
+    playCorrect();
+    loadLine();
+    inputEl?.focus();
+  }
+
+  function endGame() {
+    if (state.finished) return;
+    state.finished = true;
+    stopTimer();
+    clearHurry();
+    if (finalLinesEl) finalLinesEl.textContent = String(state.lines);
+    if (finalWpmEl) finalWpmEl.textContent = String(getWpm());
+    if (finalAccuracyEl) finalAccuracyEl.textContent = `${getAccuracy()}%`;
+    playEnd();
+    show('done');
+  }
+
+  function startTimer() {
+    stopTimer();
+    state.timer = window.setInterval(() => {
+      if (state.finished) return;
+      state.timeLeft -= 1;
+      paintPlay();
+      if (state.timeLeft === 20) playWarn();
+      else if (state.timeLeft < 20 && state.timeLeft > 0) playTick(state.timeLeft);
+      if (state.timeLeft <= 0) endGame();
+    }, 1000);
+  }
+
+  function startGame(difficulty) {
+    stopTimer();
+    state.difficulty = difficulty;
+    state.timeLeft = 60;
+    state.startTime = Date.now();
+    state.finished = false;
+    state.lines = 0;
+    state.hits = 0;
+    state.misses = 0;
+    state.correctChars = 0;
+    getAudio();
+    loadLine();
+    show('play');
+    playStart();
+    startTimer();
+    window.setTimeout(() => inputEl?.focus(), 0);
+  }
+
+  root.querySelectorAll('[data-difficulty]').forEach((btn) => {
+    btn.addEventListener('click', () => {
+      const difficulty = btn.getAttribute('data-difficulty');
+      if (difficulty) startGame(difficulty);
+    });
+  });
+
+  inputEl?.addEventListener('input', () => {
+    if (state.finished) return;
+    getAudio();
+    const value = inputEl.value;
+    const grew = value.length > state.input.length;
+    const extra = value.length > state.text.length;
+    const last = value.length - 1;
+    const mistyped = grew && last >= 0 && (last >= state.text.length || value[last] !== state.text[last]);
+    const typedRight = grew && last >= 0 && last < state.text.length && value[last] === state.text[last];
+
+    if (typedRight) {
+      state.hits += 1;
+      playKey();
+    } else if (extra || mistyped) {
+      state.misses += 1;
+      playWrong();
+    }
+
+    state.input = value;
+    paintPlay();
+  });
+
+  inputEl?.addEventListener('keydown', (event) => {
+    if (event.key !== 'Enter') return;
+    event.preventDefault();
+    if (state.finished) return;
+    getAudio();
+    if (lineComplete()) {
+      acceptLine();
+    } else {
+      playWrong();
+      if (hintEl) hintEl.textContent = 'Finish the line first, then press Enter.';
+    }
+  });
+
+  againEl?.addEventListener('click', () => {
+    stopTimer();
+    show('pick');
+  });
+
+  soundBtn?.addEventListener('click', () => {
+    soundOn = !soundOn;
+    window.localStorage.setItem(SOUND_KEY, soundOn ? 'on' : 'off');
+    paintSoundButton();
+    getAudio();
+    if (soundOn) beep({ freq: 880, dur: 0.08, vol: 0.08 });
+  });
+
+  paintSoundButton();
+  window.addEventListener('pagehide', stopTimer);
+</script>
+
+<style is:global>
+  .ts-prompt {
+    font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, 'Liberation Mono', 'Courier New',
+      monospace;
+    font-size: 1.5rem;
+    line-height: 1.7;
+    white-space: pre-wrap;
+    word-break: break-word;
+  }
+
+  #ts-prompt .ts-char {
+    display: inline;
+  }
+
+  #ts-prompt .ts-char.is-correct {
+    color: #22d3ee;
+  }
+
+  #ts-prompt .ts-char.is-wrong {
+    color: #ffffff;
+    background: #262626;
+    text-decoration: underline;
+    text-underline-offset: 3px;
+  }
+
+  #ts-prompt .ts-char.is-current {
+    color: #ffffff;
+    border-bottom: 2px solid #22d3ee;
+  }
+
+  #ts-prompt .ts-char.is-waiting {
+    color: #737373;
+  }
+
+  #ts-input.ts-ready {
+    border-color: #22d3ee;
+  }
+
+  #ts-hud.ts-hurry-hud {
+    border-color: #22d3ee;
+  }
+
+  #ts-time.ts-pulse {
+    animation: ts-pulse 0.9s ease-in-out infinite;
+  }
+
+  @keyframes ts-pulse {
+    0%,
+    100% {
+      transform: scale(1);
+    }
+    50% {
+      transform: scale(1.18);
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    #ts-time.ts-pulse {
+      animation: none;
+    }
+  }
+</style>

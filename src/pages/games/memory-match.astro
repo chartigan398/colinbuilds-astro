@@ -1,0 +1,499 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+---
+
+<BaseLayout
+  title="Memory Match | ColinBuilds"
+  description="Find the matching shapes. Four difficulty levels."
+>
+  <div class="mx-auto max-w-3xl px-6 py-12 pb-20">
+    <p class="text-sm text-neutral-500">
+      <a href="/" class="transition hover:text-cyan-400">Home</a>
+      <span> · </span>
+      <a href="/games/" class="transition hover:text-cyan-400">Games</a>
+    </p>
+    <h1 class="mt-3 text-3xl font-bold tracking-tight text-brand-cyan sm:text-4xl">Memory Match</h1>
+    <p class="mt-3 max-w-2xl text-neutral-400">
+      Each pair is the same shape. Flip two cards. A match stays up. Find every pair.
+    </p>
+
+    <div class="mt-6 flex justify-end">
+      <button
+        type="button"
+        id="mm-sound"
+        aria-pressed="true"
+        class="inline-flex items-center rounded-lg border border-neutral-600 bg-neutral-950 px-3 py-2 text-sm font-medium text-white transition hover:border-cyan-400 hover:text-cyan-300 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-cyan-400"
+      >
+        Sound on
+      </button>
+    </div>
+
+    <div id="memory-match" class="mt-6">
+      <section data-screen="pick" aria-label="Choose difficulty">
+        <h2 class="text-sm font-semibold tracking-widest text-cyan-400">Choose a level</h2>
+        <ul class="mt-4 grid grid-cols-1 gap-3 sm:grid-cols-2">
+          <li>
+            <button
+              type="button"
+              data-difficulty="beginner"
+              class="flex h-full w-full flex-col rounded-xl border border-neutral-800 bg-neutral-950 p-5 text-left transition hover:border-cyan-400 focus-visible:border-cyan-400 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-cyan-400"
+            >
+              <span class="text-lg font-semibold text-brand-cyan">Beginner</span>
+              <span class="mt-1 text-sm text-neutral-400">4 pairs. 8 cards.</span>
+            </button>
+          </li>
+          <li>
+            <button
+              type="button"
+              data-difficulty="intermediate"
+              class="flex h-full w-full flex-col rounded-xl border border-neutral-800 bg-neutral-950 p-5 text-left transition hover:border-cyan-400 focus-visible:border-cyan-400 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-cyan-400"
+            >
+              <span class="text-lg font-semibold text-brand-cyan">Intermediate</span>
+              <span class="mt-1 text-sm text-neutral-400">6 pairs. 12 cards.</span>
+            </button>
+          </li>
+          <li>
+            <button
+              type="button"
+              data-difficulty="pro"
+              class="flex h-full w-full flex-col rounded-xl border border-neutral-800 bg-neutral-950 p-5 text-left transition hover:border-cyan-400 focus-visible:border-cyan-400 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-cyan-400"
+            >
+              <span class="text-lg font-semibold text-brand-cyan">Pro</span>
+              <span class="mt-1 text-sm text-neutral-400">8 pairs. 16 cards.</span>
+            </button>
+          </li>
+          <li>
+            <button
+              type="button"
+              data-difficulty="superstar"
+              class="flex h-full w-full flex-col rounded-xl border border-neutral-800 bg-neutral-950 p-5 text-left transition hover:border-cyan-400 focus-visible:border-cyan-400 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-cyan-400"
+            >
+              <span class="text-lg font-semibold text-brand-cyan">Superstar</span>
+              <span class="mt-1 text-sm text-neutral-400">10 pairs. 20 cards.</span>
+            </button>
+          </li>
+        </ul>
+      </section>
+
+      <section data-screen="play" hidden aria-label="Memory match in progress">
+        <div class="grid grid-cols-3 gap-3 rounded-xl border border-neutral-800 bg-neutral-950 p-4 text-center">
+          <div>
+            <p id="mm-moves" class="text-3xl font-bold tabular-nums text-brand-cyan">0</p>
+            <p class="mt-1 text-xs text-neutral-500">Moves</p>
+          </div>
+          <div>
+            <p id="mm-time" class="text-3xl font-bold tabular-nums text-brand-cyan">0</p>
+            <p class="mt-1 text-xs text-neutral-500">Seconds</p>
+          </div>
+          <div>
+            <p id="mm-pairs" class="text-3xl font-bold tabular-nums text-brand-cyan">0</p>
+            <p class="mt-1 text-xs text-neutral-500">Pairs</p>
+          </div>
+        </div>
+
+        <div id="mm-board" class="mt-6 grid gap-3 rounded-xl border border-neutral-800 bg-neutral-950 p-3 sm:p-4"></div>
+
+        <button
+          type="button"
+          id="mm-restart"
+          class="mt-6 inline-flex w-full items-center justify-center rounded-lg border border-neutral-600 bg-neutral-950 px-4 py-2.5 text-sm font-medium text-white transition hover:border-cyan-400 hover:text-cyan-300 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-cyan-400"
+        >
+          Restart
+        </button>
+      </section>
+
+      <section data-screen="done" hidden aria-label="Results">
+        <div class="rounded-xl border border-neutral-800 bg-neutral-950 p-6 text-center sm:p-10">
+          <h2 class="text-2xl font-bold tracking-tight text-brand-cyan">All pairs found</h2>
+          <div class="mt-8 grid grid-cols-2 gap-3">
+            <div class="rounded-lg border border-neutral-800 p-4">
+              <p id="mm-final-moves" class="text-3xl font-bold tabular-nums text-brand-cyan">0</p>
+              <p class="mt-1 text-xs text-neutral-500">Moves</p>
+            </div>
+            <div class="rounded-lg border border-neutral-800 p-4">
+              <p id="mm-final-time" class="text-3xl font-bold tabular-nums text-brand-cyan">0</p>
+              <p class="mt-1 text-xs text-neutral-500">Seconds</p>
+            </div>
+          </div>
+          <div class="mt-8 flex flex-col gap-3 sm:flex-row sm:justify-center">
+            <button
+              type="button"
+              id="mm-again"
+              class="inline-flex items-center justify-center rounded-lg bg-cyan-400 px-4 py-2.5 text-sm font-medium text-black transition hover:bg-cyan-300 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-cyan-400"
+            >
+              Play again
+            </button>
+            <a
+              href="/games/"
+              class="inline-flex items-center justify-center rounded-lg border border-neutral-600 bg-neutral-950 px-4 py-2.5 text-sm font-medium text-white transition hover:border-cyan-400 hover:text-cyan-300 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-cyan-400"
+            >
+              Back to Games
+            </a>
+          </div>
+        </div>
+      </section>
+    </div>
+  </div>
+</BaseLayout>
+
+<script>
+  const SOUND_KEY = 'colinbuilds-memory-match-sound';
+  const SHAPES = [
+    {
+      name: 'triangle',
+      svg: '<svg viewBox="0 0 64 64" aria-hidden="true"><polygon points="32,8 56,54 8,54" fill="none" stroke="#22d3ee" stroke-width="4" stroke-linejoin="round"/></svg>',
+    },
+    {
+      name: 'circle',
+      svg: '<svg viewBox="0 0 64 64" aria-hidden="true"><circle cx="32" cy="32" r="22" fill="none" stroke="#22d3ee" stroke-width="4"/></svg>',
+    },
+    {
+      name: 'square',
+      svg: '<svg viewBox="0 0 64 64" aria-hidden="true"><rect x="12" y="12" width="40" height="40" fill="none" stroke="#22d3ee" stroke-width="4" rx="2"/></svg>',
+    },
+    {
+      name: 'diamond',
+      svg: '<svg viewBox="0 0 64 64" aria-hidden="true"><polygon points="32,8 56,32 32,56 8,32" fill="none" stroke="#22d3ee" stroke-width="4" stroke-linejoin="round"/></svg>',
+    },
+    {
+      name: 'star',
+      svg: '<svg viewBox="0 0 64 64" aria-hidden="true"><polygon points="32,8 38,24 56,24 42,36 47,54 32,43 17,54 22,36 8,24 26,24" fill="none" stroke="#22d3ee" stroke-width="3.5" stroke-linejoin="round"/></svg>',
+    },
+    {
+      name: 'plus',
+      svg: '<svg viewBox="0 0 64 64" aria-hidden="true"><path d="M32 12v40M12 32h40" fill="none" stroke="#22d3ee" stroke-width="5" stroke-linecap="round"/></svg>',
+    },
+    {
+      name: 'cross',
+      svg: '<svg viewBox="0 0 64 64" aria-hidden="true"><path d="M18 18l28 28M46 18L18 46" fill="none" stroke="#22d3ee" stroke-width="5" stroke-linecap="round"/></svg>',
+    },
+    {
+      name: 'hexagon',
+      svg: '<svg viewBox="0 0 64 64" aria-hidden="true"><polygon points="32,8 54,20 54,44 32,56 10,44 10,20" fill="none" stroke="#22d3ee" stroke-width="4" stroke-linejoin="round"/></svg>',
+    },
+    {
+      name: 'ring',
+      svg: '<svg viewBox="0 0 64 64" aria-hidden="true"><circle cx="32" cy="32" r="22" fill="none" stroke="#22d3ee" stroke-width="4"/><circle cx="32" cy="32" r="10" fill="none" stroke="#22d3ee" stroke-width="4"/></svg>',
+    },
+    {
+      name: 'arrow',
+      svg: '<svg viewBox="0 0 64 64" aria-hidden="true"><path d="M16 32h28M32 16l16 16-16 16" fill="none" stroke="#22d3ee" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/></svg>',
+    },
+  ];
+  const PAIR_COUNTS = { beginner: 4, intermediate: 6, pro: 8, superstar: 10 };
+
+  const root = document.getElementById('memory-match');
+  if (!root) {
+    throw new Error('Memory Match root missing');
+  }
+
+  const screens = {
+    pick: root.querySelector('[data-screen="pick"]'),
+    play: root.querySelector('[data-screen="play"]'),
+    done: root.querySelector('[data-screen="done"]'),
+  };
+
+  const boardEl = document.getElementById('mm-board');
+  const movesEl = document.getElementById('mm-moves');
+  const timeEl = document.getElementById('mm-time');
+  const pairsEl = document.getElementById('mm-pairs');
+  const finalMovesEl = document.getElementById('mm-final-moves');
+  const finalTimeEl = document.getElementById('mm-final-time');
+  const restartEl = document.getElementById('mm-restart');
+  const againEl = document.getElementById('mm-again');
+  const soundBtn = document.getElementById('mm-sound');
+
+  let soundOn = window.localStorage.getItem(SOUND_KEY) !== 'off';
+  /** @type {AudioContext | null} */
+  let audioCtx = null;
+
+  /** @type {{ difficulty: string, cards: { id: number, pair: number, name: string, svg: string, matched: boolean }[], flipped: number[], moves: number, timeElapsed: number, busy: boolean, timer: number | null, missTimer: number | null }} */
+  const state = {
+    difficulty: 'beginner',
+    cards: [],
+    flipped: [],
+    moves: 0,
+    timeElapsed: 0,
+    busy: false,
+    timer: null,
+    missTimer: null,
+  };
+
+  function rand(min, max) {
+    return Math.floor(Math.random() * (max - min + 1)) + min;
+  }
+
+  function shuffle(list) {
+    const next = [...list];
+    for (let i = next.length - 1; i > 0; i -= 1) {
+      const j = rand(0, i);
+      const t = next[i];
+      next[i] = next[j];
+      next[j] = t;
+    }
+    return next;
+  }
+
+  function getAudio() {
+    const AC = window.AudioContext || window.webkitAudioContext;
+    if (!AC) return null;
+    if (!audioCtx) audioCtx = new AC();
+    if (audioCtx.state === 'suspended') audioCtx.resume();
+    return audioCtx;
+  }
+
+  function beep({ freq, dur = 0.09, type = 'sine', vol = 0.07, delay = 0 }) {
+    if (!soundOn) return;
+    const c = getAudio();
+    if (!c) return;
+    const t0 = c.currentTime + delay;
+    const osc = c.createOscillator();
+    const g = c.createGain();
+    osc.type = type;
+    osc.frequency.setValueAtTime(freq, t0);
+    g.gain.setValueAtTime(vol, t0);
+    g.gain.exponentialRampToValueAtTime(0.001, t0 + dur);
+    osc.connect(g);
+    g.connect(c.destination);
+    osc.start(t0);
+    osc.stop(t0 + dur + 0.02);
+  }
+
+  function playFlip() {
+    beep({ freq: 640, dur: 0.05, vol: 0.04 });
+  }
+
+  function playMatch() {
+    beep({ freq: 880, dur: 0.07, vol: 0.06 });
+    beep({ freq: 1175, dur: 0.1, vol: 0.06, delay: 0.07 });
+  }
+
+  function playMiss() {
+    beep({ freq: 180, dur: 0.12, type: 'square', vol: 0.035 });
+  }
+
+  function playWin() {
+    beep({ freq: 523, dur: 0.1, vol: 0.06 });
+    beep({ freq: 659, dur: 0.1, vol: 0.06, delay: 0.1 });
+    beep({ freq: 784, dur: 0.18, vol: 0.07, delay: 0.2 });
+  }
+
+  function paintSoundButton() {
+    if (!soundBtn) return;
+    soundBtn.textContent = soundOn ? 'Sound on' : 'Sound off';
+    soundBtn.setAttribute('aria-pressed', soundOn ? 'true' : 'false');
+  }
+
+  function show(name) {
+    for (const [key, el] of Object.entries(screens)) {
+      if (el) el.hidden = key !== name;
+    }
+  }
+
+  function stopTimer() {
+    if (state.timer !== null) {
+      window.clearInterval(state.timer);
+      state.timer = null;
+    }
+    if (state.missTimer !== null) {
+      window.clearTimeout(state.missTimer);
+      state.missTimer = null;
+    }
+  }
+
+  function pairCount() {
+    return PAIR_COUNTS[state.difficulty] || 4;
+  }
+
+  function makeDeck() {
+    const count = pairCount();
+    const picked = SHAPES.slice(0, count);
+    const raw = [];
+    picked.forEach((shape, pair) => {
+      raw.push({ pair, name: shape.name, svg: shape.svg });
+      raw.push({ pair, name: shape.name, svg: shape.svg });
+    });
+    return shuffle(raw).map((card, id) => ({ ...card, id, matched: false }));
+  }
+
+  function pairsFound() {
+    return state.cards.filter((card) => card.matched).length / 2;
+  }
+
+  function isUp(id) {
+    return state.flipped.includes(id) || Boolean(state.cards[id]?.matched);
+  }
+
+  function paintHud() {
+    if (movesEl) movesEl.textContent = String(state.moves);
+    if (timeEl) timeEl.textContent = String(state.timeElapsed);
+    if (pairsEl) pairsEl.textContent = `${pairsFound()} / ${pairCount()}`;
+  }
+
+  function paintBoard() {
+    if (!boardEl) return;
+    const cols = state.difficulty === 'superstar' ? 5 : 4;
+    boardEl.style.gridTemplateColumns = `repeat(${cols}, minmax(0, 1fr))`;
+    boardEl.replaceChildren(
+      ...state.cards.map((card) => {
+        const up = isUp(card.id);
+        const btn = document.createElement('button');
+        btn.type = 'button';
+        btn.className = 'mm-card';
+        btn.dataset.id = String(card.id);
+        btn.dataset.state = card.matched ? 'match' : up ? 'up' : 'down';
+        btn.setAttribute(
+          'aria-label',
+          card.matched || up ? `${card.name}, face up` : `Card ${card.id + 1}, face down`,
+        );
+        btn.disabled = card.matched;
+        if (up) {
+          btn.innerHTML = card.svg;
+        } else {
+          btn.textContent = '?';
+        }
+        btn.addEventListener('click', () => onCard(card.id));
+        return btn;
+      }),
+    );
+  }
+
+  function endGame() {
+    stopTimer();
+    playWin();
+    if (finalMovesEl) finalMovesEl.textContent = String(state.moves);
+    if (finalTimeEl) finalTimeEl.textContent = String(state.timeElapsed);
+    show('done');
+  }
+
+  function startGame(difficulty) {
+    stopTimer();
+    state.difficulty = difficulty;
+    state.cards = makeDeck();
+    state.flipped = [];
+    state.moves = 0;
+    state.timeElapsed = 0;
+    state.busy = false;
+    paintHud();
+    paintBoard();
+    show('play');
+
+    state.timer = window.setInterval(() => {
+      state.timeElapsed += 1;
+      paintHud();
+    }, 1000);
+  }
+
+  function onCard(id) {
+    const card = state.cards[id];
+    if (!card || state.busy || card.matched || state.flipped.includes(id) || state.flipped.length >= 2) {
+      return;
+    }
+
+    playFlip();
+    state.flipped.push(id);
+    paintBoard();
+
+    if (state.flipped.length < 2) return;
+
+    state.moves += 1;
+    paintHud();
+    const [a, b] = state.flipped;
+    const first = state.cards[a];
+    const second = state.cards[b];
+
+    if (first.pair === second.pair) {
+      first.matched = true;
+      second.matched = true;
+      state.flipped = [];
+      playMatch();
+      paintBoard();
+      paintHud();
+      if (state.cards.every((item) => item.matched)) endGame();
+      return;
+    }
+
+    state.busy = true;
+    playMiss();
+    state.missTimer = window.setTimeout(() => {
+      state.missTimer = null;
+      state.flipped = [];
+      state.busy = false;
+      paintBoard();
+    }, 800);
+  }
+
+  root.querySelectorAll('[data-difficulty]').forEach((btn) => {
+    btn.addEventListener('click', () => {
+      const difficulty = btn.getAttribute('data-difficulty');
+      if (difficulty) startGame(difficulty);
+    });
+  });
+
+  restartEl?.addEventListener('click', () => {
+    startGame(state.difficulty);
+  });
+
+  againEl?.addEventListener('click', () => {
+    stopTimer();
+    show('pick');
+  });
+
+  soundBtn?.addEventListener('click', () => {
+    soundOn = !soundOn;
+    window.localStorage.setItem(SOUND_KEY, soundOn ? 'on' : 'off');
+    paintSoundButton();
+    if (soundOn) beep({ freq: 880, dur: 0.08, vol: 0.05 });
+  });
+
+  paintSoundButton();
+  window.addEventListener('pagehide', stopTimer);
+</script>
+
+<style is:global>
+  #mm-board .mm-card {
+    aspect-ratio: 1;
+    min-height: 4.5rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 0.75rem;
+    border: 2px solid #525252;
+    background: #171717;
+    color: #22d3ee;
+    font-size: 2rem;
+    font-weight: 700;
+    line-height: 1;
+    cursor: pointer;
+    transition:
+      border-color 0.15s ease,
+      background-color 0.15s ease;
+  }
+
+  #mm-board .mm-card svg {
+    width: 58%;
+    height: 58%;
+    display: block;
+  }
+
+  #mm-board .mm-card:hover:not(:disabled),
+  #mm-board .mm-card:focus-visible {
+    border-color: #22d3ee;
+    outline: 2px solid #22d3ee;
+    outline-offset: 2px;
+  }
+
+  #mm-board .mm-card[data-state='up'] {
+    border-color: #22d3ee;
+    background: #083344;
+  }
+
+  #mm-board .mm-card[data-state='match'] {
+    border-color: #22d3ee;
+    background: #155e75;
+  }
+
+  #mm-board .mm-card:disabled {
+    cursor: default;
+  }
+</style>

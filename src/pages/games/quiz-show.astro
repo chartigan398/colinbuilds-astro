@@ -1,0 +1,426 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+---
+
+<BaseLayout
+  title="Quiz Show | ColinBuilds"
+  description="Answer five questions. Fifteen seconds each. Five points for a correct answer."
+>
+  <div class="mx-auto max-w-3xl px-6 py-12 pb-20">
+    <p class="text-sm text-neutral-500">
+      <a href="/" class="transition hover:text-cyan-400">Home</a>
+      <span> · </span>
+      <a href="/games/" class="transition hover:text-cyan-400">Games</a>
+    </p>
+    <h1 class="mt-3 text-3xl font-bold tracking-tight text-brand-cyan sm:text-4xl">Quiz Show</h1>
+    <p class="mt-3 max-w-2xl text-neutral-400">
+      Five questions. Fifteen seconds each. Five points for a correct answer. A wrong answer, or running out of time, does not change your score.
+    </p>
+
+    <div class="mt-6 flex justify-end">
+      <button
+        type="button"
+        id="qs-sound"
+        aria-pressed="true"
+        class="inline-flex items-center rounded-lg border border-neutral-600 bg-neutral-950 px-3 py-2 text-sm font-medium text-white transition hover:border-cyan-400 hover:text-cyan-300 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-cyan-400"
+      >
+        Sound on
+      </button>
+    </div>
+
+    <div id="quiz-show" class="mt-6">
+      <section data-screen="pick" aria-label="Start quiz">
+        <div class="rounded-xl border border-neutral-800 bg-neutral-950 p-6 text-center sm:p-10">
+          <p class="text-sm text-neutral-400">Ready when you are.</p>
+          <button
+            type="button"
+            id="qs-start"
+            class="mt-6 inline-flex items-center justify-center rounded-lg bg-cyan-400 px-4 py-2.5 text-sm font-medium text-black transition hover:bg-cyan-300 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-cyan-400"
+          >
+            Start
+          </button>
+        </div>
+      </section>
+
+      <section data-screen="play" hidden aria-label="Quiz in progress">
+        <div class="grid grid-cols-3 gap-3 rounded-xl border border-neutral-800 bg-neutral-950 p-4 text-center">
+          <div>
+            <p id="qs-score" class="text-3xl font-bold tabular-nums text-brand-cyan">0</p>
+            <p class="mt-1 text-xs text-neutral-500">Score</p>
+          </div>
+          <div>
+            <p id="qs-time" class="text-3xl font-bold tabular-nums text-brand-cyan">15</p>
+            <p class="mt-1 text-xs text-neutral-500">Seconds</p>
+          </div>
+          <div>
+            <p id="qs-progress" class="text-3xl font-bold tabular-nums text-brand-cyan">1 / 5</p>
+            <p class="mt-1 text-xs text-neutral-500">Question</p>
+          </div>
+        </div>
+
+        <div class="mt-6 rounded-xl border border-neutral-800 bg-neutral-950 p-6 sm:p-8">
+          <h2 id="qs-question" class="text-2xl font-bold tracking-tight text-brand-cyan sm:text-3xl">Question</h2>
+          <p id="qs-feedback" class="mt-3 min-h-6 text-sm text-neutral-500" aria-live="polite"></p>
+          <div id="qs-options" class="mt-6 grid grid-cols-1 gap-3 sm:grid-cols-2">
+            <button type="button" data-option="0" class="qs-option">A</button>
+            <button type="button" data-option="1" class="qs-option">B</button>
+            <button type="button" data-option="2" class="qs-option">C</button>
+            <button type="button" data-option="3" class="qs-option">D</button>
+          </div>
+        </div>
+      </section>
+
+      <section data-screen="done" hidden aria-label="Results">
+        <div class="rounded-xl border border-neutral-800 bg-neutral-950 p-6 text-center sm:p-10">
+          <h2 class="text-2xl font-bold tracking-tight text-brand-cyan">Quiz over</h2>
+          <div class="mt-8 grid grid-cols-2 gap-3">
+            <div class="rounded-lg border border-neutral-800 p-4">
+              <p id="qs-final-score" class="text-3xl font-bold tabular-nums text-brand-cyan">0</p>
+              <p class="mt-1 text-xs text-neutral-500">Score</p>
+            </div>
+            <div class="rounded-lg border border-neutral-800 p-4">
+              <p id="qs-final-correct" class="text-3xl font-bold tabular-nums text-brand-cyan">0</p>
+              <p class="mt-1 text-xs text-neutral-500">Correct</p>
+            </div>
+          </div>
+          <div class="mt-8 flex flex-col gap-3 sm:flex-row sm:justify-center">
+            <button
+              type="button"
+              id="qs-again"
+              class="inline-flex items-center justify-center rounded-lg bg-cyan-400 px-4 py-2.5 text-sm font-medium text-black transition hover:bg-cyan-300 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-cyan-400"
+            >
+              Play again
+            </button>
+            <a
+              href="/games/"
+              class="inline-flex items-center justify-center rounded-lg border border-neutral-600 bg-neutral-950 px-4 py-2.5 text-sm font-medium text-white transition hover:border-cyan-400 hover:text-cyan-300 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-cyan-400"
+            >
+              Back to Games
+            </a>
+          </div>
+        </div>
+      </section>
+    </div>
+  </div>
+</BaseLayout>
+
+<script>
+  const SOUND_KEY = 'colinbuilds-quiz-show-sound';
+  const QUESTIONS = [
+    {
+      question: 'What is the capital of France?',
+      options: ['London', 'Berlin', 'Paris', 'Madrid'],
+      answer: 2,
+    },
+    {
+      question: 'Which planet is known as the Red Planet?',
+      options: ['Venus', 'Mars', 'Jupiter', 'Saturn'],
+      answer: 1,
+    },
+    {
+      question: 'What is 5 × 5?',
+      options: ['10', '20', '25', '55'],
+      answer: 2,
+    },
+    {
+      question: 'Which animal is the fastest land animal?',
+      options: ['Lion', 'Cheetah', 'Horse', 'Elephant'],
+      answer: 1,
+    },
+    {
+      question: 'What do plants need to make food?',
+      options: ['Sunlight', 'Pizza', 'Music', 'Sleep'],
+      answer: 0,
+    },
+  ];
+
+  const root = document.getElementById('quiz-show');
+  if (!root) {
+    throw new Error('Quiz Show root missing');
+  }
+
+  const screens = {
+    pick: root.querySelector('[data-screen="pick"]'),
+    play: root.querySelector('[data-screen="play"]'),
+    done: root.querySelector('[data-screen="done"]'),
+  };
+
+  const scoreEl = document.getElementById('qs-score');
+  const timeEl = document.getElementById('qs-time');
+  const progressEl = document.getElementById('qs-progress');
+  const questionEl = document.getElementById('qs-question');
+  const feedbackEl = document.getElementById('qs-feedback');
+  const optionEls = [...root.querySelectorAll('[data-option]')];
+  const finalScoreEl = document.getElementById('qs-final-score');
+  const finalCorrectEl = document.getElementById('qs-final-correct');
+  const startEl = document.getElementById('qs-start');
+  const againEl = document.getElementById('qs-again');
+  const soundBtn = document.getElementById('qs-sound');
+
+  let soundOn = window.localStorage.getItem(SOUND_KEY) !== 'off';
+  /** @type {AudioContext | null} */
+  let audioCtx = null;
+
+  /** @type {{ index: number, score: number, correct: number, timeLeft: number, locked: boolean, timer: number | null, nextTimer: number | null }} */
+  const state = {
+    index: 0,
+    score: 0,
+    correct: 0,
+    timeLeft: 15,
+    locked: false,
+    timer: null,
+    nextTimer: null,
+  };
+
+  function getAudio() {
+    const AC = window.AudioContext || window.webkitAudioContext;
+    if (!AC) return null;
+    if (!audioCtx) audioCtx = new AC();
+    if (audioCtx.state === 'suspended') audioCtx.resume();
+    return audioCtx;
+  }
+
+  function beep({ freq, dur = 0.09, type = 'sine', vol = 0.07, delay = 0 }) {
+    if (!soundOn) return;
+    const c = getAudio();
+    if (!c) return;
+    const t0 = c.currentTime + delay;
+    const osc = c.createOscillator();
+    const g = c.createGain();
+    osc.type = type;
+    osc.frequency.setValueAtTime(freq, t0);
+    g.gain.setValueAtTime(vol, t0);
+    g.gain.exponentialRampToValueAtTime(0.001, t0 + dur);
+    osc.connect(g);
+    g.connect(c.destination);
+    osc.start(t0);
+    osc.stop(t0 + dur + 0.02);
+  }
+
+  function playCorrect() {
+    beep({ freq: 880, dur: 0.07, vol: 0.06 });
+    beep({ freq: 1175, dur: 0.1, vol: 0.06, delay: 0.07 });
+  }
+
+  function playWrong() {
+    beep({ freq: 180, dur: 0.14, type: 'square', vol: 0.04 });
+  }
+
+  function playTick() {
+    beep({ freq: 920, dur: 0.04, vol: 0.045 });
+  }
+
+  function playWin() {
+    beep({ freq: 523, dur: 0.1, vol: 0.06 });
+    beep({ freq: 659, dur: 0.1, vol: 0.06, delay: 0.1 });
+    beep({ freq: 784, dur: 0.18, vol: 0.07, delay: 0.2 });
+  }
+
+  function paintSoundButton() {
+    if (!soundBtn) return;
+    soundBtn.textContent = soundOn ? 'Sound on' : 'Sound off';
+    soundBtn.setAttribute('aria-pressed', soundOn ? 'true' : 'false');
+  }
+
+  function show(name) {
+    for (const [key, el] of Object.entries(screens)) {
+      if (el) el.hidden = key !== name;
+    }
+  }
+
+  function stopTimers() {
+    if (state.timer !== null) {
+      window.clearInterval(state.timer);
+      state.timer = null;
+    }
+    if (state.nextTimer !== null) {
+      window.clearTimeout(state.nextTimer);
+      state.nextTimer = null;
+    }
+  }
+
+  function current() {
+    return QUESTIONS[state.index];
+  }
+
+  function paintHud() {
+    if (scoreEl) scoreEl.textContent = String(state.score);
+    if (timeEl) {
+      timeEl.textContent = String(state.timeLeft);
+      timeEl.classList.toggle('qs-pulse', state.timeLeft <= 5 && !state.locked);
+    }
+    if (progressEl) progressEl.textContent = `${state.index + 1} / ${QUESTIONS.length}`;
+  }
+
+  function paintQuestion() {
+    const q = current();
+    if (questionEl) questionEl.textContent = q.question;
+    if (feedbackEl) feedbackEl.textContent = '';
+    optionEls.forEach((btn, i) => {
+      btn.textContent = q.options[i];
+      btn.disabled = false;
+      btn.dataset.state = 'idle';
+    });
+  }
+
+  function reveal(selected) {
+    const q = current();
+    optionEls.forEach((btn, i) => {
+      btn.disabled = true;
+      if (i === q.answer) btn.dataset.state = 'right';
+      else if (selected === i) btn.dataset.state = 'wrong';
+      else btn.dataset.state = 'idle';
+    });
+  }
+
+  function endGame() {
+    stopTimers();
+    playWin();
+    if (finalScoreEl) finalScoreEl.textContent = String(state.score);
+    if (finalCorrectEl) finalCorrectEl.textContent = `${state.correct} / ${QUESTIONS.length}`;
+    show('done');
+  }
+
+  function goNext() {
+    if (state.index < QUESTIONS.length - 1) {
+      state.index += 1;
+      showQuestion();
+      return;
+    }
+    endGame();
+  }
+
+  function settle(kind, selected) {
+    if (state.locked) return;
+    state.locked = true;
+    stopTimers();
+    if (timeEl) timeEl.classList.remove('qs-pulse');
+    reveal(selected);
+
+    if (kind === 'correct') {
+      state.score += 5;
+      state.correct += 1;
+      if (feedbackEl) feedbackEl.textContent = 'Correct.';
+      playCorrect();
+      paintHud();
+    } else if (kind === 'timeout') {
+      if (feedbackEl) feedbackEl.textContent = 'Time’s up. The correct answer is highlighted.';
+      playWrong();
+    } else {
+      if (feedbackEl) feedbackEl.textContent = 'Wrong. The correct answer is highlighted.';
+      playWrong();
+    }
+
+    state.nextTimer = window.setTimeout(goNext, 1400);
+  }
+
+  function showQuestion() {
+    stopTimers();
+    state.timeLeft = 15;
+    state.locked = false;
+    paintQuestion();
+    paintHud();
+
+    state.timer = window.setInterval(() => {
+      if (state.locked) return;
+      state.timeLeft -= 1;
+      paintHud();
+      if (state.timeLeft <= 5 && state.timeLeft > 0) playTick();
+      if (state.timeLeft <= 0) settle('timeout', null);
+    }, 1000);
+  }
+
+  function startGame() {
+    stopTimers();
+    state.index = 0;
+    state.score = 0;
+    state.correct = 0;
+    show('play');
+    showQuestion();
+  }
+
+  startEl?.addEventListener('click', startGame);
+  againEl?.addEventListener('click', () => {
+    stopTimers();
+    show('pick');
+  });
+
+  optionEls.forEach((btn) => {
+    btn.addEventListener('click', () => {
+      if (state.locked) return;
+      const selected = Number(btn.getAttribute('data-option'));
+      const kind = selected === current().answer ? 'correct' : 'wrong';
+      settle(kind, selected);
+    });
+  });
+
+  soundBtn?.addEventListener('click', () => {
+    soundOn = !soundOn;
+    window.localStorage.setItem(SOUND_KEY, soundOn ? 'on' : 'off');
+    paintSoundButton();
+    if (soundOn) beep({ freq: 880, dur: 0.08, vol: 0.05 });
+  });
+
+  paintSoundButton();
+  window.addEventListener('pagehide', stopTimers);
+</script>
+
+<style is:global>
+  .qs-option {
+    min-height: 3.5rem;
+    border-radius: 0.75rem;
+    border: 2px solid #404040;
+    background: #0a0a0a;
+    padding: 0.9rem 1rem;
+    text-align: left;
+    font-size: 1rem;
+    font-weight: 600;
+    color: #ffffff;
+    cursor: pointer;
+    transition:
+      border-color 0.15s ease,
+      background-color 0.15s ease;
+  }
+
+  .qs-option:hover:not(:disabled),
+  .qs-option:focus-visible {
+    border-color: #22d3ee;
+    outline: 2px solid #22d3ee;
+    outline-offset: 2px;
+  }
+
+  .qs-option[data-state='right'] {
+    border-color: #22d3ee;
+    background: #083344;
+    color: #22d3ee;
+  }
+
+  .qs-option[data-state='wrong'] {
+    border-color: #737373;
+    color: #a3a3a3;
+  }
+
+  .qs-option:disabled {
+    cursor: default;
+  }
+
+  #qs-time.qs-pulse {
+    animation: qs-pulse 0.9s ease-in-out infinite;
+  }
+
+  @keyframes qs-pulse {
+    0%,
+    100% {
+      transform: scale(1);
+    }
+    50% {
+      transform: scale(1.12);
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    #qs-time.qs-pulse {
+      animation: none;
+    }
+  }
+</style>
