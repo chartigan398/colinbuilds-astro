@@ -1,6 +1,7 @@
 ---
 title: "A beginner’s history of AI"
 description: "AI did not begin with ChatGPT. This guide follows the turning points — what happened, and why it mattered — without the mathematics."
+guide_no: "01"
 pubDate: 2026-08-26
 ---
 

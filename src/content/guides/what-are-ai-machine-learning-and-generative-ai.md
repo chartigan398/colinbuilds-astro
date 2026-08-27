@@ -1,6 +1,7 @@
 ---
 title: "What Are AI, Machine Learning and Generative AI?"
 description: "Four terms you hear everywhere, explained without the technical words."
+guide_no: "02"
 pubDate: 2026-08-27
 ---
 
