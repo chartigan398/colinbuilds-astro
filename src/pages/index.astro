@@ -1,6 +1,7 @@
 ---
 import BaseLayout from '../layouts/BaseLayout.astro';
 import Brand from '../components/Brand.astro';
+import { SITE_TITLE, SITE_DESCRIPTION } from '../data/site.js';
 
 const sections = [
   {
@@ -103,8 +104,8 @@ const iconBox = 'h-6 w-6';
 ---
 
 <BaseLayout
-  title="ColinBuilds.com"
-  description="A place to learn. Read or play."
+  title={SITE_TITLE}
+  description={SITE_DESCRIPTION}
 >
   <div class="relative mx-auto max-w-[90rem] px-6 py-12 pb-20">
       <section aria-labelledby="home-hero-title">
