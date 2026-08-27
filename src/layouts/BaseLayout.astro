@@ -12,14 +12,14 @@ interface Props {
 
 const {
   title,
-  description = 'A place to learn.',
+  description = 'A place to learn. Read or play.',
   noIndex = false,
   hideFooter = false,
 } = Astro.props;
 const canonicalURL = new URL(Astro.url.pathname, Astro.site);
 const path = Astro.url.pathname;
 const isHome = path === '/';
-const isGames = path === '/games/' || path.startsWith('/games/');
+const showScene = !hideFooter;
 
 const nav = [
   { href: '/#learn', label: 'Learn', current: false },
@@ -55,7 +55,7 @@ const nav = [
     <title>{title}</title>
     <script defer src="/_vercel/insights/script.js"></script>
   </head>
-  <body class:list={['bg-black text-white antialiased', hideFooter ? 'flex h-dvh flex-col overflow-hidden' : 'min-h-screen', isGames && 'games-page']}>
+  <body class:list={['bg-black text-white antialiased', hideFooter ? 'flex h-dvh flex-col overflow-hidden' : 'min-h-screen', showScene && 'has-scene']}>
     <header class:list={['border-b border-neutral-800 bg-black/95 backdrop-blur', hideFooter && 'shrink-0']}>
       <div
         class:list={[
@@ -116,13 +116,13 @@ const nav = [
       </div>
     </header>
     <main class:list={[hideFooter && 'flex min-h-0 flex-1 flex-col']}>
-      {isGames && <GameScene />}
+      {showScene && <GameScene />}
       <slot />
     </main>
     {
       !hideFooter && (
         <footer class="border-t border-neutral-800 py-8 text-center text-sm text-neutral-500">
-          <Brand /> · A place to learn
+          <Brand /> · A place to learn. Read or play.
         </footer>
       )
     }

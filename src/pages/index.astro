@@ -7,7 +7,7 @@ const sections = [
     id: 'learn',
     href: '#learn',
     title: 'Learn',
-    description: 'Step-by-step lessons and pathways, from the basics up.',
+    description: 'Coming.',
     icon: 'learn',
     accent: 'cyan',
   },
@@ -15,7 +15,7 @@ const sections = [
     id: 'guides',
     href: '/guides/',
     title: 'Guides',
-    description: 'Beginner guides to help you understand tools and topics.',
+    description: 'Read.',
     icon: 'guides',
     accent: 'green',
   },
@@ -23,7 +23,7 @@ const sections = [
     id: 'builds',
     href: '/builds/nebula-x/',
     title: 'Builds',
-    description: 'Nebula X is a free visualizer. It runs in your browser, or download a copy for later.',
+    description: 'Nebula X.',
     icon: 'builds',
     accent: 'purple',
   },
@@ -31,7 +31,7 @@ const sections = [
     id: 'tools',
     href: '#tools',
     title: 'Tools',
-    description: 'Useful tools and resources to save you time.',
+    description: 'Coming.',
     icon: 'tools',
     accent: 'yellow',
   },
@@ -39,7 +39,7 @@ const sections = [
     id: 'games',
     href: '/games/',
     title: 'Games',
-    description: 'Learn by playing. Fun, simple and interactive.',
+    description: 'Play.',
     icon: 'games',
     accent: 'pink',
   },
@@ -47,7 +47,7 @@ const sections = [
     id: 'weekly',
     href: '#weekly',
     title: 'Weekly',
-    description: 'Weekly posts and thoughts on what is worth learning.',
+    description: 'Coming.',
     icon: 'weekly',
     accent: 'sky',
   },
@@ -55,7 +55,7 @@ const sections = [
     id: 'compare',
     href: '/compare/',
     title: 'Compare AI',
-    description: 'Compare AI models and APIs side by side.',
+    description: 'Models.',
     icon: 'compare',
     accent: 'blue',
   },
@@ -99,48 +99,20 @@ const accents = {
   },
 };
 
-const principles = [
-  {
-    title: 'Beginner Friendly',
-    body: 'No confusing jargon. We explain everything in plain English.',
-    icon: 'shield',
-    iconClass: 'text-cyan-400',
-  },
-  {
-    title: 'Learn by Doing',
-    body: 'Practical lessons, real projects and hands-on learning that builds real skills.',
-    icon: 'smile',
-    iconClass: 'text-yellow-400',
-  },
-  {
-    title: 'A Safe Space',
-    body: 'Be curious, ask questions, and learn at your own pace.',
-    icon: 'heart',
-    iconClass: 'text-pink-400',
-  },
-];
-
 const iconBox = 'h-6 w-6';
 ---
 
 <BaseLayout
   title="ColinBuilds.com"
-  description="A place to learn."
+  description="A place to learn. Read or play."
 >
-  <div class="relative overflow-hidden">
-    <div
-      class="pointer-events-none absolute inset-x-0 top-0 h-80 bg-[radial-gradient(ellipse_at_top,_rgba(34,211,238,0.12),_transparent_65%)]"
-      aria-hidden="true"
-    >
-    </div>
-
-    <div class="relative mx-auto max-w-[90rem] px-6 py-12 pb-20">
+  <div class="relative mx-auto max-w-[90rem] px-6 py-12 pb-20">
       <section aria-labelledby="home-hero-title">
         <h1 id="home-hero-title" class="max-w-xl text-4xl font-bold tracking-tight text-white sm:text-5xl">
           Welcome to <Brand />
         </h1>
         <p class="mt-4 max-w-lg text-neutral-400">
-          A place to learn.
+          A place to learn. Read or play.
         </p>
       </section>
 
@@ -155,7 +127,7 @@ const iconBox = 'h-6 w-6';
                     id={section.id}
                     href={section.href}
                     class:list={[
-                      'group flex h-full scroll-mt-24 flex-col rounded-xl border border-neutral-800 bg-neutral-950 p-5 transition focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-cyan-400',
+                      'group game-listing-card flex h-full scroll-mt-24 flex-col rounded-xl border border-neutral-800 bg-neutral-950/80 p-5 transition focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-cyan-400',
                       tone.hover,
                     ]}
                   >
@@ -211,38 +183,5 @@ const iconBox = 'h-6 w-6';
           }
         </ul>
       </section>
-
-      <section class="mt-14" aria-label="How we teach">
-        <ul class="grid grid-cols-1 divide-y divide-neutral-800 overflow-hidden rounded-xl border border-neutral-800 sm:grid-cols-3 sm:divide-x sm:divide-y-0">
-          {
-            principles.map((principle) => (
-              <li class="px-6 py-6">
-                <span class:list={['inline-flex', principle.iconClass]}>
-                  {principle.icon === 'shield' && (
-                    <svg class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" aria-hidden="true">
-                      <path stroke-linecap="round" stroke-linejoin="round" d="M20 13c0 5-3.5 7.5-7.66 8.95a1 1 0 0 1-.68 0C7.5 20.5 4 18 4 13V6a1 1 0 0 1 1-1c2 0 4.5-1.2 6.24-2.72a1.17 1.17 0 0 1 1.52 0C14.51 3.81 17 5 19 5a1 1 0 0 1 1 1z"></path>
-                      <path stroke-linecap="round" stroke-linejoin="round" d="m9 12 2 2 4-4"></path>
-                    </svg>
-                  )}
-                  {principle.icon === 'smile' && (
-                    <svg class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" aria-hidden="true">
-                      <circle cx="12" cy="12" r="9"></circle>
-                      <path stroke-linecap="round" d="M8 14s1.5 2 4 2 4-2 4-2M9 9h.01M15 9h.01"></path>
-                    </svg>
-                  )}
-                  {principle.icon === 'heart' && (
-                    <svg class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" aria-hidden="true">
-                      <path stroke-linecap="round" stroke-linejoin="round" d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z"></path>
-                    </svg>
-                  )}
-                </span>
-                <h2 class="mt-3 text-base font-semibold tracking-tight text-white">{principle.title}</h2>
-                <p class="mt-2 text-sm leading-relaxed text-neutral-400">{principle.body}</p>
-              </li>
-            ))
-          }
-        </ul>
-      </section>
     </div>
-  </div>
 </BaseLayout>

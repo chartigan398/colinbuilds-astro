@@ -18,6 +18,19 @@
   background: radial-gradient(circle, rgb(34 211 238 / 0.22) 0%, transparent 64%);
 }
 
+.game-scene[data-scene='home'] .game-scene-glow {
+  animation: game-glow-pulse 9s ease-in-out infinite alternate;
+}
+
+.game-scene[data-scene='guides'] .game-scene-glow,
+.game-scene[data-scene='compare'] .game-scene-glow {
+  opacity: 0.5;
+}
+
+.game-scene-horizon {
+  animation: game-horizon 10s ease-in-out infinite;
+}
+
 .game-scene-svg {
   position: absolute;
   inset: 0;
@@ -41,15 +54,93 @@
   stroke-opacity: 0.22;
 }
 
-body.games-page main {
+.game-scene-ring-fast {
+  transform-origin: 400px 210px;
+  transform-box: fill-box;
+  animation: game-spin 28s linear infinite;
+}
+
+.game-scene-pages {
+  animation: game-drift 14s ease-in-out infinite alternate;
+}
+
+.game-scene-panel {
+  animation: game-in 0.9s ease both;
+}
+
+.game-scene-panel-delay {
+  animation: game-in 0.9s ease 0.12s both;
+}
+
+@keyframes game-drift {
+  from {
+    transform: translateX(-8px);
+  }
+  to {
+    transform: translateX(8px);
+  }
+}
+
+@keyframes game-glow-pulse {
+  from {
+    opacity: 0.55;
+    transform: translate(-50%, -40%) scale(0.94);
+  }
+  to {
+    opacity: 1;
+    transform: translate(-50%, -42%) scale(1.08);
+  }
+}
+
+@keyframes game-horizon {
+  0%,
+  100% {
+    stroke-opacity: 0.12;
+  }
+  50% {
+    stroke-opacity: 0.34;
+  }
+}
+
+body.has-scene main {
   position: relative;
   isolation: isolate;
   min-height: calc(100dvh - 9rem);
 }
 
-body.games-page main > *:not(.game-scene) {
+body.has-scene main > *:not(.game-scene) {
   position: relative;
   z-index: 1;
+}
+
+body.has-scene main h1 {
+  animation: game-in 0.65s ease both;
+}
+
+body.has-scene #sections li a {
+  animation: game-in 0.55s ease both;
+}
+
+body.has-scene #sections li:nth-child(1) a {
+  animation-delay: 0.04s;
+}
+body.has-scene #sections li:nth-child(2) a {
+  animation-delay: 0.08s;
+}
+body.has-scene #sections li:nth-child(3) a {
+  animation-delay: 0.12s;
+}
+body.has-scene #sections li:nth-child(4) a {
+  animation-delay: 0.16s;
+}
+body.has-scene #sections li:nth-child(5) a {
+  animation-delay: 0.2s;
+}
+body.has-scene #sections li:nth-child(6) a {
+  animation-delay: 0.24s;
+}
+body.has-scene #sections li:nth-child(7) a {
+  animation-delay: 0.28s;
 }
 
 .game-mark {
@@ -279,12 +370,19 @@ a.group.game-listing-card:focus-visible::after {
 @media (prefers-reduced-motion: reduce) {
   .game-scene-ring,
   .game-scene-ring-slow,
+  .game-scene-ring-fast,
+  .game-scene-pages,
+  .game-scene-panel,
+  .game-scene-panel-delay,
+  .game-scene-horizon,
+  .game-scene[data-scene='home'] .game-scene-glow,
   .game-mark-draw,
   #ms-question.ms-pop,
   #qs-options .qs-option.qs-in,
   #ws-board .ws-letter.ws-letter-in,
   #ts-prompt .ts-char.is-current,
-  .game-mark-draw {
+  body.has-scene main h1,
+  body.has-scene #sections li a {
     animation: none;
     transition: none;
     stroke-dashoffset: 0;

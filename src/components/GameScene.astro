@@ -2,6 +2,7 @@
 import '../styles/games.css';
 
 const path = Astro.url.pathname;
+
 const scene = path.includes('math-sprint')
   ? 'sprint'
   : path.includes('memory-match')
@@ -12,7 +13,17 @@ const scene = path.includes('math-sprint')
         ? 'type'
         : path.includes('word-scramble')
           ? 'scramble'
-          : 'hub';
+          : path.startsWith('/games')
+            ? 'hub'
+            : path.startsWith('/guides')
+              ? 'guides'
+              : path.startsWith('/builds')
+                ? 'builds'
+                : path.startsWith('/compare') || path.startsWith('/models')
+                  ? 'compare'
+                  : path === '/'
+                    ? 'home'
+                    : 'home';
 ---
 
 <div class="game-scene" data-scene={scene} aria-hidden="true">
@@ -24,13 +35,80 @@ const scene = path.includes('math-sprint')
         <stop offset="100%" stop-color="#22d3ee" stop-opacity="0"></stop>
       </linearGradient>
     </defs>
-    <g class="game-scene-ring game-scene-ring-slow" opacity="0.55">
-      <circle cx="400" cy="210" r="150" fill="none" stroke="#22d3ee" stroke-width="1.25"></circle>
-      <circle cx="400" cy="210" r="150" fill="none" stroke="#22d3ee" stroke-width="1.25" stroke-dasharray="4 18"></circle>
-    </g>
-    <g class="game-scene-ring" opacity="0.42">
-      <circle cx="400" cy="210" r="220" fill="none" stroke="#22d3ee" stroke-width="1.25" stroke-dasharray="2 14"></circle>
-    </g>
+
+    {
+      scene === 'home' && (
+        <>
+          <g class="game-scene-ring game-scene-ring-slow" opacity="0.4">
+            <ellipse cx="400" cy="200" rx="280" ry="90" fill="none" stroke="#22d3ee" stroke-width="1.25"></ellipse>
+          </g>
+          <g class="game-scene-ring" opacity="0.28">
+            <ellipse cx="400" cy="200" rx="360" ry="130" fill="none" stroke="#22d3ee" stroke-width="1" stroke-dasharray="3 16"></ellipse>
+          </g>
+          <path class="game-scene-horizon" d="M40 320 H760" fill="none" stroke="#22d3ee" stroke-width="1"></path>
+        </>
+      )
+    }
+
+    {
+      scene === 'guides' && (
+        <g class="game-scene-pages" fill="none" stroke="#22d3ee" stroke-width="1.5">
+          <rect x="220" y="90" width="240" height="300" rx="6" stroke-opacity="0.16"></rect>
+          <rect x="250" y="70" width="240" height="300" rx="6" stroke-opacity="0.22"></rect>
+          <rect x="280" y="50" width="240" height="300" rx="6" stroke-opacity="0.32"></rect>
+          <g stroke-linecap="round" stroke-opacity="0.28" stroke-width="2">
+            <path d="M310 110h180"></path>
+            <path d="M310 150h160"></path>
+            <path d="M310 190h170"></path>
+            <path d="M310 230h140"></path>
+          </g>
+        </g>
+      )
+    }
+
+    {
+      scene === 'builds' && (
+        <>
+          <g class="game-scene-ring" opacity="0.45">
+            <circle cx="400" cy="210" r="70" fill="none" stroke="#22d3ee" stroke-width="1.5"></circle>
+          </g>
+          <g class="game-scene-ring game-scene-ring-slow" opacity="0.32">
+            <circle cx="400" cy="210" r="140" fill="none" stroke="#22d3ee" stroke-width="1.25" stroke-dasharray="2 12"></circle>
+          </g>
+          <g class="game-scene-ring-fast" opacity="0.22">
+            <circle cx="400" cy="210" r="210" fill="none" stroke="#22d3ee" stroke-width="1" stroke-dasharray="1 18"></circle>
+          </g>
+          <circle cx="470" cy="140" r="2" fill="#22d3ee" fill-opacity="0.5"></circle>
+          <circle cx="330" cy="260" r="1.5" fill="#22d3ee" fill-opacity="0.4"></circle>
+          <circle cx="510" cy="250" r="1.5" fill="#22d3ee" fill-opacity="0.4"></circle>
+        </>
+      )
+    }
+
+    {
+      scene === 'compare' && (
+        <g fill="none" stroke="#22d3ee" stroke-width="1.5">
+          <rect class="game-scene-panel" x="160" y="80" width="200" height="280" rx="8" stroke-opacity="0.28"></rect>
+          <rect class="game-scene-panel-delay" x="440" y="80" width="200" height="280" rx="8" stroke-opacity="0.28"></rect>
+          <path d="M400 120 v200" stroke-opacity="0.18" stroke-dasharray="4 8"></path>
+        </g>
+      )
+    }
+
+    {
+      (scene === 'hub' || scene === 'sprint' || scene === 'match' || scene === 'quiz' || scene === 'type' || scene === 'scramble') && (
+        <>
+          <g class="game-scene-ring game-scene-ring-slow" opacity="0.55">
+            <circle cx="400" cy="210" r="150" fill="none" stroke="#22d3ee" stroke-width="1.25"></circle>
+            <circle cx="400" cy="210" r="150" fill="none" stroke="#22d3ee" stroke-width="1.25" stroke-dasharray="4 18"></circle>
+          </g>
+          <g class="game-scene-ring" opacity="0.42">
+            <circle cx="400" cy="210" r="220" fill="none" stroke="#22d3ee" stroke-width="1.25" stroke-dasharray="2 14"></circle>
+          </g>
+        </>
+      )
+    }
+
     {
       scene === 'sprint' && (
         <g fill="none" stroke="#22d3ee" stroke-opacity="0.2" stroke-width="18">
@@ -71,13 +149,18 @@ const scene = path.includes('math-sprint')
         </g>
       )
     }
-    <g stroke="url(#game-floor)" stroke-width="1">
-      <path class="game-scene-grid-line" d="M0 360 L400 240 L800 360" fill="none"></path>
-      <path class="game-scene-grid-line" d="M80 480 L400 240 L720 480" fill="none"></path>
-      <path class="game-scene-grid-line" d="M160 480 L400 260 L640 480" fill="none"></path>
-      <path class="game-scene-grid-line" d="M40 400 H760" fill="none"></path>
-      <path class="game-scene-grid-line" d="M70 430 H730" fill="none"></path>
-      <path class="game-scene-grid-line" d="M110 460 H690" fill="none"></path>
-    </g>
+
+    {
+      scene !== 'home' && scene !== 'guides' && scene !== 'builds' && scene !== 'compare' && (
+        <g stroke="url(#game-floor)" stroke-width="1">
+          <path class="game-scene-grid-line" d="M0 360 L400 240 L800 360" fill="none"></path>
+          <path class="game-scene-grid-line" d="M80 480 L400 240 L720 480" fill="none"></path>
+          <path class="game-scene-grid-line" d="M160 480 L400 260 L640 480" fill="none"></path>
+          <path class="game-scene-grid-line" d="M40 400 H760" fill="none"></path>
+          <path class="game-scene-grid-line" d="M70 430 H730" fill="none"></path>
+          <path class="game-scene-grid-line" d="M110 460 H690" fill="none"></path>
+        </g>
+      )
+    }
   </svg>
 </div>
