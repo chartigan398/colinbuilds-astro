@@ -1,0 +1,296 @@
+/* Shared Games look: geometry and motion. No emoji. Cyan on black. */
+
+.game-scene {
+  pointer-events: none;
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  overflow: hidden;
+}
+
+.game-scene-glow {
+  position: absolute;
+  left: 50%;
+  top: 22%;
+  width: 46rem;
+  height: 46rem;
+  transform: translate(-50%, -40%);
+  background: radial-gradient(circle, rgb(34 211 238 / 0.22) 0%, transparent 64%);
+}
+
+.game-scene-svg {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+}
+
+.game-scene-ring {
+  transform-origin: 400px 220px;
+  transform-box: fill-box;
+  animation: game-spin 48s linear infinite;
+}
+
+.game-scene-ring-slow {
+  animation-duration: 72s;
+  animation-direction: reverse;
+}
+
+.game-scene-grid-line {
+  stroke: #22d3ee;
+  stroke-opacity: 0.22;
+}
+
+body.games-page main {
+  position: relative;
+  isolation: isolate;
+  min-height: calc(100dvh - 9rem);
+}
+
+body.games-page main > *:not(.game-scene) {
+  position: relative;
+  z-index: 1;
+}
+
+.game-mark {
+  color: #22d3ee;
+}
+
+.game-card-art {
+  margin-bottom: 1rem;
+  display: flex;
+  height: 4.5rem;
+  width: 4.5rem;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid #262626;
+  border-radius: 0.75rem;
+  background: #0a0a0a;
+}
+
+.game-card-art svg {
+  width: 2.5rem;
+  height: 2.5rem;
+}
+
+a.group:hover .game-card-art,
+a.group:focus-visible .game-card-art {
+  border-color: #22d3ee;
+  box-shadow: 0 0 24px rgb(34 211 238 / 0.18);
+}
+
+.game-mark-draw {
+  stroke-dasharray: 140;
+  stroke-dashoffset: 0;
+  animation: game-draw 0.9s ease both;
+}
+
+@keyframes game-draw {
+  from {
+    stroke-dashoffset: 140;
+  }
+  to {
+    stroke-dashoffset: 0;
+  }
+}
+
+.game-listing-card {
+  overflow: hidden;
+}
+
+.game-listing-card::after {
+  content: '';
+  position: absolute;
+  inset: auto 0 0 0;
+  height: 2px;
+  background: #22d3ee;
+  transform: scaleX(0);
+  transform-origin: left;
+  transition: transform 0.35s ease;
+}
+
+a.group.game-listing-card {
+  position: relative;
+}
+
+a.group.game-listing-card:hover::after,
+a.group.game-listing-card:focus-visible::after {
+  transform: scaleX(1);
+}
+
+@keyframes game-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes game-in {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes ms-pop {
+  from {
+    opacity: 0.35;
+    transform: scale(0.92);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+@keyframes qs-in {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes ws-letter-in {
+  from {
+    opacity: 0;
+    transform: rotateY(70deg) scale(0.7);
+  }
+  to {
+    opacity: 1;
+    transform: rotateY(0) scale(1);
+  }
+}
+
+@keyframes ts-caret {
+  0%,
+  100% {
+    border-bottom-color: #22d3ee;
+    text-shadow: 0 0 0 transparent;
+  }
+  50% {
+    border-bottom-color: #ffffff;
+    text-shadow: 0 0 12px rgb(34 211 238 / 0.7);
+  }
+}
+
+#ms-question.ms-pop {
+  animation: ms-pop 0.28s ease;
+}
+
+#qs-options .qs-option.qs-in {
+  animation: qs-in 0.35s ease both;
+}
+
+#ws-board .ws-letter.ws-letter-in {
+  animation: ws-letter-in 0.35s ease both;
+}
+
+#ts-prompt .ts-char.is-current {
+  animation: ts-caret 1s ease-in-out infinite;
+}
+
+#mm-board .mm-card {
+  display: block;
+  width: 100%;
+  aspect-ratio: 1;
+  min-height: 5.5rem;
+  perspective: 700px;
+  background: transparent;
+  border: 0;
+  padding: 0;
+  cursor: pointer;
+}
+
+#mm-board .mm-inner {
+  display: block;
+  position: relative;
+  width: 100%;
+  height: 100%;
+  min-height: 5.5rem;
+  transform-style: preserve-3d;
+  transition: transform 0.45s cubic-bezier(0.22, 0.7, 0.2, 1);
+}
+
+#mm-board .mm-card[data-state='up'] .mm-inner,
+#mm-board .mm-card[data-state='match'] .mm-inner {
+  transform: rotateY(180deg);
+}
+
+#mm-board .mm-face {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  backface-visibility: hidden;
+  border-radius: 0.75rem;
+  border: 2px solid #525252;
+}
+
+#mm-board .mm-back {
+  background:
+    linear-gradient(rgb(34 211 238 / 0.08) 1px, transparent 1px),
+    linear-gradient(90deg, rgb(34 211 238 / 0.08) 1px, transparent 1px),
+    #171717;
+  background-size:
+    10px 10px,
+    10px 10px,
+    auto;
+}
+
+#mm-board .mm-front {
+  transform: rotateY(180deg);
+  border-color: #22d3ee;
+  background: #083344;
+}
+
+#mm-board .mm-card[data-state='match'] .mm-front {
+  background: #155e75;
+  box-shadow: 0 0 22px rgb(34 211 238 / 0.35);
+}
+
+#mm-board .mm-card:hover:not(:disabled) .mm-back,
+#mm-board .mm-card:focus-visible .mm-back {
+  border-color: #22d3ee;
+}
+
+#mm-board .mm-card:focus-visible {
+  outline: 2px solid #22d3ee;
+  outline-offset: 2px;
+}
+
+#mm-board .mm-card svg {
+  width: 58%;
+  height: 58%;
+  display: block;
+}
+
+#mm-board .mm-card:disabled {
+  cursor: default;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .game-scene-ring,
+  .game-scene-ring-slow,
+  .game-mark-draw,
+  #ms-question.ms-pop,
+  #qs-options .qs-option.qs-in,
+  #ws-board .ws-letter.ws-letter-in,
+  #ts-prompt .ts-char.is-current,
+  .game-mark-draw {
+    animation: none;
+    transition: none;
+    stroke-dashoffset: 0;
+  }
+
+  #mm-board .mm-inner {
+    transition: none;
+  }
+}

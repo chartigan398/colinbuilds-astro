@@ -330,32 +330,40 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
     if (pairsEl) pairsEl.textContent = `${pairsFound()} / ${pairCount()}`;
   }
 
-  function paintBoard() {
+  function backMark() {
+    return `<svg viewBox="0 0 32 32" aria-hidden="true"><rect x="6" y="6" width="20" height="20" rx="3" fill="none" stroke="#22d3ee" stroke-width="1.6"/><path d="M16 11v10M11 16h10" stroke="#22d3ee" stroke-width="1.6" stroke-linecap="round"/></svg>`;
+  }
+
+  function paintBoard(rebuild = false) {
     if (!boardEl) return;
     const cols = state.difficulty === 'superstar' ? 5 : 4;
     boardEl.style.gridTemplateColumns = `repeat(${cols}, minmax(0, 1fr))`;
-    boardEl.replaceChildren(
-      ...state.cards.map((card) => {
-        const up = isUp(card.id);
-        const btn = document.createElement('button');
-        btn.type = 'button';
-        btn.className = 'mm-card';
-        btn.dataset.id = String(card.id);
-        btn.dataset.state = card.matched ? 'match' : up ? 'up' : 'down';
-        btn.setAttribute(
-          'aria-label',
-          card.matched || up ? `${card.name}, face up` : `Card ${card.id + 1}, face down`,
-        );
-        btn.disabled = card.matched;
-        if (up) {
-          btn.innerHTML = card.svg;
-        } else {
-          btn.textContent = '?';
-        }
-        btn.addEventListener('click', () => onCard(card.id));
-        return btn;
-      }),
-    );
+
+    if (rebuild || boardEl.childElementCount !== state.cards.length) {
+      boardEl.replaceChildren(
+        ...state.cards.map((card) => {
+          const btn = document.createElement('button');
+          btn.type = 'button';
+          btn.className = 'mm-card';
+          btn.dataset.id = String(card.id);
+          btn.innerHTML = `<span class="mm-inner"><span class="mm-face mm-back">${backMark()}</span><span class="mm-face mm-front">${card.svg}</span></span>`;
+          btn.addEventListener('click', () => onCard(card.id));
+          return btn;
+        }),
+      );
+    }
+
+    [...boardEl.children].forEach((btn, id) => {
+      const card = state.cards[id];
+      if (!card) return;
+      const up = isUp(card.id);
+      btn.dataset.state = card.matched ? 'match' : up ? 'up' : 'down';
+      btn.setAttribute(
+        'aria-label',
+        card.matched || up ? `${card.name}, face up` : `Card ${card.id + 1}, face down`,
+      );
+      btn.disabled = card.matched;
+    });
   }
 
   function endGame() {
@@ -375,7 +383,7 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
     state.timeElapsed = 0;
     state.busy = false;
     paintHud();
-    paintBoard();
+    paintBoard(true);
     show('play');
 
     state.timer = window.setInterval(() => {
@@ -450,50 +458,8 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
   window.addEventListener('pagehide', stopTimer);
 </script>
 
-<style is:global>
-  #mm-board .mm-card {
-    aspect-ratio: 1;
-    min-height: 4.5rem;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    border-radius: 0.75rem;
-    border: 2px solid #525252;
-    background: #171717;
-    color: #22d3ee;
-    font-size: 2rem;
-    font-weight: 700;
-    line-height: 1;
-    cursor: pointer;
-    transition:
-      border-color 0.15s ease,
-      background-color 0.15s ease;
-  }
-
-  #mm-board .mm-card svg {
-    width: 58%;
-    height: 58%;
-    display: block;
-  }
-
-  #mm-board .mm-card:hover:not(:disabled),
-  #mm-board .mm-card:focus-visible {
-    border-color: #22d3ee;
-    outline: 2px solid #22d3ee;
-    outline-offset: 2px;
-  }
-
-  #mm-board .mm-card[data-state='up'] {
-    border-color: #22d3ee;
-    background: #083344;
-  }
-
-  #mm-board .mm-card[data-state='match'] {
-    border-color: #22d3ee;
-    background: #155e75;
-  }
-
-  #mm-board .mm-card:disabled {
-    cursor: default;
+<style>
+  #mm-board {
+    min-height: 12rem;
   }
 </style>

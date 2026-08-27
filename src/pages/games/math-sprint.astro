@@ -340,7 +340,12 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
     }
 
     state.answer = answer;
-    if (questionEl) questionEl.textContent = `${a} ${op} ${b}`;
+    if (questionEl) {
+      questionEl.textContent = `${a} ${op} ${b}`;
+      questionEl.classList.remove('ms-pop');
+      void questionEl.offsetWidth;
+      questionEl.classList.add('ms-pop');
+    }
   }
 
   function paintPlay() {

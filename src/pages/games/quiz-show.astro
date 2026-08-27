@@ -260,6 +260,10 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
       btn.textContent = q.options[i];
       btn.disabled = false;
       btn.dataset.state = 'idle';
+      btn.classList.remove('qs-in');
+      void btn.offsetWidth;
+      btn.style.animationDelay = `${i * 55}ms`;
+      btn.classList.add('qs-in');
     });
   }
 

@@ -1,5 +1,6 @@
 ---
 import BaseLayout from '../../layouts/BaseLayout.astro';
+import GameMark from '../../components/GameMark.astro';
 import { games } from '../../data/games.js';
 
 const live = games.filter((game) => game.live);
@@ -28,8 +29,11 @@ const live = games.filter((game) => game.live);
             <li>
               <a
                 href={`/games/${game.slug}/`}
-                class="group flex h-full flex-col rounded-xl border border-neutral-800 bg-neutral-950 p-5 transition hover:border-cyan-400 focus-visible:border-cyan-400 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-cyan-400"
+                class="group game-listing-card flex h-full flex-col rounded-xl border border-neutral-800 bg-neutral-950/80 p-5 transition hover:border-cyan-400 focus-visible:border-cyan-400 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-cyan-400"
               >
+                <div class="game-card-art">
+                  <GameMark name={game.mark} />
+                </div>
                 <h2 class="text-lg font-semibold tracking-tight text-brand-cyan">{game.title}</h2>
                 <p class="mt-2 flex-1 text-sm leading-relaxed text-neutral-400">{game.description}</p>
                 <span class="mt-5 text-sm text-cyan-400 group-hover:text-cyan-300">Play →</span>

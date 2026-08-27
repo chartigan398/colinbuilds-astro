@@ -1,0 +1,62 @@
+---
+interface Props {
+  name: 'sprint' | 'match' | 'quiz' | 'type' | 'scramble';
+}
+
+const { name } = Astro.props;
+---
+
+<svg class="game-mark" viewBox="0 0 48 48" fill="none" aria-hidden="true">
+  {
+    name === 'sprint' && (
+      <>
+        <circle class="game-mark-draw" cx="24" cy="24" r="14" stroke="currentColor" stroke-width="1.75" />
+        <path class="game-mark-draw" d="M24 16v8l5 3" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" />
+        <path d="M24 8v3M24 37v3M8 24h3M37 24h3" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" />
+      </>
+    )
+  }
+  {
+    name === 'match' && (
+      <>
+        <rect class="game-mark-draw" x="8" y="10" width="20" height="26" rx="3" stroke="currentColor" stroke-width="1.75" />
+        <rect class="game-mark-draw" x="20" y="12" width="20" height="26" rx="3" stroke="currentColor" stroke-width="1.75" />
+        <path d="M30 22h6M33 19v6" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" />
+      </>
+    )
+  }
+  {
+    name === 'quiz' && (
+      <>
+        <path
+          class="game-mark-draw"
+          d="M24 8 40 24 24 40 8 24Z"
+          stroke="currentColor"
+          stroke-width="1.75"
+        />
+        <circle cx="24" cy="20" r="2" fill="currentColor" />
+        <circle cx="18" cy="26" r="2" fill="currentColor" />
+        <circle cx="30" cy="26" r="2" fill="currentColor" />
+        <circle cx="24" cy="32" r="2" fill="currentColor" />
+      </>
+    )
+  }
+  {
+    name === 'type' && (
+      <>
+        <path class="game-mark-draw" d="M10 16h28M10 24h20M10 32h24" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" />
+        <path d="M32 24v10" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" />
+      </>
+    )
+  }
+  {
+    name === 'scramble' && (
+      <>
+        <rect class="game-mark-draw" x="8" y="8" width="14" height="14" rx="2" stroke="currentColor" stroke-width="1.75" />
+        <rect class="game-mark-draw" x="26" y="8" width="14" height="14" rx="2" stroke="currentColor" stroke-width="1.75" />
+        <rect class="game-mark-draw" x="8" y="26" width="14" height="14" rx="2" stroke="currentColor" stroke-width="1.75" />
+        <rect class="game-mark-draw" x="26" y="26" width="14" height="14" rx="2" stroke="currentColor" stroke-width="1.75" />
+      </>
+    )
+  }
+</svg>

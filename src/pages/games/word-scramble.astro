@@ -1,0 +1,480 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+---
+
+<BaseLayout
+  title="Word Scramble | ColinBuilds"
+  description="Unscramble the letters. Eight words. Five points for a correct answer."
+>
+  <div class="mx-auto max-w-3xl px-6 py-12 pb-20">
+    <p class="text-sm text-neutral-500">
+      <a href="/" class="transition hover:text-cyan-400">Home</a>
+      <span> · </span>
+      <a href="/games/" class="transition hover:text-cyan-400">Games</a>
+    </p>
+    <h1 class="mt-3 text-3xl font-bold tracking-tight text-brand-cyan sm:text-4xl">Word Scramble</h1>
+    <p class="mt-3 max-w-2xl text-neutral-400">
+      Eight words. Type the unscrambled word, then Enter. Five points for a correct answer. A wrong answer does not change your score. Skip if you are stuck.
+    </p>
+
+    <div class="mt-6 flex justify-end">
+      <button
+        type="button"
+        id="ws-sound"
+        aria-pressed="true"
+        class="inline-flex items-center rounded-lg border border-neutral-600 bg-neutral-950 px-3 py-2 text-sm font-medium text-white transition hover:border-cyan-400 hover:text-cyan-300 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-cyan-400"
+      >
+        Sound on
+      </button>
+    </div>
+
+    <div id="word-scramble" class="mt-6">
+      <section data-screen="pick" aria-label="Start scramble">
+        <div class="rounded-xl border border-neutral-800 bg-neutral-950 p-6 text-center sm:p-10">
+          <p class="text-sm text-neutral-400">Ready when you are.</p>
+          <button
+            type="button"
+            id="ws-start"
+            class="mt-6 inline-flex items-center justify-center rounded-lg bg-cyan-400 px-4 py-2.5 text-sm font-medium text-black transition hover:bg-cyan-300 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-cyan-400"
+          >
+            Start
+          </button>
+        </div>
+      </section>
+
+      <section data-screen="play" hidden aria-label="Scramble in progress">
+        <div class="grid grid-cols-2 gap-3 rounded-xl border border-neutral-800 bg-neutral-950 p-4 text-center">
+          <div>
+            <p id="ws-score" class="text-3xl font-bold tabular-nums text-brand-cyan">0</p>
+            <p class="mt-1 text-xs text-neutral-500">Score</p>
+          </div>
+          <div>
+            <p id="ws-progress" class="text-3xl font-bold tabular-nums text-brand-cyan">1 / 8</p>
+            <p class="mt-1 text-xs text-neutral-500">Word</p>
+          </div>
+        </div>
+
+        <div class="mt-6 rounded-xl border border-neutral-800 bg-neutral-950 p-6 text-center sm:p-8">
+          <div id="ws-board" class="ws-board" aria-label="Scrambled letters"></div>
+          <p id="ws-hint" class="mt-4 min-h-6 text-sm text-brand-cyan" aria-live="polite"></p>
+          <p id="ws-feedback" class="mt-2 min-h-6 text-sm text-neutral-500" aria-live="polite"></p>
+          <form id="ws-form" class="mt-6">
+            <label class="sr-only" for="ws-guess">Your guess</label>
+            <input
+              id="ws-guess"
+              type="text"
+              autocomplete="off"
+              autocorrect="off"
+              autocapitalize="characters"
+              spellcheck="false"
+              class="w-full rounded-lg border border-neutral-700 bg-black px-4 py-4 text-center font-mono text-2xl font-bold tracking-[0.3em] text-white uppercase outline-none transition focus:border-cyan-400"
+              placeholder="TYPE YOUR GUESS"
+            />
+            <div class="mt-4 flex flex-col gap-3 sm:flex-row sm:justify-center">
+              <button
+                type="button"
+                id="ws-hint-btn"
+                class="inline-flex items-center justify-center rounded-lg border border-neutral-600 bg-neutral-950 px-4 py-2.5 text-sm font-medium text-white transition hover:border-cyan-400 hover:text-cyan-300 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-cyan-400"
+              >
+                Hint
+              </button>
+              <button
+                type="button"
+                id="ws-skip"
+                class="inline-flex items-center justify-center rounded-lg border border-neutral-600 bg-neutral-950 px-4 py-2.5 text-sm font-medium text-white transition hover:border-cyan-400 hover:text-cyan-300 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-cyan-400"
+              >
+                Skip
+              </button>
+              <button
+                type="submit"
+                id="ws-check"
+                class="inline-flex items-center justify-center rounded-lg bg-cyan-400 px-4 py-2.5 text-sm font-medium text-black transition hover:bg-cyan-300 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-cyan-400"
+              >
+                Check
+              </button>
+            </div>
+          </form>
+          <button
+            type="button"
+            id="ws-reshuffle"
+            class="mt-4 text-sm text-neutral-500 transition hover:text-cyan-300"
+          >
+            Shuffle letters
+          </button>
+        </div>
+      </section>
+
+      <section data-screen="done" hidden aria-label="Results">
+        <div class="rounded-xl border border-neutral-800 bg-neutral-950 p-6 text-center sm:p-10">
+          <h2 class="text-2xl font-bold tracking-tight text-brand-cyan">Scramble over</h2>
+          <div class="mt-8 grid grid-cols-2 gap-3">
+            <div class="rounded-lg border border-neutral-800 p-4">
+              <p id="ws-final-score" class="text-3xl font-bold tabular-nums text-brand-cyan">0</p>
+              <p class="mt-1 text-xs text-neutral-500">Score</p>
+            </div>
+            <div class="rounded-lg border border-neutral-800 p-4">
+              <p id="ws-final-correct" class="text-3xl font-bold tabular-nums text-brand-cyan">0</p>
+              <p class="mt-1 text-xs text-neutral-500">Correct</p>
+            </div>
+          </div>
+          <div class="mt-8 flex flex-col gap-3 sm:flex-row sm:justify-center">
+            <button
+              type="button"
+              id="ws-again"
+              class="inline-flex items-center justify-center rounded-lg bg-cyan-400 px-4 py-2.5 text-sm font-medium text-black transition hover:bg-cyan-300 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-cyan-400"
+            >
+              Play again
+            </button>
+            <a
+              href="/games/"
+              class="inline-flex items-center justify-center rounded-lg border border-neutral-600 bg-neutral-950 px-4 py-2.5 text-sm font-medium text-white transition hover:border-cyan-400 hover:text-cyan-300 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-cyan-400"
+            >
+              Back to Games
+            </a>
+          </div>
+        </div>
+      </section>
+    </div>
+  </div>
+</BaseLayout>
+
+<script>
+  const SOUND_KEY = 'colinbuilds-word-scramble-sound';
+  const WORDS = [
+    { word: 'PYTHON', hint: 'A popular coding language.' },
+    { word: 'REACT', hint: 'A library for building user interfaces.' },
+    { word: 'GALAXY', hint: 'A huge collection of stars.' },
+    { word: 'ROBOT', hint: 'A machine that can move on its own.' },
+    { word: 'PLANET', hint: 'Earth is one of these.' },
+    { word: 'OXYGEN', hint: 'We need this to breathe.' },
+    { word: 'GRAVITY', hint: 'It keeps us on the ground.' },
+    { word: 'HISTORY', hint: 'The study of the past.' },
+  ];
+
+  const root = document.getElementById('word-scramble');
+  if (!root) {
+    throw new Error('Word Scramble root missing');
+  }
+
+  const screens = {
+    pick: root.querySelector('[data-screen="pick"]'),
+    play: root.querySelector('[data-screen="play"]'),
+    done: root.querySelector('[data-screen="done"]'),
+  };
+
+  const scoreEl = document.getElementById('ws-score');
+  const progressEl = document.getElementById('ws-progress');
+  const boardEl = document.getElementById('ws-board');
+  const hintEl = document.getElementById('ws-hint');
+  const feedbackEl = document.getElementById('ws-feedback');
+  const guessEl = document.getElementById('ws-guess');
+  const formEl = document.getElementById('ws-form');
+  const hintBtn = document.getElementById('ws-hint-btn');
+  const skipEl = document.getElementById('ws-skip');
+  const reshuffleEl = document.getElementById('ws-reshuffle');
+  const startEl = document.getElementById('ws-start');
+  const againEl = document.getElementById('ws-again');
+  const soundBtn = document.getElementById('ws-sound');
+  const finalScoreEl = document.getElementById('ws-final-score');
+  const finalCorrectEl = document.getElementById('ws-final-correct');
+
+  let soundOn = window.localStorage.getItem(SOUND_KEY) !== 'off';
+  /** @type {AudioContext | null} */
+  let audioCtx = null;
+
+  /** @type {{ index: number, score: number, correct: number, scrambled: string, locked: boolean, hintShown: boolean, nextTimer: number | null }} */
+  const state = {
+    index: 0,
+    score: 0,
+    correct: 0,
+    scrambled: '',
+    locked: false,
+    hintShown: false,
+    nextTimer: null,
+  };
+
+  function getAudio() {
+    const AC = window.AudioContext || window.webkitAudioContext;
+    if (!AC) return null;
+    if (!audioCtx) audioCtx = new AC();
+    if (audioCtx.state === 'suspended') audioCtx.resume();
+    return audioCtx;
+  }
+
+  function beep({ freq, dur = 0.09, type = 'sine', vol = 0.09, delay = 0 }) {
+    if (!soundOn) return;
+    const c = getAudio();
+    if (!c) return;
+    const t0 = c.currentTime + delay;
+    const osc = c.createOscillator();
+    const g = c.createGain();
+    osc.type = type;
+    osc.frequency.setValueAtTime(freq, t0);
+    g.gain.setValueAtTime(vol, t0);
+    g.gain.exponentialRampToValueAtTime(0.001, t0 + dur);
+    osc.connect(g);
+    g.connect(c.destination);
+    osc.start(t0);
+    osc.stop(t0 + dur + 0.02);
+  }
+
+  function playStart() {
+    beep({ freq: 523, dur: 0.08, vol: 0.09 });
+    beep({ freq: 784, dur: 0.12, vol: 0.09, delay: 0.08 });
+  }
+
+  function playCorrect() {
+    beep({ freq: 880, dur: 0.07, vol: 0.09 });
+    beep({ freq: 1175, dur: 0.12, vol: 0.09, delay: 0.07 });
+  }
+
+  function playWrong() {
+    beep({ freq: 180, dur: 0.14, type: 'square', vol: 0.07 });
+  }
+
+  function playSkip() {
+    beep({ freq: 392, dur: 0.1, vol: 0.07 });
+  }
+
+  function playWin() {
+    beep({ freq: 523, dur: 0.1, vol: 0.08 });
+    beep({ freq: 659, dur: 0.1, vol: 0.08, delay: 0.1 });
+    beep({ freq: 784, dur: 0.18, vol: 0.09, delay: 0.2 });
+  }
+
+  function paintSoundButton() {
+    if (!soundBtn) return;
+    soundBtn.textContent = soundOn ? 'Sound on' : 'Sound off';
+    soundBtn.setAttribute('aria-pressed', soundOn ? 'true' : 'false');
+  }
+
+  function show(name) {
+    for (const [key, el] of Object.entries(screens)) {
+      if (el) el.hidden = key !== name;
+    }
+  }
+
+  function current() {
+    return WORDS[state.index];
+  }
+
+  function scramble(word, avoid) {
+    const letters = word.split('');
+    let next = word;
+    let guard = 0;
+    while ((next === word || next === avoid) && guard < 20) {
+      for (let i = letters.length - 1; i > 0; i -= 1) {
+        const j = Math.floor(Math.random() * (i + 1));
+        const tmp = letters[i];
+        letters[i] = letters[j];
+        letters[j] = tmp;
+      }
+      next = letters.join('');
+      guard += 1;
+    }
+    return next;
+  }
+
+  function paintBoard() {
+    if (!boardEl) return;
+    boardEl.replaceChildren();
+    const frag = document.createDocumentFragment();
+    for (let i = 0; i < state.scrambled.length; i += 1) {
+      const tile = document.createElement('span');
+      tile.className = 'ws-letter ws-letter-in';
+      tile.style.animationDelay = `${i * 45}ms`;
+      tile.textContent = state.scrambled[i];
+      frag.appendChild(tile);
+    }
+    boardEl.appendChild(frag);
+  }
+
+  function paintHud() {
+    if (scoreEl) scoreEl.textContent = String(state.score);
+    if (progressEl) progressEl.textContent = `${state.index + 1} / ${WORDS.length}`;
+  }
+
+  function paintWord() {
+    const item = current();
+    state.scrambled = scramble(item.word, '');
+    state.locked = false;
+    state.hintShown = false;
+    if (guessEl) {
+      guessEl.value = '';
+      guessEl.disabled = false;
+      guessEl.classList.remove('ws-ready', 'ws-miss');
+    }
+    if (hintEl) hintEl.textContent = '';
+    if (feedbackEl) feedbackEl.textContent = 'Unscramble the letters, then press Enter. Skip if you are stuck.';
+    if (hintBtn) hintBtn.disabled = false;
+    if (skipEl) skipEl.disabled = false;
+    paintBoard();
+    paintHud();
+  }
+
+  function clearNext() {
+    if (state.nextTimer !== null) {
+      window.clearTimeout(state.nextTimer);
+      state.nextTimer = null;
+    }
+  }
+
+  function endGame() {
+    clearNext();
+    playWin();
+    if (finalScoreEl) finalScoreEl.textContent = String(state.score);
+    if (finalCorrectEl) finalCorrectEl.textContent = `${state.correct} / ${WORDS.length}`;
+    show('done');
+  }
+
+  function goNext() {
+    if (state.index < WORDS.length - 1) {
+      state.index += 1;
+      paintWord();
+      window.setTimeout(() => guessEl?.focus(), 0);
+      return;
+    }
+    endGame();
+  }
+
+  function startGame() {
+    clearNext();
+    state.index = 0;
+    state.score = 0;
+    state.correct = 0;
+    getAudio();
+    paintWord();
+    show('play');
+    playStart();
+    window.setTimeout(() => guessEl?.focus(), 0);
+  }
+
+  startEl?.addEventListener('click', startGame);
+
+  function checkGuess() {
+    if (state.locked) return;
+    const guess = (guessEl?.value || '').trim().toUpperCase();
+    if (!guess) {
+      if (feedbackEl) feedbackEl.textContent = 'Type a word.';
+      return;
+    }
+
+    if (guess === current().word) {
+      state.locked = true;
+      state.score += 5;
+      state.correct += 1;
+      if (guessEl) {
+        guessEl.disabled = true;
+        guessEl.classList.add('ws-ready');
+        guessEl.classList.remove('ws-miss');
+      }
+      if (skipEl) skipEl.disabled = true;
+      if (feedbackEl) feedbackEl.textContent = 'Correct.';
+      paintHud();
+      playCorrect();
+      clearNext();
+      state.nextTimer = window.setTimeout(goNext, 900);
+    } else {
+      if (guessEl) {
+        guessEl.classList.add('ws-miss');
+        guessEl.classList.remove('ws-ready');
+        guessEl.select();
+      }
+      if (feedbackEl) feedbackEl.textContent = 'Wrong. Try again.';
+      playWrong();
+    }
+  }
+
+  formEl?.addEventListener('submit', (event) => {
+    event.preventDefault();
+    checkGuess();
+  });
+
+  guessEl?.addEventListener('keydown', (event) => {
+    if (event.key !== 'Enter') return;
+    event.preventDefault();
+    checkGuess();
+  });
+
+  hintBtn?.addEventListener('click', () => {
+    if (state.locked) return;
+    state.hintShown = true;
+    if (hintEl) hintEl.textContent = current().hint;
+    if (hintBtn) hintBtn.disabled = true;
+    getAudio();
+    beep({ freq: 659, dur: 0.08, vol: 0.07 });
+  });
+
+  skipEl?.addEventListener('click', () => {
+    if (state.locked) return;
+    getAudio();
+    playSkip();
+    goNext();
+  });
+
+  reshuffleEl?.addEventListener('click', () => {
+    if (state.locked) return;
+    state.scrambled = scramble(current().word, state.scrambled);
+    paintBoard();
+    getAudio();
+    beep({ freq: 784, dur: 0.06, vol: 0.06 });
+    guessEl?.focus();
+  });
+
+  guessEl?.addEventListener('input', () => {
+    if (!guessEl) return;
+    guessEl.value = guessEl.value.toUpperCase();
+    guessEl.classList.remove('ws-miss', 'ws-ready');
+  });
+
+  againEl?.addEventListener('click', () => {
+    clearNext();
+    show('pick');
+  });
+
+  soundBtn?.addEventListener('click', () => {
+    soundOn = !soundOn;
+    window.localStorage.setItem(SOUND_KEY, soundOn ? 'on' : 'off');
+    paintSoundButton();
+    getAudio();
+    if (soundOn) beep({ freq: 880, dur: 0.08, vol: 0.08 });
+  });
+
+  paintSoundButton();
+  window.addEventListener('pagehide', clearNext);
+</script>
+
+<style is:global>
+  .ws-board {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 0.5rem;
+  }
+
+  #ws-board .ws-letter {
+    display: inline-flex;
+    min-width: 2.75rem;
+    height: 3.25rem;
+    align-items: center;
+    justify-content: center;
+    border: 2px solid #404040;
+    border-radius: 0.75rem;
+    background: #0a0a0a;
+    color: #22d3ee;
+    font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, 'Liberation Mono', 'Courier New',
+      monospace;
+    font-size: 1.75rem;
+    font-weight: 700;
+    padding: 0 0.4rem;
+  }
+
+  #ws-guess.ws-ready {
+    border-color: #22d3ee;
+    color: #22d3ee;
+  }
+
+  #ws-guess.ws-miss {
+    border-color: #737373;
+  }
+</style>
