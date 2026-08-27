@@ -11,7 +11,7 @@ interface Props {
 
 const {
   title,
-  description = 'Learn, build and explore AI — from zero to confident.',
+  description = 'A place to learn.',
   noIndex = false,
   hideFooter = false,
 } = Astro.props;
@@ -32,8 +32,6 @@ const nav = [
     current: path === '/compare/' || path.startsWith('/compare/') || path.startsWith('/models/'),
   },
 ];
-
-const searchHref = isHome ? '#sections' : '/compare/';
 ---
 
 <!doctype html>
@@ -57,53 +55,62 @@ const searchHref = isHome ? '#sections' : '/compare/';
   </head>
   <body class:list={['bg-black text-white antialiased', hideFooter ? 'flex h-dvh flex-col overflow-hidden' : 'min-h-screen']}>
     <header class:list={['border-b border-neutral-800 bg-black/95 backdrop-blur', hideFooter && 'shrink-0']}>
-      <div class="mx-auto grid max-w-[90rem] grid-cols-[1fr_auto] items-center gap-x-4 gap-y-3 px-6 py-4 lg:grid-cols-[auto_1fr_auto]">
+      <div
+        class:list={[
+          'mx-auto flex max-w-[90rem] items-center gap-x-4 px-6 py-4',
+          isHome ? 'justify-start' : 'flex-wrap justify-between lg:flex-nowrap',
+        ]}
+      >
         <a href="/" class="shrink-0 text-base font-semibold tracking-tight">
           <Brand />
         </a>
-        <nav
-          class="col-span-2 flex flex-wrap items-center gap-x-4 gap-y-1 text-sm lg:col-span-1 lg:justify-center lg:gap-5"
-          aria-label="Main"
-        >
-          {
-            nav.map((item) => (
-              <a
-                href={item.href}
-                class:list={[
-                  'inline-flex min-h-8 items-center border-b-2 py-1 transition hover:text-white focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-cyan-400',
-                  item.current
-                    ? 'border-cyan-400 text-white'
-                    : 'border-transparent text-neutral-400',
-                ]}
-                aria-current={item.current ? 'page' : undefined}
+        {
+          !isHome && (
+            <>
+              <nav
+                class="order-3 flex w-full flex-wrap items-center gap-x-4 gap-y-1 text-sm lg:order-none lg:w-auto lg:flex-1 lg:justify-center lg:gap-5"
+                aria-label="Main"
               >
-                {item.label}
-              </a>
-            ))
-          }
-        </nav>
-        <div class="col-start-2 row-start-1 flex items-center gap-1 lg:col-start-3">
-          <a
-            href={searchHref}
-            class="inline-flex h-9 w-9 items-center justify-center rounded-lg text-neutral-300 transition hover:text-cyan-300 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-cyan-400"
-            aria-label={isHome ? 'Browse sections' : 'Search models'}
-          >
-            <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" aria-hidden="true">
-              <circle cx="11" cy="11" r="7"></circle>
-              <path stroke-linecap="round" d="m20 20-3-3"></path>
-            </svg>
-          </a>
-          <span
-            class="inline-flex h-9 w-9 items-center justify-center rounded-lg text-neutral-300"
-            aria-hidden="true"
-            title="Dark mode"
-          >
-            <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75">
-              <circle cx="12" cy="12" r="4"></circle>
-              <path stroke-linecap="round" d="M12 3v1.5M12 19.5V21M4.93 4.93l1.06 1.06M17.99 17.99l1.06 1.06M3 12h1.5M19.5 12H21M4.93 19.07l1.06-1.06M17.99 6.01l1.06-1.06"></path>
-            </svg>
-          </span>
-        </div>
+                {nav.map((item) => (
+                  <a
+                    href={item.href}
+                    class:list={[
+                      'inline-flex min-h-8 items-center border-b-2 py-1 transition hover:text-white focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-cyan-400',
+                      item.current
+                        ? 'border-cyan-400 text-white'
+                        : 'border-transparent text-neutral-400',
+                    ]}
+                    aria-current={item.current ? 'page' : undefined}
+                  >
+                    {item.label}
+                  </a>
+                ))}
+              </nav>
+              <div class="ml-auto flex items-center gap-1 lg:ml-0">
+                <a
+                  href="/compare/"
+                  class="inline-flex h-9 w-9 items-center justify-center rounded-lg text-neutral-300 transition hover:text-cyan-300 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-cyan-400"
+                  aria-label="Search models"
+                >
+                  <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" aria-hidden="true">
+                    <circle cx="11" cy="11" r="7"></circle>
+                    <path stroke-linecap="round" d="m20 20-3-3"></path>
+                  </svg>
+                </a>
+                <span
+                  class="inline-flex h-9 w-9 items-center justify-center rounded-lg text-neutral-300"
+                  aria-hidden="true"
+                  title="Dark mode"
+                >
+                  <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75">
+                    <circle cx="12" cy="12" r="4"></circle>
+                    <path stroke-linecap="round" d="M12 3v1.5M12 19.5V21M4.93 4.93l1.06 1.06M17.99 17.99l1.06 1.06M3 12h1.5M19.5 12H21M4.93 19.07l1.06-1.06M17.99 6.01l1.06-1.06"></path>
+                  </svg>
+                </span>
+              </div>
+            </>
+          )
+        }
       </div>
     </header>
     <main class:list={[hideFooter && 'flex min-h-0 flex-1 flex-col']}>
@@ -112,7 +119,7 @@ const searchHref = isHome ? '#sections' : '/compare/';
     {
       !hideFooter && (
         <footer class="border-t border-neutral-800 py-8 text-center text-sm text-neutral-500">
-          <Brand /> · Learn, build and explore
+          <Brand /> · A place to learn
         </footer>
       )
     }
