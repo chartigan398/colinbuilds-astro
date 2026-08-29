@@ -1,0 +1,982 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+---
+
+<BaseLayout
+  title="Geometry Runner | ColinBuilds"
+  description="A Geometry Dash-style course with real jump spacing. Tap one square before a spike."
+>
+  <div class="mx-auto max-w-3xl px-6 py-12 pb-20">
+    <p class="text-sm text-neutral-500">
+      <a href="/" class="transition hover:text-cyan-400">Home</a>
+      <span> · </span>
+      <a href="/games/" class="transition hover:text-cyan-400">Games</a>
+    </p>
+    <h1 class="mt-3 text-3xl font-bold tracking-tight text-brand-cyan sm:text-4xl">Geometry Runner</h1>
+    <p class="mt-3 max-w-2xl text-neutral-400">
+      Four levels. Each one is harder than the last. Hold space to hop, including on blocks. Pads launch you. Orbs
+      need a tap. Then a ship tunnel.
+    </p>
+
+    <div class="mt-6 flex justify-end">
+      <button
+        type="button"
+        id="gr-sound"
+        aria-pressed="true"
+        class="inline-flex items-center rounded-lg border border-neutral-600 bg-neutral-950 px-3 py-2 text-sm font-medium text-white transition hover:border-cyan-400 hover:text-cyan-300 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-cyan-400"
+      >
+        Sound on
+      </button>
+    </div>
+
+    <div id="geometry-runner" class="mt-6">
+      <section data-screen="pick" aria-label="Start course">
+        <div class="rounded-xl border border-neutral-800 bg-neutral-950 p-6 sm:p-10">
+          <ul class="space-y-2 text-left text-sm text-neutral-400">
+            <li><span class="text-brand-cyan">Jump</span> — tap, or hold space. Holding keeps hopping when you land — including on blocks.</li>
+            <li><span class="text-brand-cyan">Four levels</span> — start at 1. Die and you retry that level, not the whole run.</li>
+          </ul>
+          <div class="mt-8 text-center">
+            <button
+              type="button"
+              id="gr-start"
+              class="inline-flex items-center justify-center rounded-lg bg-cyan-400 px-4 py-2.5 text-sm font-medium text-black transition hover:bg-cyan-300 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-cyan-400"
+            >
+              Start
+            </button>
+          </div>
+        </div>
+      </section>
+
+      <section data-screen="play" hidden aria-label="Course in progress">
+        <button
+          type="button"
+          id="gr-back"
+          class="mb-4 inline-flex items-center rounded-lg border border-neutral-600 bg-neutral-950 px-3 py-2 text-sm font-medium text-white transition hover:border-cyan-400 hover:text-cyan-300 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-cyan-400"
+        >
+          Back
+        </button>
+        <div class="grid grid-cols-3 gap-3 rounded-xl border border-neutral-800 bg-neutral-950 p-4 text-center">
+          <div>
+            <p id="gr-score" class="text-3xl font-bold tabular-nums text-brand-cyan">0</p>
+            <p class="mt-1 text-xs text-neutral-500">Score</p>
+          </div>
+          <div>
+            <p id="gr-mode" class="text-xl font-bold text-brand-cyan sm:text-2xl">1</p>
+            <p class="mt-1 text-xs text-neutral-500">Level</p>
+          </div>
+          <div>
+            <p id="gr-progress" class="text-3xl font-bold tabular-nums text-brand-cyan">0%</p>
+            <p class="mt-1 text-xs text-neutral-500">Course</p>
+          </div>
+        </div>
+        <div
+          id="gr-track"
+          class="gr-track mt-6 block w-full overflow-hidden rounded-xl border border-neutral-800 bg-black p-0"
+          role="application"
+          aria-label="Jump or fly"
+        >
+          <canvas id="gr-canvas" width="800" height="360"></canvas>
+        </div>
+        <p id="gr-hint" class="mt-3 text-center text-sm text-neutral-500">Tap to jump. Hold space to hop up the blocks.</p>
+      </section>
+
+      <section data-screen="done" hidden aria-label="Course over">
+        <div class="rounded-xl border border-neutral-800 bg-neutral-950 p-6 text-center sm:p-10">
+          <h2 id="gr-done-title" class="text-2xl font-bold tracking-tight text-brand-cyan">Crashed</h2>
+          <p id="gr-done-note" class="mt-3 min-h-6 text-sm text-neutral-400"></p>
+          <div class="mt-8 grid grid-cols-2 gap-3">
+            <div class="rounded-lg border border-neutral-800 p-4">
+              <p id="gr-final-score" class="text-3xl font-bold tabular-nums text-brand-cyan">0</p>
+              <p class="mt-1 text-xs text-neutral-500">Score</p>
+            </div>
+            <div class="rounded-lg border border-neutral-800 p-4">
+              <p id="gr-final-best" class="text-3xl font-bold tabular-nums text-brand-cyan">0</p>
+              <p class="mt-1 text-xs text-neutral-500">Best</p>
+            </div>
+          </div>
+          <div class="mt-8 flex flex-col gap-3 sm:flex-row sm:justify-center">
+            <button
+              type="button"
+              id="gr-again"
+              class="inline-flex items-center justify-center rounded-lg bg-cyan-400 px-4 py-2.5 text-sm font-medium text-black transition hover:bg-cyan-300 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-cyan-400"
+            >
+              Play again
+            </button>
+            <button
+              type="button"
+              id="gr-next"
+              hidden
+              class="inline-flex items-center justify-center rounded-lg bg-cyan-400 px-4 py-2.5 text-sm font-medium text-black transition hover:bg-cyan-300 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-cyan-400"
+            >
+              Next level
+            </button>
+            <button
+              type="button"
+              id="gr-home"
+              class="inline-flex items-center justify-center rounded-lg border border-neutral-600 bg-neutral-950 px-4 py-2.5 text-sm font-medium text-white transition hover:border-cyan-400 hover:text-cyan-300 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-cyan-400"
+            >
+              Back
+            </button>
+          </div>
+        </div>
+      </section>
+    </div>
+  </div>
+
+  <div id="gr-smart" class="gr-smart" hidden role="dialog" aria-labelledby="gr-smart-title">
+    <div class="gr-smart-card">
+      <p id="gr-smart-title" class="text-3xl font-bold tracking-tight text-brand-cyan">You're smart.</p>
+      <button
+        type="button"
+        id="gr-smart-ok"
+        class="mt-8 inline-flex items-center justify-center rounded-lg bg-cyan-400 px-4 py-2.5 text-sm font-medium text-black transition hover:bg-cyan-300 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-cyan-400"
+      >
+        OK
+      </button>
+    </div>
+  </div>
+</BaseLayout>
+
+<script>
+  const SOUND_KEY = 'colinbuilds-geometry-runner-sound';
+  const BEST_KEY = 'colinbuilds-geometry-runner-best';
+  const W = 800;
+  const H = 360;
+  const CELL = 40;
+  const SIZE = 30;
+  const GROUND = 320;
+  const CEIL = 36;
+  const SCREEN_X = 160;
+
+  // Jump feel from working HTML5 clones (jonathanleahy/geometry-dash, neon-geometry-dash):
+  // gravity 0.65, jump -12.5, size 30, per-frame. Official geometrydash.com demo
+  // (sogful/gddemo Player.js) jumps every frame while upKeyDown && canJump, and
+  // hitGround() on BOTH the floor and solid blocks — that is hold-up-the-stairs.
+  const GRAVITY = 0.65;
+  const JUMP = -12.5;
+  const PAD_JUMP = -18;
+  const SPEED = 6.2;
+  const SHIP_ACC = 0.55;
+  const SHIP_MAX = 7;
+  const STEPS = 4;
+  const LEFT_WIN = -(SPEED * 60 * 3);
+
+  const LEVELS = {
+    1: [
+      { t: 'spike', c: 12 },
+      { t: 'spike', c: 24 },
+      { t: 'spike', c: 25 },
+      { t: 'block', c: 38, h: 1 },
+      { t: 'block', c: 40, h: 2 },
+      { t: 'block', c: 42, h: 3 },
+      { t: 'gem', c: 48, y: 4.2 },
+      { t: 'spike', c: 58 },
+      { t: 'pad', c: 70 },
+      { t: 'spike', c: 73 },
+      { t: 'spike', c: 74 },
+      { t: 'spike', c: 75 },
+      { t: 'orb', c: 88, y: 2.1 },
+      { t: 'spike', c: 90 },
+      { t: 'spike', c: 91 },
+      { t: 'gem', c: 94, y: 3.6 },
+      { t: 'spike', c: 102 },
+      { t: 'ship', c: 114 },
+      { t: 'spike', c: 126 },
+      { t: 'cspike', c: 138 },
+      { t: 'gem', c: 144, y: 3.8 },
+      { t: 'spike', c: 150 },
+      { t: 'cube', c: 162 },
+      { t: 'spike', c: 174 },
+      { t: 'end', c: 186 },
+    ],
+    2: [
+      { t: 'spike', c: 10 },
+      { t: 'spike', c: 18 },
+      { t: 'spike', c: 19 },
+      { t: 'block', c: 28, h: 1 },
+      { t: 'block', c: 30, h: 2 },
+      { t: 'block', c: 32, h: 3 },
+      { t: 'spike', c: 40 },
+      { t: 'spike', c: 41 },
+      { t: 'pad', c: 50 },
+      { t: 'spike', c: 53 },
+      { t: 'spike', c: 54 },
+      { t: 'spike', c: 55 },
+      { t: 'orb', c: 64, y: 2.1 },
+      { t: 'spike', c: 66 },
+      { t: 'spike', c: 67 },
+      { t: 'gem', c: 70, y: 3.6 },
+      { t: 'spike', c: 76 },
+      { t: 'ship', c: 86 },
+      { t: 'spike', c: 96 },
+      { t: 'cspike', c: 104 },
+      { t: 'spike', c: 112 },
+      { t: 'gem', c: 116, y: 3.8 },
+      { t: 'cube', c: 124 },
+      { t: 'spike', c: 134 },
+      { t: 'spike', c: 135 },
+      { t: 'end', c: 146 },
+    ],
+    3: [
+      { t: 'spike', c: 8 },
+      { t: 'spike', c: 15 },
+      { t: 'spike', c: 16 },
+      { t: 'spike', c: 17 },
+      { t: 'block', c: 24, h: 1 },
+      { t: 'block', c: 26, h: 2 },
+      { t: 'block', c: 28, h: 3 },
+      { t: 'spike', c: 36 },
+      { t: 'spike', c: 37 },
+      { t: 'pad', c: 46 },
+      { t: 'spike', c: 49 },
+      { t: 'spike', c: 50 },
+      { t: 'spike', c: 51 },
+      { t: 'orb', c: 60, y: 2.1 },
+      { t: 'spike', c: 62 },
+      { t: 'spike', c: 63 },
+      { t: 'orb', c: 72, y: 2.2 },
+      { t: 'spike', c: 74 },
+      { t: 'spike', c: 75 },
+      { t: 'gem', c: 78, y: 3.6 },
+      { t: 'ship', c: 86 },
+      { t: 'spike', c: 94 },
+      { t: 'cspike', c: 100 },
+      { t: 'spike', c: 106 },
+      { t: 'cspike', c: 112 },
+      { t: 'gem', c: 116, y: 3.8 },
+      { t: 'cube', c: 122 },
+      { t: 'block', c: 130, h: 1 },
+      { t: 'block', c: 132, h: 2 },
+      { t: 'spike', c: 140 },
+      { t: 'spike', c: 141 },
+      { t: 'spike', c: 142 },
+      { t: 'end', c: 152 },
+    ],
+    4: [
+      { t: 'block', c: 10, h: 1 },
+      { t: 'block', c: 18, h: 4 },
+      { t: 'gem', c: 18, y: 5.2 },
+    ],
+  };
+
+  const root = document.getElementById('geometry-runner');
+  const canvas = document.getElementById('gr-canvas');
+  if (!root || !(canvas instanceof HTMLCanvasElement)) {
+    throw new Error('Geometry Runner root missing');
+  }
+  const ctx = canvas.getContext('2d');
+  if (!ctx) {
+    throw new Error('Geometry Runner canvas missing');
+  }
+
+  const screens = {
+    pick: root.querySelector('[data-screen="pick"]'),
+    play: root.querySelector('[data-screen="play"]'),
+    done: root.querySelector('[data-screen="done"]'),
+  };
+
+  const scoreEl = document.getElementById('gr-score');
+  const modeEl = document.getElementById('gr-mode');
+  const progressEl = document.getElementById('gr-progress');
+  const hintEl = document.getElementById('gr-hint');
+  const doneTitleEl = document.getElementById('gr-done-title');
+  const doneNoteEl = document.getElementById('gr-done-note');
+  const finalScoreEl = document.getElementById('gr-final-score');
+  const finalBestEl = document.getElementById('gr-final-best');
+  const startEl = document.getElementById('gr-start');
+  const againEl = document.getElementById('gr-again');
+  const nextEl = document.getElementById('gr-next');
+  const backEl = document.getElementById('gr-back');
+  const homeEl = document.getElementById('gr-home');
+  const trackEl = document.getElementById('gr-track');
+  const soundBtn = document.getElementById('gr-sound');
+  const smartEl = document.getElementById('gr-smart');
+  const smartOkEl = document.getElementById('gr-smart-ok');
+
+  let soundOn = window.localStorage.getItem(SOUND_KEY) !== 'off';
+  /** @type {AudioContext | null} */
+  let audioCtx = null;
+  let raf = 0;
+  let held = false;
+  let pressed = false;
+  let leftKey = false;
+  let leftPointer = false;
+
+  /** @type {ReturnType<typeof freshState>} */
+  let state = freshState();
+
+  function freshState() {
+    return {
+      running: false,
+      x: 0,
+      y: GROUND - SIZE,
+      lastY: GROUND - SIZE,
+      vy: 0,
+      mode: 'cube',
+      canJump: true,
+      score: 0,
+      best: Number(window.localStorage.getItem(BEST_KEY) || 0) || 0,
+      used: new Set(),
+      last: 0,
+      won: false,
+      level: 1,
+      reversed: false,
+    };
+  }
+
+  function course() {
+    return LEVELS[state.level] || LEVELS[1];
+  }
+
+  function finishX() {
+    const end = course().find((ob) => ob.t === 'end');
+    return end ? end.c * CELL : 1;
+  }
+
+  function levelLabel() {
+    return state.level === 4 ? 'Final' : String(state.level);
+  }
+
+  function getAudio() {
+    const AC = window.AudioContext || window.webkitAudioContext;
+    if (!AC) return null;
+    if (!audioCtx) audioCtx = new AC();
+    if (audioCtx.state === 'suspended') audioCtx.resume();
+    return audioCtx;
+  }
+
+  function beep({ freq, dur = 0.09, type = 'sine', vol = 0.09, delay = 0 }) {
+    if (!soundOn) return;
+    const c = getAudio();
+    if (!c) return;
+    const t0 = c.currentTime + delay;
+    const osc = c.createOscillator();
+    const g = c.createGain();
+    osc.type = type;
+    osc.frequency.setValueAtTime(freq, t0);
+    g.gain.setValueAtTime(vol, t0);
+    g.gain.exponentialRampToValueAtTime(0.001, t0 + dur);
+    osc.connect(g);
+    g.connect(c.destination);
+    osc.start(t0);
+    osc.stop(t0 + dur + 0.02);
+  }
+
+  function playStart() {
+    beep({ freq: 523, dur: 0.08, vol: 0.09 });
+    beep({ freq: 784, dur: 0.12, vol: 0.09, delay: 0.08 });
+  }
+  function playJump() {
+    beep({ freq: 740, dur: 0.07, vol: 0.07 });
+  }
+  function playPad() {
+    beep({ freq: 659, dur: 0.08, vol: 0.08 });
+    beep({ freq: 988, dur: 0.1, vol: 0.08, delay: 0.07 });
+  }
+  function playPick() {
+    beep({ freq: 880, dur: 0.07, vol: 0.09 });
+    beep({ freq: 1175, dur: 0.1, vol: 0.09, delay: 0.06 });
+  }
+  function playPortal() {
+    beep({ freq: 392, dur: 0.1, vol: 0.08 });
+    beep({ freq: 523, dur: 0.12, vol: 0.08, delay: 0.08 });
+  }
+  function playCrash() {
+    beep({ freq: 180, dur: 0.18, type: 'square', vol: 0.07 });
+  }
+  function playWin() {
+    beep({ freq: 523, dur: 0.1, vol: 0.08 });
+    beep({ freq: 659, dur: 0.1, vol: 0.08, delay: 0.1 });
+    beep({ freq: 784, dur: 0.18, vol: 0.09, delay: 0.2 });
+  }
+
+  function paintSoundButton() {
+    if (!soundBtn) return;
+    soundBtn.textContent = soundOn ? 'Sound on' : 'Sound off';
+    soundBtn.setAttribute('aria-pressed', soundOn ? 'true' : 'false');
+  }
+
+  function show(name) {
+    for (const [key, el] of Object.entries(screens)) {
+      if (el) el.hidden = key !== name;
+    }
+    document.body.style.overflow = name === 'play' ? 'hidden' : '';
+  }
+
+  function stopLoop() {
+    state.running = false;
+    if (raf) {
+      window.cancelAnimationFrame(raf);
+      raf = 0;
+    }
+  }
+
+  function sizeCanvas() {
+    const dpr = Math.min(window.devicePixelRatio || 1, 2);
+    canvas.width = Math.floor(W * dpr);
+    canvas.height = Math.floor(H * dpr);
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+  }
+
+  function overlaps(ax, ay, aw, ah, bx, by, bw, bh) {
+    return ax < bx + bw && ax + aw > bx && ay < by + bh && ay + ah > by;
+  }
+
+  function hintFor() {
+    if (state.level === 4) return '';
+    return state.mode === 'ship'
+      ? 'Hold to fly up. Release to drop.'
+      : 'Tap to jump. Hold space to hop up the blocks.';
+  }
+
+  function paintHud() {
+    if (scoreEl) scoreEl.textContent = String(state.score);
+    if (modeEl) modeEl.textContent = levelLabel();
+    if (state.level === 4) {
+      if (progressEl) progressEl.textContent = '—';
+    } else {
+      const pct = Math.max(0, Math.min(100, Math.round((state.x / finishX()) * 100)));
+      if (progressEl) progressEl.textContent = `${pct}%`;
+    }
+    if (hintEl) hintEl.textContent = hintFor();
+  }
+
+  function objX(ob) {
+    return ob.c * CELL;
+  }
+
+  function spikeBox(ob, ceiling) {
+    const x = objX(ob);
+    const w = CELL * 0.45;
+    const h = CELL * 0.55;
+    const inset = (CELL - w) / 2;
+    if (ceiling) return { x: x + inset, y: CEIL, w, h };
+    return { x: x + inset, y: GROUND - h, w, h };
+  }
+
+  function blockBox(ob, ceiling) {
+    const x = objX(ob);
+    if (ob.t === 'wall') {
+      return { x, y: CEIL, w: (ob.w || 2) * CELL, h: GROUND - CEIL };
+    }
+    const h = (ob.h || 1) * CELL;
+    if (ceiling) return { x, y: CEIL, w: CELL, h };
+    return { x, y: GROUND - h, w: CELL, h };
+  }
+
+  function padBox(ob) {
+    return { x: objX(ob) + 4, y: GROUND - 8, w: CELL - 8, h: 8 };
+  }
+
+  function orbBox(ob) {
+    const y = GROUND - (ob.y || 2) * CELL - 14;
+    return { x: objX(ob) + 6, y, w: 28, h: 28 };
+  }
+
+  function gemBox(ob) {
+    const y = GROUND - (ob.y || 3) * CELL - 10;
+    return { x: objX(ob) + 10, y, w: 20, h: 20 };
+  }
+
+  function portalBox(ob) {
+    return { x: objX(ob) + 4, y: CEIL + 8, w: 28, h: GROUND - CEIL - 16 };
+  }
+
+  function playerBox() {
+    return { x: state.x, y: state.y, w: SIZE, h: SIZE };
+  }
+
+  function land() {
+    state.vy = 0;
+    state.canJump = true;
+  }
+
+  function tryJump() {
+    if (state.mode !== 'cube') return false;
+    if (!state.canJump) return false;
+    state.vy = JUMP;
+    state.canJump = false;
+    playJump();
+    return true;
+  }
+
+  function onPress() {
+    held = true;
+    pressed = true;
+    tryJump();
+  }
+
+  function onRelease() {
+    held = false;
+  }
+
+  function drawSpike(x, y, up) {
+    ctx.fillStyle = '#22d3ee';
+    ctx.beginPath();
+    if (up) {
+      ctx.moveTo(x, y + CELL);
+      ctx.lineTo(x + CELL / 2, y);
+      ctx.lineTo(x + CELL, y + CELL);
+    } else {
+      ctx.moveTo(x, y);
+      ctx.lineTo(x + CELL / 2, y + CELL);
+      ctx.lineTo(x + CELL, y);
+    }
+    ctx.closePath();
+    ctx.fill();
+  }
+
+  function draw() {
+    const cam = state.x - SCREEN_X;
+    ctx.fillStyle = '#000000';
+    ctx.fillRect(0, 0, W, H);
+
+    const shift = ((cam % CELL) + CELL) % CELL;
+    ctx.strokeStyle = 'rgba(34, 211, 238, 0.1)';
+    ctx.lineWidth = 1;
+    ctx.beginPath();
+    for (let x = -shift; x <= W; x += CELL) {
+      ctx.moveTo(x, 0);
+      ctx.lineTo(x, H);
+    }
+    for (let y = CEIL; y <= GROUND; y += CELL) {
+      ctx.moveTo(0, y);
+      ctx.lineTo(W, y);
+    }
+    ctx.stroke();
+
+    ctx.strokeStyle = '#22d3ee';
+    ctx.lineWidth = 2;
+    ctx.beginPath();
+    ctx.moveTo(0, GROUND);
+    ctx.lineTo(W, GROUND);
+    ctx.moveTo(0, CEIL);
+    ctx.lineTo(W, CEIL);
+    ctx.stroke();
+
+    for (const ob of course()) {
+      const sx = objX(ob) - cam;
+      if (sx < -80 || sx > W + 80) continue;
+      if (ob.t === 'spike') drawSpike(sx, GROUND - CELL, true);
+      if (ob.t === 'cspike') drawSpike(sx, CEIL, false);
+      if (ob.t === 'block' || ob.t === 'wall') {
+        const b = blockBox(ob, false);
+        ctx.fillStyle = '#22d3ee';
+        if (ob.t === 'block' && (ob.h || 1) > 1) {
+          for (let i = 0; i < (ob.h || 1); i++) {
+            ctx.fillRect(b.x - cam, GROUND - (i + 1) * CELL + 1, CELL, CELL - 2);
+          }
+        } else {
+          ctx.fillRect(b.x - cam, b.y, b.w, b.h);
+        }
+      }
+      if (ob.t === 'cblock') {
+        const b = blockBox(ob, true);
+        ctx.fillStyle = '#22d3ee';
+        ctx.fillRect(b.x - cam, b.y, b.w, b.h);
+      }
+      if (ob.t === 'pad') {
+        ctx.fillStyle = '#67e8f9';
+        ctx.fillRect(sx + 4, GROUND - 8, CELL - 8, 8);
+      }
+      if (ob.t === 'orb') {
+        const o = orbBox(ob);
+        if (state.used.has(ob)) continue;
+        ctx.strokeStyle = '#22d3ee';
+        ctx.lineWidth = 3;
+        ctx.beginPath();
+        ctx.arc(o.x - cam + 14, o.y + 14, 12, 0, Math.PI * 2);
+        ctx.stroke();
+      }
+      if (ob.t === 'gem' && !state.used.has(ob)) {
+        const g = gemBox(ob);
+        ctx.save();
+        ctx.translate(g.x - cam + 10, g.y + 10);
+        ctx.rotate(Math.PI / 4);
+        ctx.fillStyle = '#22d3ee';
+        ctx.fillRect(-7, -7, 14, 14);
+        ctx.restore();
+      }
+      if (ob.t === 'ship' || ob.t === 'cube') {
+        ctx.strokeStyle = '#22d3ee';
+        ctx.lineWidth = 2;
+        ctx.strokeRect(sx + 6, CEIL + 10, 24, GROUND - CEIL - 20);
+        ctx.fillStyle = '#22d3ee';
+        ctx.beginPath();
+        if (ob.t === 'ship') {
+          ctx.moveTo(sx + 10, CEIL + 70);
+          ctx.lineTo(sx + 26, CEIL + 82);
+          ctx.lineTo(sx + 10, CEIL + 94);
+        } else {
+          ctx.rect(sx + 12, CEIL + 74, 12, 12);
+        }
+        ctx.fill();
+      }
+      if (ob.t === 'end') {
+        ctx.fillStyle = 'rgba(34, 211, 238, 0.25)';
+        ctx.fillRect(sx, CEIL, 16, GROUND - CEIL);
+      }
+    }
+
+    ctx.fillStyle = '#22d3ee';
+    if (state.mode === 'ship') {
+      ctx.beginPath();
+      ctx.moveTo(SCREEN_X, state.y + 6);
+      ctx.lineTo(SCREEN_X + SIZE, state.y + SIZE / 2);
+      ctx.lineTo(SCREEN_X, state.y + SIZE - 6);
+      ctx.closePath();
+      ctx.fill();
+    } else {
+      ctx.fillRect(SCREEN_X, state.y, SIZE, SIZE);
+    }
+
+    if (state.level === 4) {
+      ctx.fillStyle = '#22d3ee';
+      ctx.font = '700 36px ui-sans-serif, system-ui, sans-serif';
+      ctx.textAlign = 'center';
+      ctx.fillText('FINAL LEVEL', W / 2, 92);
+    }
+  }
+
+  function hitSpike() {
+    const p = playerBox();
+    for (const ob of course()) {
+      if (ob.t === 'spike') {
+        const b = spikeBox(ob, false);
+        if (overlaps(p.x, p.y, p.w, p.h, b.x, b.y, b.w, b.h)) return true;
+      }
+      if (ob.t === 'cspike') {
+        const b = spikeBox(ob, true);
+        if (overlaps(p.x, p.y, p.w, p.h, b.x, b.y, b.w, b.h)) return true;
+      }
+    }
+    return false;
+  }
+
+  function resolveBlocks() {
+    const p = playerBox();
+    for (const ob of course()) {
+      if (ob.t !== 'block' && ob.t !== 'cblock' && ob.t !== 'wall') continue;
+      const b = blockBox(ob, ob.t === 'cblock');
+      if (!overlaps(p.x, p.y, p.w, p.h, b.x, b.y, b.w, b.h)) continue;
+      if (state.mode === 'ship' || ob.t === 'wall') return true;
+      const feetPrev = state.lastY + SIZE;
+      const fromAbove = feetPrev <= b.y + 12;
+      if (ob.t === 'block' && fromAbove && state.vy >= -6) {
+        state.y = b.y - SIZE;
+        land();
+        return false;
+      }
+      return true;
+    }
+    return false;
+  }
+
+  function interact() {
+    const p = playerBox();
+    for (const ob of course()) {
+      if (ob.t === 'pad' && !state.used.has(ob)) {
+        const b = padBox(ob);
+        if (overlaps(p.x, p.y, p.w, p.h, b.x, b.y, b.w, b.h)) {
+          state.used.add(ob);
+          state.vy = PAD_JUMP;
+          state.canJump = false;
+          playPad();
+        }
+      }
+      if (ob.t === 'orb' && !state.used.has(ob)) {
+        const b = orbBox(ob);
+        if (overlaps(p.x, p.y, p.w, p.h, b.x, b.y, b.w, b.h) && (pressed || held)) {
+          state.used.add(ob);
+          state.vy = JUMP;
+          state.canJump = false;
+          playJump();
+        }
+      }
+      if (ob.t === 'gem' && !state.used.has(ob)) {
+        const b = gemBox(ob);
+        if (overlaps(p.x, p.y, p.w, p.h, b.x, b.y, b.w, b.h)) {
+          state.used.add(ob);
+          state.score += 5;
+          playPick();
+        }
+      }
+      if ((ob.t === 'ship' || ob.t === 'cube') && !state.used.has(ob)) {
+        const b = portalBox(ob);
+        if (overlaps(p.x, p.y, p.w, p.h, b.x, b.y, b.w, b.h)) {
+          state.used.add(ob);
+          state.mode = ob.t === 'ship' ? 'ship' : 'cube';
+          state.vy = 0;
+          playPortal();
+        }
+      }
+      if (ob.t === 'end') {
+        if (p.x + p.w >= objX(ob)) {
+          finish(true);
+          return;
+        }
+      }
+    }
+    if (state.level === 4 && state.x <= LEFT_WIN) {
+      finish(true);
+    }
+  }
+
+  function finish(won) {
+    stopLoop();
+    state.won = won;
+    if (won) {
+      state.score += 10;
+      playWin();
+    } else {
+      playCrash();
+    }
+    if (state.score > state.best) {
+      state.best = state.score;
+      window.localStorage.setItem(BEST_KEY, String(state.best));
+    }
+    if (doneTitleEl) {
+      doneTitleEl.textContent = won
+        ? state.level === 4
+          ? "You're smart."
+          : `Level ${state.level} clear`
+        : 'Crashed';
+    }
+    if (doneNoteEl) {
+      if (won && state.level === 4) doneNoteEl.textContent = 'You went the other way.';
+      else if (won) doneNoteEl.textContent = 'Next one is harder.';
+      else if (state.level === 4) doneNoteEl.textContent = '';
+      else doneNoteEl.textContent = 'Tap to jump. Hold space to hop up the blocks.';
+    }
+    if (nextEl) nextEl.hidden = !(won && state.level < 4);
+    if (finalScoreEl) finalScoreEl.textContent = String(state.score);
+    if (finalBestEl) finalBestEl.textContent = String(state.best);
+    if (won && state.level === 4 && smartEl) {
+      show('play');
+      smartEl.hidden = false;
+      smartOkEl?.focus();
+      return;
+    }
+    show('done');
+  }
+
+  function tick(now) {
+    if (!state.running) return;
+    const frame = Math.min(2, ((now - state.last) || 16.67) / 16.67);
+    state.last = now;
+    const tf = frame / STEPS;
+    let dead = false;
+
+    for (let s = 0; s < STEPS; s++) {
+      if (state.mode === 'ship') {
+        if (held) state.vy -= SHIP_ACC * tf;
+        else state.vy += SHIP_ACC * tf;
+        if (state.vy > SHIP_MAX) state.vy = SHIP_MAX;
+        if (state.vy < -SHIP_MAX) state.vy = -SHIP_MAX;
+        state.lastY = state.y;
+        state.y += state.vy * tf;
+        if (state.y < CEIL) {
+          state.y = CEIL;
+          state.vy = 0;
+        }
+        if (state.y > GROUND - SIZE) {
+          state.y = GROUND - SIZE;
+          state.vy = 0;
+        }
+      } else {
+        if (held) tryJump();
+        state.vy += GRAVITY * tf;
+        state.lastY = state.y;
+        state.y += state.vy * tf;
+        if (state.level === 4 && (leftKey || leftPointer)) state.reversed = true;
+        const dir = state.level === 4 && state.reversed ? -1 : 1;
+        state.x += SPEED * tf * dir;
+        if (state.y >= GROUND - SIZE) {
+          state.y = GROUND - SIZE;
+          land();
+        }
+      }
+
+      if (state.mode === 'ship') state.x += SPEED * tf;
+
+      if (hitSpike() || resolveBlocks()) {
+        dead = true;
+        break;
+      }
+      interact();
+      if (!state.running) break;
+    }
+
+    pressed = false;
+    if (dead) {
+      finish(false);
+      draw();
+      return;
+    }
+    if (!state.running) {
+      draw();
+      return;
+    }
+
+    paintHud();
+    draw();
+    raf = window.requestAnimationFrame(tick);
+  }
+
+  function startRun(level) {
+    stopLoop();
+    const best = state.best;
+    const nextLevel = Number(level) || state.level || 1;
+    state = freshState();
+    state.best = best;
+    state.level = nextLevel;
+    state.running = true;
+    state.last = performance.now();
+    held = false;
+    pressed = false;
+    leftKey = false;
+    leftPointer = false;
+    hideSmart();
+    getAudio();
+    show('play');
+    paintHud();
+    sizeCanvas();
+    draw();
+    playStart();
+    raf = window.requestAnimationFrame(tick);
+  }
+
+  function hideSmart() {
+    if (smartEl) smartEl.hidden = true;
+  }
+
+  function goPick() {
+    stopLoop();
+    leftKey = false;
+    leftPointer = false;
+    hideSmart();
+    show('pick');
+  }
+
+  startEl?.addEventListener('click', () => startRun(1));
+  againEl?.addEventListener('click', () => startRun(state.won && state.level === 4 ? 1 : state.level));
+  nextEl?.addEventListener('click', () => startRun(state.level + 1));
+  backEl?.addEventListener('click', goPick);
+  homeEl?.addEventListener('click', goPick);
+  smartOkEl?.addEventListener('click', () => {
+    hideSmart();
+    show('done');
+  });
+
+  trackEl?.addEventListener('mousedown', (event) => {
+    event.preventDefault();
+  });
+  trackEl?.addEventListener('pointerdown', (event) => {
+    event.preventDefault();
+    if (state.level === 4 && screens.play && !screens.play.hidden) {
+      const box = canvas.getBoundingClientRect();
+      if (event.clientX - box.left < box.width * 0.38) {
+        leftPointer = true;
+        return;
+      }
+    }
+    onPress();
+  });
+  window.addEventListener('pointerup', () => {
+    onRelease();
+    leftPointer = false;
+  });
+  window.addEventListener('pointercancel', () => {
+    onRelease();
+    leftPointer = false;
+  });
+
+  window.addEventListener(
+    'keydown',
+    (event) => {
+      const playOpen = screens.play && !screens.play.hidden;
+      const scrollKey =
+        event.code === 'Space' ||
+        event.code === 'ArrowUp' ||
+        event.code === 'ArrowDown' ||
+        event.code === 'ArrowLeft' ||
+        event.code === 'ArrowRight' ||
+        event.code === 'PageUp' ||
+        event.code === 'PageDown';
+      if (playOpen && scrollKey) event.preventDefault();
+
+      if (event.code === 'ArrowLeft' || event.code === 'KeyA') {
+        if (playOpen && state.level === 4) leftKey = true;
+        return;
+      }
+      if (event.code !== 'Space') return;
+      if (event.repeat) return;
+      if (screens.pick && !screens.pick.hidden) {
+        startRun(1);
+        return;
+      }
+      if (playOpen) onPress();
+    },
+    { capture: true },
+  );
+  window.addEventListener('keyup', (event) => {
+    if (event.code === 'Space') onRelease();
+    if (event.code === 'ArrowLeft' || event.code === 'KeyA') leftKey = false;
+  });
+
+  soundBtn?.addEventListener('click', () => {
+    soundOn = !soundOn;
+    window.localStorage.setItem(SOUND_KEY, soundOn ? 'on' : 'off');
+    paintSoundButton();
+    getAudio();
+    if (soundOn) beep({ freq: 880, dur: 0.08, vol: 0.08 });
+  });
+
+  window.addEventListener('resize', () => {
+    if (screens.play && !screens.play.hidden) sizeCanvas();
+  });
+  window.addEventListener('pagehide', () => {
+    stopLoop();
+    document.body.style.overflow = '';
+  });
+
+  paintSoundButton();
+  sizeCanvas();
+</script>
+
+<style is:global>
+  .gr-track {
+    cursor: pointer;
+    touch-action: none;
+    user-select: none;
+  }
+
+  #gr-canvas {
+    display: block;
+    width: 100%;
+    height: auto;
+  }
+
+  .gr-smart {
+    position: fixed;
+    inset: 0;
+    z-index: 40;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(0, 0, 0, 0.72);
+  }
+
+  .gr-smart[hidden] {
+    display: none;
+  }
+
+  .gr-smart-card {
+    width: min(22rem, calc(100vw - 2rem));
+    border: 1px solid #262626;
+    background: #0a0a0a;
+    padding: 2.5rem 1.5rem;
+    text-align: center;
+  }
+</style>

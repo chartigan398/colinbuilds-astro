@@ -3,8 +3,14 @@ import '../styles/games.css';
 
 const path = Astro.url.pathname;
 
-const scene = path.includes('math-sprint')
-  ? 'sprint'
+const scene = path.includes('geometry-runner')
+  ? 'runner'
+  : path.includes('connect-4')
+    ? 'connect'
+  : path.includes('hangman')
+    ? 'hangman'
+  : path.includes('math-sprint')
+    ? 'sprint'
   : path.includes('memory-match')
     ? 'match'
     : path.includes('quiz-show')
@@ -19,11 +25,9 @@ const scene = path.includes('math-sprint')
               ? 'guides'
               : path.startsWith('/builds')
                 ? 'builds'
-                : path.startsWith('/compare') || path.startsWith('/models')
-                  ? 'compare'
-                  : path === '/'
-                    ? 'home'
-                    : 'home';
+                : path === '/'
+                  ? 'home'
+                  : 'home';
 ---
 
 <div class="game-scene" data-scene={scene} aria-hidden="true">
@@ -86,17 +90,7 @@ const scene = path.includes('math-sprint')
     }
 
     {
-      scene === 'compare' && (
-        <g fill="none" stroke="#22d3ee" stroke-width="1.5">
-          <rect class="game-scene-panel" x="160" y="80" width="200" height="280" rx="8" stroke-opacity="0.28"></rect>
-          <rect class="game-scene-panel-delay" x="440" y="80" width="200" height="280" rx="8" stroke-opacity="0.28"></rect>
-          <path d="M400 120 v200" stroke-opacity="0.18" stroke-dasharray="4 8"></path>
-        </g>
-      )
-    }
-
-    {
-      (scene === 'hub' || scene === 'sprint' || scene === 'match' || scene === 'quiz' || scene === 'type' || scene === 'scramble') && (
+      (scene === 'hub' || scene === 'runner' || scene === 'connect' || scene === 'hangman' || scene === 'sprint' || scene === 'match' || scene === 'quiz' || scene === 'type' || scene === 'scramble') && (
         <>
           <g class="game-scene-ring game-scene-ring-slow" opacity="0.55">
             <circle cx="400" cy="210" r="150" fill="none" stroke="#22d3ee" stroke-width="1.25"></circle>
@@ -109,6 +103,40 @@ const scene = path.includes('math-sprint')
       )
     }
 
+    {
+      scene === 'runner' && (
+        <g fill="none" stroke="#22d3ee" stroke-opacity="0.22" stroke-width="2" stroke-linejoin="round">
+          <rect x="220" y="200" width="48" height="48"></rect>
+          <path d="M360 248 400 168 440 248Z"></path>
+          <path d="M500 248 540 188 580 248Z"></path>
+          <path d="M160 260h480"></path>
+        </g>
+      )
+    }
+    {
+      scene === 'connect' && (
+        <g fill="none" stroke="#22d3ee" stroke-opacity="0.22" stroke-width="2">
+          <circle cx="220" cy="240" r="28"></circle>
+          <circle cx="300" cy="240" r="28"></circle>
+          <circle cx="380" cy="240" r="28"></circle>
+          <circle cx="460" cy="240" r="28"></circle>
+          <circle cx="540" cy="240" r="28"></circle>
+          <circle cx="300" cy="160" r="28"></circle>
+          <circle cx="380" cy="160" r="28"></circle>
+          <circle cx="460" cy="160" r="28"></circle>
+          <circle cx="380" cy="80" r="28"></circle>
+        </g>
+      )
+    }
+    {
+      scene === 'hangman' && (
+        <g fill="none" stroke="#22d3ee" stroke-opacity="0.22" stroke-width="2" stroke-linecap="round">
+          <path d="M250 360h220M300 360V90h180v40"></path>
+          <circle cx="480" cy="160" r="28"></circle>
+          <path d="M480 188v70M455 210h50M460 290l20-32 20 32"></path>
+        </g>
+      )
+    }
     {
       scene === 'sprint' && (
         <g fill="none" stroke="#22d3ee" stroke-opacity="0.2" stroke-width="18">
@@ -151,7 +179,7 @@ const scene = path.includes('math-sprint')
     }
 
     {
-      scene !== 'home' && scene !== 'guides' && scene !== 'builds' && scene !== 'compare' && (
+      scene !== 'home' && scene !== 'guides' && scene !== 'builds' && (
         <g stroke="url(#game-floor)" stroke-width="1">
           <path class="game-scene-grid-line" d="M0 360 L400 240 L800 360" fill="none"></path>
           <path class="game-scene-grid-line" d="M80 480 L400 240 L720 480" fill="none"></path>

@@ -22,8 +22,7 @@
   animation: game-glow-pulse 9s ease-in-out infinite alternate;
 }
 
-.game-scene[data-scene='guides'] .game-scene-glow,
-.game-scene[data-scene='compare'] .game-scene-glow {
+.game-scene[data-scene='guides'] .game-scene-glow {
   opacity: 0.5;
 }
 
@@ -62,14 +61,6 @@
 
 .game-scene-pages {
   animation: game-drift 14s ease-in-out infinite alternate;
-}
-
-.game-scene-panel {
-  animation: game-in 0.9s ease both;
-}
-
-.game-scene-panel-delay {
-  animation: game-in 0.9s ease 0.12s both;
 }
 
 @keyframes game-drift {
@@ -372,8 +363,6 @@ a.group.game-listing-card:focus-visible::after {
   .game-scene-ring-slow,
   .game-scene-ring-fast,
   .game-scene-pages,
-  .game-scene-panel,
-  .game-scene-panel-delay,
   .game-scene-horizon,
   .game-scene[data-scene='home'] .game-scene-glow,
   .game-mark-draw,

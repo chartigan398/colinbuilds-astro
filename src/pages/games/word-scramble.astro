@@ -43,6 +43,13 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
       </section>
 
       <section data-screen="play" hidden aria-label="Scramble in progress">
+        <button
+          type="button"
+          id="ws-back"
+          class="mb-4 inline-flex items-center rounded-lg border border-neutral-600 bg-neutral-950 px-3 py-2 text-sm font-medium text-white transition hover:border-cyan-400 hover:text-cyan-300 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-cyan-400"
+        >
+          Back
+        </button>
         <div class="grid grid-cols-2 gap-3 rounded-xl border border-neutral-800 bg-neutral-950 p-4 text-center">
           <div>
             <p id="ws-score" class="text-3xl font-bold tabular-nums text-brand-cyan">0</p>
@@ -174,6 +181,7 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
   const reshuffleEl = document.getElementById('ws-reshuffle');
   const startEl = document.getElementById('ws-start');
   const againEl = document.getElementById('ws-again');
+  const backEl = document.getElementById('ws-back');
   const soundBtn = document.getElementById('ws-sound');
   const finalScoreEl = document.getElementById('ws-final-score');
   const finalCorrectEl = document.getElementById('ws-final-correct');
@@ -428,6 +436,11 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
   });
 
   againEl?.addEventListener('click', () => {
+    clearNext();
+    show('pick');
+  });
+
+  backEl?.addEventListener('click', () => {
     clearNext();
     show('pick');
   });

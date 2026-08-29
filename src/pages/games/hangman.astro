@@ -1,0 +1,553 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+---
+
+<BaseLayout
+  title="Hangman | ColinBuilds"
+  description="Guess the word, one letter at a time. Six misses and the round is over."
+>
+  <div class="mx-auto max-w-3xl px-6 py-12 pb-20">
+    <p class="text-sm text-neutral-500">
+      <a href="/" class="transition hover:text-cyan-400">Home</a>
+      <span> · </span>
+      <a href="/games/" class="transition hover:text-cyan-400">Games</a>
+    </p>
+    <h1 class="mt-3 text-3xl font-bold tracking-tight text-brand-cyan sm:text-4xl">Hangman</h1>
+    <p class="mt-3 max-w-2xl text-neutral-400">
+      Pick a category. Guess one letter at a time. Five points if you complete the word. A miss does not change
+      your score. Six misses and the round is over.
+    </p>
+
+    <div class="mt-6 flex justify-end">
+      <button
+        type="button"
+        id="hm-sound"
+        aria-pressed="true"
+        class="inline-flex items-center rounded-lg border border-neutral-600 bg-neutral-950 px-3 py-2 text-sm font-medium text-white transition hover:border-cyan-400 hover:text-cyan-300 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-cyan-400"
+      >
+        Sound on
+      </button>
+    </div>
+
+    <div id="hangman" class="mt-6">
+      <section data-screen="pick" aria-label="Choose a category">
+        <h2 class="text-sm font-semibold tracking-widest text-cyan-400">Choose a category</h2>
+        <ul class="mt-4 grid grid-cols-1 gap-3 sm:grid-cols-2">
+          <li>
+            <button type="button" data-category="animals" class="hm-pick">
+              <span class="text-lg font-semibold text-brand-cyan">Animals</span>
+              <span class="mt-1 text-sm text-neutral-400">Dog, lion, rabbit.</span>
+            </button>
+          </li>
+          <li>
+            <button type="button" data-category="colors" class="hm-pick">
+              <span class="text-lg font-semibold text-brand-cyan">Colors</span>
+              <span class="mt-1 text-sm text-neutral-400">Red, blue, purple.</span>
+            </button>
+          </li>
+          <li>
+            <button type="button" data-category="food" class="hm-pick">
+              <span class="text-lg font-semibold text-brand-cyan">Food</span>
+              <span class="mt-1 text-sm text-neutral-400">Apple, bread, cheese.</span>
+            </button>
+          </li>
+          <li>
+            <button type="button" data-category="body" class="hm-pick">
+              <span class="text-lg font-semibold text-brand-cyan">Body</span>
+              <span class="mt-1 text-sm text-neutral-400">Hand, head, knee.</span>
+            </button>
+          </li>
+          <li>
+            <button type="button" data-category="toys" class="hm-pick">
+              <span class="text-lg font-semibold text-brand-cyan">Toys</span>
+              <span class="mt-1 text-sm text-neutral-400">Ball, puzzle, robot.</span>
+            </button>
+          </li>
+        </ul>
+      </section>
+
+      <section data-screen="play" hidden aria-label="Hangman in progress">
+        <button
+          type="button"
+          id="hm-back"
+          class="mb-4 inline-flex items-center rounded-lg border border-neutral-600 bg-neutral-950 px-3 py-2 text-sm font-medium text-white transition hover:border-cyan-400 hover:text-cyan-300 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-cyan-400"
+        >
+          Categories
+        </button>
+        <div class="grid grid-cols-3 gap-3 rounded-xl border border-neutral-800 bg-neutral-950 p-4 text-center">
+          <div>
+            <p id="hm-score" class="text-3xl font-bold tabular-nums text-brand-cyan">0</p>
+            <p class="mt-1 text-xs text-neutral-500">Score</p>
+          </div>
+          <div>
+            <p id="hm-misses" class="text-3xl font-bold tabular-nums text-brand-cyan">0 / 6</p>
+            <p class="mt-1 text-xs text-neutral-500">Misses</p>
+          </div>
+          <div>
+            <p id="hm-category" class="text-xl font-bold text-brand-cyan sm:text-2xl">Animals</p>
+            <p class="mt-1 text-xs text-neutral-500">Category</p>
+          </div>
+        </div>
+
+        <div class="mt-6 grid gap-6 rounded-xl border border-neutral-800 bg-neutral-950 p-6 sm:grid-cols-2 sm:p-8">
+          <div class="flex items-center justify-center">
+            <svg class="hm-gallows" viewBox="0 0 200 240" aria-hidden="true">
+              <g fill="none" stroke="#22d3ee" stroke-width="4" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M24 220h120"></path>
+                <path d="M52 220V24h96v28"></path>
+              </g>
+              <g id="hm-figure" fill="none" stroke="#22d3ee" stroke-width="4" stroke-linecap="round" stroke-linejoin="round">
+                <circle data-part="1" cx="148" cy="72" r="20"></circle>
+                <path data-part="2" d="M148 92v56"></path>
+                <path data-part="3" d="M148 108 122 132"></path>
+                <path data-part="4" d="M148 108 174 132"></path>
+                <path data-part="5" d="M148 148 124 192"></path>
+                <path data-part="6" d="M148 148 172 192"></path>
+              </g>
+            </svg>
+          </div>
+
+          <div class="flex flex-col justify-center">
+            <div id="hm-word" class="hm-word" aria-live="polite"></div>
+            <p id="hm-feedback" class="mt-4 min-h-6 text-sm text-neutral-500" aria-live="polite"></p>
+            <div id="hm-end" class="mt-4 hidden flex-col gap-3 sm:flex-row">
+              <button
+                type="button"
+                id="hm-next"
+                class="inline-flex items-center justify-center rounded-lg bg-cyan-400 px-4 py-2.5 text-sm font-medium text-black transition hover:bg-cyan-300 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-cyan-400"
+              >
+                Next word
+              </button>
+              <button
+                type="button"
+                id="hm-change"
+                class="inline-flex items-center justify-center rounded-lg border border-neutral-600 bg-neutral-950 px-4 py-2.5 text-sm font-medium text-white transition hover:border-cyan-400 hover:text-cyan-300 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-cyan-400"
+              >
+                Change category
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <div class="mt-6 rounded-xl border border-neutral-800 bg-neutral-950 p-4 sm:p-6">
+          <div id="hm-keys" class="hm-keys" role="group" aria-label="Letters"></div>
+        </div>
+      </section>
+    </div>
+  </div>
+</BaseLayout>
+
+<script>
+  const SOUND_KEY = 'colinbuilds-hangman-sound';
+  const MAX_WRONG = 6;
+  const ALPHABET = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'.split('');
+
+  /** @type {Record<string, { label: string, words: string[] }>} */
+  const CATEGORIES = {
+    animals: {
+      label: 'Animals',
+      words: ['DOG', 'CAT', 'LION', 'TIGER', 'BEAR', 'FISH', 'BIRD', 'FROG', 'DUCK', 'HORSE', 'PIG', 'COW', 'SHEEP', 'CHICKEN', 'RABBIT'],
+    },
+    colors: {
+      label: 'Colors',
+      words: ['RED', 'BLUE', 'GREEN', 'YELLOW', 'PINK', 'PURPLE', 'ORANGE', 'BLACK', 'WHITE', 'BROWN'],
+    },
+    food: {
+      label: 'Food',
+      words: ['PIZZA', 'APPLE', 'BANANA', 'CAKE', 'COOKIE', 'BREAD', 'CHEESE', 'MILK', 'WATER', 'JUICE', 'CANDY'],
+    },
+    body: {
+      label: 'Body',
+      words: ['HAND', 'FOOT', 'HEAD', 'EYE', 'EAR', 'NOSE', 'MOUTH', 'HAIR', 'KNEE', 'ARM', 'LEG'],
+    },
+    toys: {
+      label: 'Toys',
+      words: ['BALL', 'DOLL', 'BLOCKS', 'PUZZLE', 'ROBOT', 'CAR', 'BIKE', 'SWING', 'SLIDE'],
+    },
+  };
+
+  const root = document.getElementById('hangman');
+  if (!root) {
+    throw new Error('Hangman root missing');
+  }
+
+  const screens = {
+    pick: root.querySelector('[data-screen="pick"]'),
+    play: root.querySelector('[data-screen="play"]'),
+  };
+
+  const scoreEl = document.getElementById('hm-score');
+  const missesEl = document.getElementById('hm-misses');
+  const categoryEl = document.getElementById('hm-category');
+  const wordEl = document.getElementById('hm-word');
+  const feedbackEl = document.getElementById('hm-feedback');
+  const endEl = document.getElementById('hm-end');
+  const keysEl = document.getElementById('hm-keys');
+  const nextEl = document.getElementById('hm-next');
+  const backEl = document.getElementById('hm-back');
+  const changeEl = document.getElementById('hm-change');
+  const soundBtn = document.getElementById('hm-sound');
+  const figureParts = [...root.querySelectorAll('#hm-figure [data-part]')];
+
+  let soundOn = window.localStorage.getItem(SOUND_KEY) !== 'off';
+  /** @type {AudioContext | null} */
+  let audioCtx = null;
+
+  /** @type {{ category: string | null, word: string, guessed: Set<string>, wrong: number, score: number, locked: boolean, used: Set<string> }} */
+  const state = {
+    category: null,
+    word: '',
+    guessed: new Set(),
+    wrong: 0,
+    score: 0,
+    locked: false,
+    used: new Set(),
+  };
+
+  function getAudio() {
+    const AC = window.AudioContext || window.webkitAudioContext;
+    if (!AC) return null;
+    if (!audioCtx) audioCtx = new AC();
+    if (audioCtx.state === 'suspended') audioCtx.resume();
+    return audioCtx;
+  }
+
+  function beep({ freq, dur = 0.09, type = 'sine', vol = 0.09, delay = 0 }) {
+    if (!soundOn) return;
+    const c = getAudio();
+    if (!c) return;
+    const t0 = c.currentTime + delay;
+    const osc = c.createOscillator();
+    const g = c.createGain();
+    osc.type = type;
+    osc.frequency.setValueAtTime(freq, t0);
+    g.gain.setValueAtTime(vol, t0);
+    g.gain.exponentialRampToValueAtTime(0.001, t0 + dur);
+    osc.connect(g);
+    g.connect(c.destination);
+    osc.start(t0);
+    osc.stop(t0 + dur + 0.02);
+  }
+
+  function playStart() {
+    beep({ freq: 523, dur: 0.08, vol: 0.09 });
+    beep({ freq: 784, dur: 0.12, vol: 0.09, delay: 0.08 });
+  }
+
+  function playCorrect() {
+    beep({ freq: 880, dur: 0.07, vol: 0.09 });
+    beep({ freq: 1175, dur: 0.12, vol: 0.09, delay: 0.07 });
+  }
+
+  function playWrong() {
+    beep({ freq: 180, dur: 0.14, type: 'square', vol: 0.07 });
+  }
+
+  function playWin() {
+    beep({ freq: 523, dur: 0.1, vol: 0.08 });
+    beep({ freq: 659, dur: 0.1, vol: 0.08, delay: 0.1 });
+    beep({ freq: 784, dur: 0.18, vol: 0.09, delay: 0.2 });
+  }
+
+  function paintSoundButton() {
+    if (!soundBtn) return;
+    soundBtn.textContent = soundOn ? 'Sound on' : 'Sound off';
+    soundBtn.setAttribute('aria-pressed', soundOn ? 'true' : 'false');
+  }
+
+  function show(name) {
+    for (const [key, el] of Object.entries(screens)) {
+      if (el) el.hidden = key !== name;
+    }
+  }
+
+  function pickWord() {
+    const list = CATEGORIES[state.category].words;
+    let pool = list.filter((word) => !state.used.has(word));
+    if (pool.length === 0) {
+      state.used.clear();
+      pool = list;
+    }
+    const word = pool[Math.floor(Math.random() * pool.length)];
+    state.used.add(word);
+    return word;
+  }
+
+  function paintFigure() {
+    for (const part of figureParts) {
+      const n = Number(part.getAttribute('data-part'));
+      part.classList.toggle('is-on', n <= state.wrong);
+    }
+  }
+
+  function paintWord() {
+    if (!wordEl) return;
+    wordEl.replaceChildren();
+    const frag = document.createDocumentFragment();
+    for (const letter of state.word) {
+      const slot = document.createElement('span');
+      slot.className = 'hm-slot';
+      const revealed = state.guessed.has(letter) || state.locked;
+      slot.textContent = revealed ? letter : '';
+      if (revealed) slot.classList.add('is-open');
+      frag.appendChild(slot);
+    }
+    wordEl.appendChild(frag);
+  }
+
+  function paintKeys() {
+    if (!keysEl) return;
+    for (const btn of keysEl.querySelectorAll('button')) {
+      const letter = btn.dataset.letter || '';
+      const guessed = state.guessed.has(letter);
+      const hit = guessed && state.word.includes(letter);
+      btn.disabled = guessed || state.locked;
+      btn.classList.toggle('is-hit', hit);
+      btn.classList.toggle('is-miss', guessed && !hit);
+    }
+  }
+
+  function paintHud() {
+    if (scoreEl) scoreEl.textContent = String(state.score);
+    if (missesEl) missesEl.textContent = `${state.wrong} / ${MAX_WRONG}`;
+    if (categoryEl && state.category) categoryEl.textContent = CATEGORIES[state.category].label;
+  }
+
+  function wordComplete() {
+    return state.word.split('').every((letter) => state.guessed.has(letter));
+  }
+
+  function endRound(won) {
+    state.locked = true;
+    if (won) state.score += 5;
+    if (endEl) {
+      endEl.classList.remove('hidden');
+      endEl.classList.add('flex');
+    }
+    paintWord();
+    paintKeys();
+    paintHud();
+    if (won) {
+      if (feedbackEl) feedbackEl.textContent = 'Correct.';
+      playWin();
+    } else {
+      if (feedbackEl) feedbackEl.textContent = `The word was ${state.word}.`;
+      playWrong();
+    }
+  }
+
+  function startWord() {
+    state.word = pickWord();
+    state.guessed = new Set();
+    state.wrong = 0;
+    state.locked = false;
+    if (endEl) {
+      endEl.classList.add('hidden');
+      endEl.classList.remove('flex');
+    }
+    if (feedbackEl) feedbackEl.textContent = 'Guess a letter.';
+    paintFigure();
+    paintWord();
+    paintKeys();
+    paintHud();
+  }
+
+  function startCategory(category) {
+    state.category = category;
+    state.score = 0;
+    state.used = new Set();
+    getAudio();
+    startWord();
+    show('play');
+    playStart();
+  }
+
+  function guessLetter(letter) {
+    if (state.locked || !/^[A-Z]$/.test(letter) || state.guessed.has(letter)) return;
+    state.guessed.add(letter);
+
+    if (state.word.includes(letter)) {
+      paintWord();
+      paintKeys();
+      playCorrect();
+      if (wordComplete()) endRound(true);
+      return;
+    }
+
+    state.wrong += 1;
+    paintFigure();
+    paintKeys();
+    paintHud();
+    if (state.wrong >= MAX_WRONG) {
+      endRound(false);
+      return;
+    }
+    playWrong();
+  }
+
+  function buildKeys() {
+    if (!keysEl) return;
+    keysEl.replaceChildren();
+    const frag = document.createDocumentFragment();
+    for (const letter of ALPHABET) {
+      const btn = document.createElement('button');
+      btn.type = 'button';
+      btn.className = 'hm-key';
+      btn.dataset.letter = letter;
+      btn.textContent = letter;
+      btn.setAttribute('aria-label', letter);
+      btn.addEventListener('click', () => guessLetter(letter));
+      frag.appendChild(btn);
+    }
+    keysEl.appendChild(frag);
+  }
+
+  root.querySelectorAll('[data-category]').forEach((btn) => {
+    btn.addEventListener('click', () => {
+      const category = btn.getAttribute('data-category');
+      if (category && CATEGORIES[category]) startCategory(category);
+    });
+  });
+
+  nextEl?.addEventListener('click', () => {
+    getAudio();
+    startWord();
+  });
+
+  function goPick() {
+    state.category = null;
+    show('pick');
+  }
+
+  backEl?.addEventListener('click', goPick);
+  changeEl?.addEventListener('click', goPick);
+
+  soundBtn?.addEventListener('click', () => {
+    soundOn = !soundOn;
+    window.localStorage.setItem(SOUND_KEY, soundOn ? 'on' : 'off');
+    paintSoundButton();
+    getAudio();
+    if (soundOn) beep({ freq: 880, dur: 0.08, vol: 0.08 });
+  });
+
+  window.addEventListener('keydown', (event) => {
+    if (screens.play?.hidden) return;
+    if (event.metaKey || event.ctrlKey || event.altKey) return;
+    const letter = event.key.toUpperCase();
+    if (!/^[A-Z]$/.test(letter)) return;
+    event.preventDefault();
+    guessLetter(letter);
+  });
+
+  buildKeys();
+  paintSoundButton();
+</script>
+
+<style is:global>
+  .hm-pick {
+    display: flex;
+    height: 100%;
+    width: 100%;
+    flex-direction: column;
+    border-radius: 0.75rem;
+    border: 1px solid #262626;
+    background: #0a0a0a;
+    padding: 1.25rem;
+    text-align: left;
+    transition: border-color 0.15s ease;
+  }
+
+  .hm-pick:hover,
+  .hm-pick:focus-visible {
+    border-color: #22d3ee;
+  }
+
+  .hm-pick:focus-visible {
+    outline: 2px solid #22d3ee;
+    outline-offset: 2px;
+  }
+
+  .hm-gallows {
+    width: 100%;
+    max-width: 12rem;
+    height: auto;
+  }
+
+  #hm-figure [data-part] {
+    opacity: 0;
+  }
+
+  #hm-figure [data-part].is-on {
+    opacity: 1;
+  }
+
+  .hm-word {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 0.4rem;
+  }
+
+  .hm-slot {
+    display: inline-flex;
+    min-width: 2rem;
+    height: 2.75rem;
+    align-items: center;
+    justify-content: center;
+    border-bottom: 3px solid #404040;
+    color: #22d3ee;
+    font-size: 1.5rem;
+    font-weight: 700;
+    line-height: 1;
+  }
+
+  .hm-slot.is-open {
+    border-bottom-color: #22d3ee;
+  }
+
+  .hm-keys {
+    display: grid;
+    grid-template-columns: repeat(7, minmax(0, 1fr));
+    gap: 0.4rem;
+  }
+
+  .hm-key {
+    display: inline-flex;
+    aspect-ratio: 1;
+    align-items: center;
+    justify-content: center;
+    border: 1px solid #404040;
+    border-radius: 0.5rem;
+    background: #0a0a0a;
+    color: #ffffff;
+    font-size: 0.95rem;
+    font-weight: 700;
+  }
+
+  .hm-key:hover:not(:disabled),
+  .hm-key:focus-visible:not(:disabled) {
+    border-color: #22d3ee;
+    color: #22d3ee;
+  }
+
+  .hm-key:focus-visible {
+    outline: 2px solid #22d3ee;
+    outline-offset: 2px;
+  }
+
+  .hm-key.is-hit {
+    border-color: #22d3ee;
+    color: #22d3ee;
+  }
+
+  .hm-key.is-miss {
+    border-color: #262626;
+    color: #525252;
+  }
+
+  @media (min-width: 640px) {
+    .hm-keys {
+      grid-template-columns: repeat(9, minmax(0, 1fr));
+    }
+  }
+</style>

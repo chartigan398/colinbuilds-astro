@@ -1,12 +1,41 @@
 ---
 interface Props {
-  name: 'sprint' | 'match' | 'quiz' | 'type' | 'scramble';
+  name: 'sprint' | 'match' | 'quiz' | 'type' | 'scramble' | 'hangman' | 'connect' | 'runner';
 }
 
 const { name } = Astro.props;
 ---
 
 <svg class="game-mark" viewBox="0 0 48 48" fill="none" aria-hidden="true">
+  {
+    name === 'runner' && (
+      <>
+        <rect class="game-mark-draw" x="8" y="22" width="12" height="12" stroke="currentColor" stroke-width="1.75" />
+        <path class="game-mark-draw" d="M28 34 36 18 44 34Z" stroke="currentColor" stroke-width="1.75" stroke-linejoin="round" />
+        <path d="M8 38h36" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" />
+      </>
+    )
+  }
+  {
+    name === 'connect' && (
+      <>
+        <circle class="game-mark-draw" cx="10" cy="24" r="5" stroke="currentColor" stroke-width="1.75" />
+        <circle class="game-mark-draw" cx="22" cy="24" r="5" stroke="currentColor" stroke-width="1.75" />
+        <circle class="game-mark-draw" cx="34" cy="24" r="5" fill="currentColor" stroke="currentColor" stroke-width="1.75" />
+        <circle cx="22" cy="12" r="5" stroke="currentColor" stroke-width="1.75" />
+        <circle cx="22" cy="36" r="5" stroke="currentColor" stroke-width="1.75" />
+      </>
+    )
+  }
+  {
+    name === 'hangman' && (
+      <>
+        <path class="game-mark-draw" d="M10 40h22M16 40V8h18v6" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" />
+        <circle cx="34" cy="20" r="5" stroke="currentColor" stroke-width="1.75" />
+        <path d="M34 25v8M30 28h8M31 36l3-3 3 3" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" />
+      </>
+    )
+  }
   {
     name === 'sprint' && (
       <>

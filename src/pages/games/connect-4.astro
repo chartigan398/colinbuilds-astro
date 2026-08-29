@@ -1,0 +1,571 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+---
+
+<BaseLayout
+  title="Connect 4 | ColinBuilds"
+  description="Get four in a row. Play against the computer. Three levels."
+>
+  <div class="mx-auto max-w-3xl px-6 py-12 pb-20">
+    <p class="text-sm text-neutral-500">
+      <a href="/" class="transition hover:text-cyan-400">Home</a>
+      <span> · </span>
+      <a href="/games/" class="transition hover:text-cyan-400">Games</a>
+    </p>
+    <h1 class="mt-3 text-3xl font-bold tracking-tight text-brand-cyan sm:text-4xl">Connect 4</h1>
+    <p class="mt-3 max-w-2xl text-neutral-400">
+      Drop a disc. Get four in a row. You are cyan. The computer is white. A win is five points. A loss or a draw
+      does not change your score.
+    </p>
+
+    <div class="mt-6 flex justify-end">
+      <button
+        type="button"
+        id="c4-sound"
+        aria-pressed="true"
+        class="inline-flex items-center rounded-lg border border-neutral-600 bg-neutral-950 px-3 py-2 text-sm font-medium text-white transition hover:border-cyan-400 hover:text-cyan-300 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-cyan-400"
+      >
+        Sound on
+      </button>
+    </div>
+
+    <div id="connect-4" class="mt-6">
+      <section data-screen="pick" aria-label="Choose a level">
+        <h2 class="text-sm font-semibold tracking-widest text-cyan-400">Choose a level</h2>
+        <ul class="mt-4 grid grid-cols-1 gap-3">
+          <li>
+            <button type="button" data-difficulty="easy" class="c4-pick">
+              <span class="text-lg font-semibold text-brand-cyan">Easy</span>
+              <span class="mt-1 text-sm text-neutral-400">The computer plays at random.</span>
+            </button>
+          </li>
+          <li>
+            <button type="button" data-difficulty="medium" class="c4-pick">
+              <span class="text-lg font-semibold text-brand-cyan">Medium</span>
+              <span class="mt-1 text-sm text-neutral-400">The computer is right about half the time.</span>
+            </button>
+          </li>
+          <li>
+            <button type="button" data-difficulty="hard" class="c4-pick">
+              <span class="text-lg font-semibold text-brand-cyan">Hard</span>
+              <span class="mt-1 text-sm text-neutral-400">The computer blocks and takes wins.</span>
+            </button>
+          </li>
+        </ul>
+      </section>
+
+      <section data-screen="play" hidden aria-label="Connect 4 in progress">
+        <button
+          type="button"
+          id="c4-back"
+          class="mb-4 inline-flex items-center rounded-lg border border-neutral-600 bg-neutral-950 px-3 py-2 text-sm font-medium text-white transition hover:border-cyan-400 hover:text-cyan-300 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-cyan-400"
+        >
+          Levels
+        </button>
+
+        <div class="grid grid-cols-3 gap-3 rounded-xl border border-neutral-800 bg-neutral-950 p-4 text-center">
+          <div>
+            <p id="c4-you" class="text-3xl font-bold tabular-nums text-brand-cyan">0</p>
+            <p class="mt-1 text-xs text-neutral-500">You</p>
+          </div>
+          <div>
+            <p id="c4-level" class="text-xl font-bold text-brand-cyan sm:text-2xl">Easy</p>
+            <p class="mt-1 text-xs text-neutral-500">Level</p>
+          </div>
+          <div>
+            <p id="c4-cpu" class="text-3xl font-bold tabular-nums text-white">0</p>
+            <p class="mt-1 text-xs text-neutral-500">Computer</p>
+          </div>
+        </div>
+        <p class="mt-2 text-center text-sm text-neutral-500">
+          Score <span id="c4-score" class="tabular-nums text-brand-cyan">0</span>
+        </p>
+
+        <div class="mt-6 rounded-xl border border-neutral-800 bg-neutral-950 p-3 sm:p-5">
+          <div id="c4-board" class="c4-board" role="grid" aria-label="Connect 4 board"></div>
+          <p id="c4-feedback" class="mt-4 min-h-6 text-center text-sm text-neutral-500" aria-live="polite"></p>
+          <div id="c4-end" class="mt-4 hidden justify-center">
+            <button
+              type="button"
+              id="c4-next"
+              class="inline-flex items-center justify-center rounded-lg bg-cyan-400 px-4 py-2.5 text-sm font-medium text-black transition hover:bg-cyan-300 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-cyan-400"
+            >
+              Next round
+            </button>
+          </div>
+        </div>
+      </section>
+    </div>
+  </div>
+</BaseLayout>
+
+<script>
+  const SOUND_KEY = 'colinbuilds-connect-4-sound';
+  const ROWS = 6;
+  const COLS = 7;
+  const EMPTY = 0;
+  const YOU = 1;
+  const CPU = 2;
+  const LABELS = { easy: 'Easy', medium: 'Medium', hard: 'Hard' };
+
+  const root = document.getElementById('connect-4');
+  if (!root) {
+    throw new Error('Connect 4 root missing');
+  }
+
+  const screens = {
+    pick: root.querySelector('[data-screen="pick"]'),
+    play: root.querySelector('[data-screen="play"]'),
+  };
+
+  const boardEl = document.getElementById('c4-board');
+  const youEl = document.getElementById('c4-you');
+  const cpuEl = document.getElementById('c4-cpu');
+  const scoreEl = document.getElementById('c4-score');
+  const levelEl = document.getElementById('c4-level');
+  const feedbackEl = document.getElementById('c4-feedback');
+  const endEl = document.getElementById('c4-end');
+  const nextEl = document.getElementById('c4-next');
+  const backEl = document.getElementById('c4-back');
+  const soundBtn = document.getElementById('c4-sound');
+
+  let soundOn = window.localStorage.getItem(SOUND_KEY) !== 'off';
+  /** @type {AudioContext | null} */
+  let audioCtx = null;
+
+  /** @type {{ difficulty: string | null, board: number[][], turn: number, locked: boolean, you: number, cpu: number, score: number, winning: number[][], hover: number | null, aiTimer: number | null }} */
+  const state = {
+    difficulty: null,
+    board: emptyBoard(),
+    turn: YOU,
+    locked: false,
+    you: 0,
+    cpu: 0,
+    score: 0,
+    winning: [],
+    hover: null,
+    aiTimer: null,
+  };
+
+  function emptyBoard() {
+    return Array.from({ length: ROWS }, () => Array(COLS).fill(EMPTY));
+  }
+
+  function getAudio() {
+    const AC = window.AudioContext || window.webkitAudioContext;
+    if (!AC) return null;
+    if (!audioCtx) audioCtx = new AC();
+    if (audioCtx.state === 'suspended') audioCtx.resume();
+    return audioCtx;
+  }
+
+  function beep({ freq, dur = 0.09, type = 'sine', vol = 0.09, delay = 0 }) {
+    if (!soundOn) return;
+    const c = getAudio();
+    if (!c) return;
+    const t0 = c.currentTime + delay;
+    const osc = c.createOscillator();
+    const g = c.createGain();
+    osc.type = type;
+    osc.frequency.setValueAtTime(freq, t0);
+    g.gain.setValueAtTime(vol, t0);
+    g.gain.exponentialRampToValueAtTime(0.001, t0 + dur);
+    osc.connect(g);
+    g.connect(c.destination);
+    osc.start(t0);
+    osc.stop(t0 + dur + 0.02);
+  }
+
+  function playStart() {
+    beep({ freq: 523, dur: 0.08, vol: 0.09 });
+    beep({ freq: 784, dur: 0.12, vol: 0.09, delay: 0.08 });
+  }
+
+  function playDrop() {
+    beep({ freq: 392, dur: 0.08, vol: 0.07 });
+  }
+
+  function playWin() {
+    beep({ freq: 523, dur: 0.1, vol: 0.08 });
+    beep({ freq: 659, dur: 0.1, vol: 0.08, delay: 0.1 });
+    beep({ freq: 784, dur: 0.18, vol: 0.09, delay: 0.2 });
+  }
+
+  function playLose() {
+    beep({ freq: 180, dur: 0.18, type: 'square', vol: 0.07 });
+  }
+
+  function paintSoundButton() {
+    if (!soundBtn) return;
+    soundBtn.textContent = soundOn ? 'Sound on' : 'Sound off';
+    soundBtn.setAttribute('aria-pressed', soundOn ? 'true' : 'false');
+  }
+
+  function show(name) {
+    for (const [key, el] of Object.entries(screens)) {
+      if (el) el.hidden = key !== name;
+    }
+  }
+
+  function clearAi() {
+    if (state.aiTimer !== null) {
+      window.clearTimeout(state.aiTimer);
+      state.aiTimer = null;
+    }
+  }
+
+  function openCols(board) {
+    const cols = [];
+    for (let col = 0; col < COLS; col += 1) {
+      if (board[0][col] === EMPTY) cols.push(col);
+    }
+    return cols;
+  }
+
+  function dropOn(board, col, piece) {
+    const next = board.map((row) => row.slice());
+    for (let row = ROWS - 1; row >= 0; row -= 1) {
+      if (next[row][col] === EMPTY) {
+        next[row][col] = piece;
+        return { board: next, row };
+      }
+    }
+    return null;
+  }
+
+  function lineFrom(board, row, col, dRow, dCol, piece) {
+    const cells = [[row, col]];
+    let r = row + dRow;
+    let c = col + dCol;
+    while (r >= 0 && r < ROWS && c >= 0 && c < COLS && board[r][c] === piece) {
+      cells.push([r, c]);
+      r += dRow;
+      c += dCol;
+    }
+    r = row - dRow;
+    c = col - dCol;
+    while (r >= 0 && r < ROWS && c >= 0 && c < COLS && board[r][c] === piece) {
+      cells.push([r, c]);
+      r -= dRow;
+      c -= dCol;
+    }
+    return cells;
+  }
+
+  function winnerAt(board, row, col, piece) {
+    const dirs = [
+      [0, 1],
+      [1, 0],
+      [1, 1],
+      [1, -1],
+    ];
+    for (const [dRow, dCol] of dirs) {
+      const cells = lineFrom(board, row, col, dRow, dCol, piece);
+      if (cells.length >= 4) return cells;
+    }
+    return null;
+  }
+
+  function wouldWin(board, col, piece) {
+    const dropped = dropOn(board, col, piece);
+    if (!dropped) return false;
+    return Boolean(winnerAt(dropped.board, dropped.row, col, piece));
+  }
+
+  function pickCpuCol() {
+    const open = openCols(state.board);
+    if (open.length === 0) return null;
+
+    const randomCol = () => open[Math.floor(Math.random() * open.length)];
+
+    if (state.difficulty === 'easy') return randomCol();
+
+    const smart = () => {
+      for (const col of open) {
+        if (wouldWin(state.board, col, CPU)) return col;
+      }
+      for (const col of open) {
+        if (wouldWin(state.board, col, YOU)) return col;
+      }
+      if (open.includes(3)) return 3;
+      return randomCol();
+    };
+
+    if (state.difficulty === 'hard') return smart();
+    return Math.random() > 0.5 ? smart() : randomCol();
+  }
+
+  function cellKey(row, col) {
+    return `${row}-${col}`;
+  }
+
+  function paintBoard() {
+    if (!boardEl) return;
+    const win = new Set(state.winning.map(([r, c]) => cellKey(r, c)));
+    const yourTurn = !state.locked && state.turn === YOU;
+    boardEl.replaceChildren();
+    const frag = document.createDocumentFragment();
+
+    for (let row = 0; row < ROWS; row += 1) {
+      for (let col = 0; col < COLS; col += 1) {
+        const btn = document.createElement('button');
+        btn.type = 'button';
+        btn.className = 'c4-cell';
+        btn.dataset.col = String(col);
+        const piece = state.board[row][col];
+        const open = state.board[0][col] === EMPTY;
+        btn.disabled = !yourTurn || !open;
+        if (piece === YOU) btn.classList.add('is-you');
+        if (piece === CPU) btn.classList.add('is-cpu');
+        if (win.has(cellKey(row, col))) btn.classList.add('is-win');
+        if (state.hover === col && open && yourTurn) btn.classList.add('is-hover');
+        const who = piece === YOU ? 'you' : piece === CPU ? 'computer' : 'empty';
+        btn.setAttribute('aria-label', `Column ${col + 1}, row ${row + 1}, ${who}`);
+        btn.addEventListener('click', () => playYou(col));
+        btn.addEventListener('mouseenter', () => {
+          state.hover = col;
+          paintHover();
+        });
+        btn.addEventListener('mouseleave', () => {
+          if (state.hover === col) state.hover = null;
+          paintHover();
+        });
+        frag.appendChild(btn);
+      }
+    }
+    boardEl.appendChild(frag);
+  }
+
+  function paintHover() {
+    if (!boardEl) return;
+    for (const btn of boardEl.querySelectorAll('.c4-cell')) {
+      const col = Number(btn.dataset.col);
+      const open = state.board[0][col] === EMPTY;
+      btn.classList.toggle('is-hover', state.hover === col && open && !state.locked && state.turn === YOU);
+    }
+  }
+
+  function paintHud() {
+    if (youEl) youEl.textContent = String(state.you);
+    if (cpuEl) cpuEl.textContent = String(state.cpu);
+    if (scoreEl) scoreEl.textContent = String(state.score);
+    if (levelEl && state.difficulty) levelEl.textContent = LABELS[state.difficulty];
+  }
+
+  function endRound(kind) {
+    state.locked = true;
+    clearAi();
+    if (endEl) {
+      endEl.classList.remove('hidden');
+      endEl.classList.add('flex');
+    }
+    paintBoard();
+    paintHud();
+    if (kind === 'you') {
+      if (feedbackEl) feedbackEl.textContent = 'You win.';
+      playWin();
+    } else if (kind === 'cpu') {
+      if (feedbackEl) feedbackEl.textContent = 'Computer wins.';
+      playLose();
+    } else {
+      if (feedbackEl) feedbackEl.textContent = 'Draw.';
+      playLose();
+    }
+  }
+
+  function afterDrop(row, col, piece) {
+    const win = winnerAt(state.board, row, col, piece);
+    if (win) {
+      state.winning = win;
+      if (piece === YOU) {
+        state.you += 1;
+        state.score += 5;
+        endRound('you');
+      } else {
+        state.cpu += 1;
+        endRound('cpu');
+      }
+      return;
+    }
+    if (openCols(state.board).length === 0) {
+      endRound('draw');
+      return;
+    }
+    paintBoard();
+    paintHud();
+  }
+
+  function playYou(col) {
+    if (state.locked || state.turn !== YOU) return;
+    const dropped = dropOn(state.board, col, YOU);
+    if (!dropped) return;
+    state.board = dropped.board;
+    playDrop();
+    afterDrop(dropped.row, col, YOU);
+    if (state.locked) return;
+    state.turn = CPU;
+    if (feedbackEl) feedbackEl.textContent = 'Computer to play.';
+    paintBoard();
+    state.aiTimer = window.setTimeout(playCpu, 700);
+  }
+
+  function playCpu() {
+    state.aiTimer = null;
+    if (state.locked || state.turn !== CPU) return;
+    const col = pickCpuCol();
+    if (col === null) {
+      endRound('draw');
+      return;
+    }
+    const dropped = dropOn(state.board, col, CPU);
+    if (!dropped) return;
+    state.board = dropped.board;
+    playDrop();
+    afterDrop(dropped.row, col, CPU);
+    if (state.locked) return;
+    state.turn = YOU;
+    if (feedbackEl) feedbackEl.textContent = 'Your turn. Click a column.';
+    paintBoard();
+  }
+
+  function startRound() {
+    clearAi();
+    state.board = emptyBoard();
+    state.turn = YOU;
+    state.locked = false;
+    state.winning = [];
+    state.hover = null;
+    if (endEl) {
+      endEl.classList.add('hidden');
+      endEl.classList.remove('flex');
+    }
+    if (feedbackEl) feedbackEl.textContent = 'Your turn. Click a column.';
+    paintHud();
+    paintBoard();
+  }
+
+  function startLevel(difficulty) {
+    state.difficulty = difficulty;
+    state.you = 0;
+    state.cpu = 0;
+    state.score = 0;
+    getAudio();
+    show('play');
+    startRound();
+    playStart();
+  }
+
+  function goPick() {
+    clearAi();
+    state.difficulty = null;
+    show('pick');
+  }
+
+  function buildBoard() {
+    paintBoard();
+  }
+
+  root.querySelectorAll('[data-difficulty]').forEach((btn) => {
+    btn.addEventListener('click', () => {
+      const difficulty = btn.getAttribute('data-difficulty');
+      if (difficulty) startLevel(difficulty);
+    });
+  });
+
+  nextEl?.addEventListener('click', () => {
+    getAudio();
+    startRound();
+  });
+
+  backEl?.addEventListener('click', goPick);
+
+  soundBtn?.addEventListener('click', () => {
+    soundOn = !soundOn;
+    window.localStorage.setItem(SOUND_KEY, soundOn ? 'on' : 'off');
+    paintSoundButton();
+    getAudio();
+    if (soundOn) beep({ freq: 880, dur: 0.08, vol: 0.08 });
+  });
+
+  window.addEventListener('keydown', (event) => {
+    if (screens.play?.hidden) return;
+    if (event.metaKey || event.ctrlKey || event.altKey) return;
+    const n = Number(event.key);
+    if (n >= 1 && n <= COLS) {
+      event.preventDefault();
+      playYou(n - 1);
+    }
+  });
+
+  window.addEventListener('pagehide', clearAi);
+  buildBoard();
+  paintSoundButton();
+</script>
+
+<style is:global>
+  .c4-pick {
+    display: flex;
+    width: 100%;
+    flex-direction: column;
+    border-radius: 0.75rem;
+    border: 1px solid #262626;
+    background: #0a0a0a;
+    padding: 1.25rem;
+    text-align: left;
+    transition: border-color 0.15s ease;
+  }
+
+  .c4-pick:hover,
+  .c4-pick:focus-visible {
+    border-color: #22d3ee;
+  }
+
+  .c4-pick:focus-visible {
+    outline: 2px solid #22d3ee;
+    outline-offset: 2px;
+  }
+
+  .c4-board {
+    display: grid;
+    grid-template-columns: repeat(7, minmax(0, 1fr));
+    gap: 0.4rem;
+  }
+
+  .c4-cell {
+    aspect-ratio: 1;
+    border-radius: 999px;
+    border: 2px solid #262626;
+    background: #050505;
+  }
+
+  .c4-cell:hover:not(:disabled),
+  .c4-cell.is-hover:not(:disabled) {
+    border-color: #22d3ee;
+    background: #083344;
+  }
+
+  .c4-cell:focus-visible {
+    outline: 2px solid #22d3ee;
+    outline-offset: 2px;
+  }
+
+  .c4-cell.is-you {
+    border-color: #22d3ee;
+    background: #22d3ee;
+  }
+
+  .c4-cell.is-cpu {
+    border-color: #d4d4d4;
+    background: #fafafa;
+  }
+
+  .c4-cell.is-win {
+    box-shadow: 0 0 0 3px #22d3ee;
+  }
+
+  @media (min-width: 640px) {
+    .c4-board {
+      gap: 0.55rem;
+    }
+  }
+</style>

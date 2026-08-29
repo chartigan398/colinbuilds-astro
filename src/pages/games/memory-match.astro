@@ -76,6 +76,13 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
       </section>
 
       <section data-screen="play" hidden aria-label="Memory match in progress">
+        <button
+          type="button"
+          id="mm-back"
+          class="mb-4 inline-flex items-center rounded-lg border border-neutral-600 bg-neutral-950 px-3 py-2 text-sm font-medium text-white transition hover:border-cyan-400 hover:text-cyan-300 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-cyan-400"
+        >
+          Levels
+        </button>
         <div class="grid grid-cols-3 gap-3 rounded-xl border border-neutral-800 bg-neutral-950 p-4 text-center">
           <div>
             <p id="mm-moves" class="text-3xl font-bold tabular-nums text-brand-cyan">0</p>
@@ -201,6 +208,7 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
   const finalTimeEl = document.getElementById('mm-final-time');
   const restartEl = document.getElementById('mm-restart');
   const againEl = document.getElementById('mm-again');
+  const backEl = document.getElementById('mm-back');
   const soundBtn = document.getElementById('mm-sound');
 
   let soundOn = window.localStorage.getItem(SOUND_KEY) !== 'off';
@@ -443,6 +451,11 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
   });
 
   againEl?.addEventListener('click', () => {
+    stopTimer();
+    show('pick');
+  });
+
+  backEl?.addEventListener('click', () => {
     stopTimer();
     show('pick');
   });
