@@ -23,17 +23,6 @@ const isCompareSection =
   path === '/compare/' || path.startsWith('/compare/') || path.startsWith('/models/');
 const showScene = !hideFooter && !isCompareSection;
 
-const nav = [
-  { href: '/#learn', label: 'Learn', current: false },
-  { href: '/guides/', label: 'Guides', current: path === '/guides/' || path.startsWith('/guides/') },
-  { href: '/games/', label: 'Games', current: path === '/games/' || path.startsWith('/games/') },
-  {
-    href: '/compare/',
-    label: 'AI Tools',
-    current: path === '/compare/' || path.startsWith('/compare/') || path.startsWith('/models/'),
-  },
-];
-
 const jsonLd = {
   '@context': 'https://schema.org',
   '@type': 'WebSite',
@@ -70,32 +59,11 @@ const jsonLd = {
   </head>
   <body class:list={['bg-black text-white antialiased', hideFooter ? 'flex h-dvh flex-col overflow-hidden' : 'min-h-screen', showScene && 'has-scene']}>
     <header class:list={['border-b border-neutral-800 bg-black/95 backdrop-blur', hideFooter && 'shrink-0']}>
-      <div class="mx-auto flex max-w-[90rem] flex-wrap items-center justify-between gap-x-4 px-6 py-4 lg:flex-nowrap">
+      <div class="mx-auto flex max-w-[90rem] items-center justify-between gap-x-4 px-6 py-4">
         <a href="/" class="shrink-0 text-base font-semibold tracking-tight">
           <Brand />
         </a>
-        <nav
-          class="order-3 flex w-full flex-wrap items-center gap-x-4 gap-y-1 text-sm lg:order-none lg:w-auto lg:flex-1 lg:justify-center lg:gap-5"
-          aria-label="Main"
-        >
-          {
-            nav.map((item) => (
-              <a
-                href={item.href}
-                class:list={[
-                  'inline-flex min-h-8 items-center border-b-2 py-1 transition hover:text-white focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-cyan-400',
-                  item.current
-                    ? 'border-cyan-400 text-white'
-                    : 'border-transparent text-neutral-400',
-                ]}
-                aria-current={item.current ? 'page' : undefined}
-              >
-                {item.label}
-              </a>
-            ))
-          }
-        </nav>
-        <div class="ml-auto flex items-center gap-1 lg:ml-0">
+        <div class="flex items-center gap-1">
           <a
             href="/compare/"
             class="inline-flex h-9 w-9 items-center justify-center rounded-lg text-neutral-300 transition hover:text-cyan-300 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-cyan-400"

@@ -11,6 +11,7 @@ export const GET: APIRoute = async () => {
     (entry) => entry.data.draft !== true && hasVerifiedPricing(entry.data),
   );
   const guides = (await getCollection('guides')).filter((entry) => entry.data.draft !== true);
+  const weekly = (await getCollection('weekly')).filter((entry) => entry.data.draft !== true);
   const { allComparisons } = await getLiveComparisonPairs();
 
   const liveGames = games.filter((game) => game.live);
@@ -21,8 +22,10 @@ export const GET: APIRoute = async () => {
     '/builds/nebula-x/',
     '/guides/',
     '/games/',
+    '/weekly/',
     ...liveGames.map((game) => `/games/${game.slug}/`),
     ...guides.map((guide) => `/guides/${guide.slug}/`),
+    ...weekly.map((edition) => `/weekly/${edition.slug}/`),
     ...models.map((model) => `/models/${model.slug}/`),
     ...allComparisons.map((c) => c.href),
   ];

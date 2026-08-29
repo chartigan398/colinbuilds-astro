@@ -1,6 +1,6 @@
 ---
 interface Props {
-  name: 'sprint' | 'match' | 'quiz' | 'type' | 'scramble' | 'hangman' | 'connect' | 'runner' | 'snake' | 'asteroids';
+  name: 'sprint' | 'match' | 'quiz' | 'type' | 'scramble' | 'hangman' | 'connect' | 'runner' | 'snake' | 'asteroids' | 'sequence';
 }
 
 const { name } = Astro.props;
@@ -37,6 +37,16 @@ const { name } = Astro.props;
         <rect class="game-mark-draw" x="8" y="22" width="12" height="12" stroke="currentColor" stroke-width="1.75" />
         <path class="game-mark-draw" d="M28 34 36 18 44 34Z" stroke="currentColor" stroke-width="1.75" stroke-linejoin="round" />
         <path d="M8 38h36" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" />
+      </>
+    )
+  }
+  {
+    name === 'sequence' && (
+      <>
+        <circle class="game-mark-draw" cx="16" cy="16" r="6" stroke="currentColor" stroke-width="1.75" />
+        <rect class="game-mark-draw" x="26" y="10" width="12" height="12" stroke="currentColor" stroke-width="1.75" />
+        <path class="game-mark-draw" d="M10 38 16 26 22 38Z" stroke="currentColor" stroke-width="1.75" stroke-linejoin="round" />
+        <path d="M32 26 42 32 32 38 22 32Z" stroke="currentColor" stroke-width="1.75" stroke-linejoin="round" />
       </>
     )
   }

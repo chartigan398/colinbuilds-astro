@@ -1,6 +1,6 @@
 /**
  * Games taken from YouWhat School, rebuilt on this site.
- * Order is A–Z. Cosmic Sequence is skipped until it works.
+ * Order is A–Z.
  * Only `live: true` games are on /games/.
  */
 export const games = [
@@ -16,6 +16,13 @@ export const games = [
     title: 'Connect 4',
     description: 'Get four in a row. Play against the computer. Four levels.',
     mark: 'connect',
+    live: true,
+  },
+  {
+    slug: 'cosmic-sequence',
+    title: 'Cosmic Sequence',
+    description: 'Watch the pattern, then repeat it. Four speeds.',
+    mark: 'sequence',
     live: true,
   },
   {

@@ -50,4 +50,16 @@ const guides = defineCollection({
   }),
 });
 
-export const collections = { models, guides };
+const weekly = defineCollection({
+  type: 'content',
+  schema: z.object({
+    title: z.string(),
+    description: z.string(),
+    edition: z.string(),
+    week: z.string(),
+    pubDate: z.coerce.date(),
+    draft: z.boolean().optional(),
+  }),
+});
+
+export const collections = { models, guides, weekly };

@@ -1,0 +1,103 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import { getCollection, render } from 'astro:content';
+
+export async function getStaticPaths() {
+  const editions = (await getCollection('weekly')).filter((entry) => entry.data.draft !== true);
+
+  return editions.map((edition) => ({
+    params: { slug: edition.slug },
+    props: { edition },
+  }));
+}
+
+const { edition } = Astro.props;
+const { Content } = await render(edition);
+---
+
+<BaseLayout title={`${edition.data.title} | ColinBuilds`} description={edition.data.description}>
+  <article class="mx-auto max-w-3xl px-6 py-12 pb-20">
+    <p class="text-sm text-neutral-500">
+      <a href="/" class="transition hover:text-cyan-400">Home</a>
+      <span> · </span>
+      <a href="/weekly/" class="transition hover:text-cyan-400">AI Weekly</a>
+    </p>
+    <p class="mt-3 text-sm font-semibold tracking-widest text-cyan-400">
+      Edition {edition.data.edition} · {edition.data.week}
+    </p>
+    <h1 class="mt-2 text-3xl font-bold tracking-tight text-cyan-400 sm:text-4xl">{edition.data.title}</h1>
+    <p class="mt-4 text-neutral-400">{edition.data.description}</p>
+    <div class="weekly-prose mt-10">
+      <Content />
+    </div>
+  </article>
+</BaseLayout>
+
+<style>
+  .weekly-prose :global(h2) {
+    margin-top: 2.5rem;
+    margin-bottom: 0.75rem;
+    font-size: 1.25rem;
+    font-weight: 600;
+    letter-spacing: -0.02em;
+    color: #22d3ee;
+  }
+
+  .weekly-prose :global(p) {
+    margin-top: 0.85rem;
+    line-height: 1.7;
+    color: #ffffff;
+  }
+
+  .weekly-prose :global(blockquote) {
+    margin-top: 1.25rem;
+    margin-bottom: 0.5rem;
+    border: 1px solid rgb(34 211 238 / 0.28);
+    background: rgb(34 211 238 / 0.06);
+    padding: 1rem 1.1rem;
+    color: #ffffff;
+    font-style: normal;
+  }
+
+  .weekly-prose :global(blockquote p) {
+    margin-top: 0;
+  }
+
+  .weekly-prose :global(blockquote strong) {
+    display: block;
+    margin-bottom: 0.35rem;
+    color: #22d3ee;
+    font-size: 0.75rem;
+    font-weight: 600;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+  }
+
+  .weekly-prose :global(a) {
+    color: #22d3ee;
+    text-decoration: underline;
+    text-underline-offset: 3px;
+    overflow-wrap: anywhere;
+  }
+
+  .weekly-prose :global(a:hover) {
+    color: #67e8f9;
+  }
+
+  .weekly-prose :global(strong) {
+    color: #22d3ee;
+    font-weight: 600;
+  }
+
+  .weekly-prose :global(ul),
+  .weekly-prose :global(ol) {
+    margin-top: 0.85rem;
+    padding-left: 1.25rem;
+    color: #ffffff;
+    line-height: 1.7;
+  }
+
+  .weekly-prose :global(li) {
+    margin-top: 0.35rem;
+  }
+</style>
