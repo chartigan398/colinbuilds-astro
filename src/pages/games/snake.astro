@@ -1,0 +1,450 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+---
+
+<BaseLayout
+  title="Snake | ColinBuilds"
+  description="Eat the dots. Do not hit yourself. Four speeds. Five points each."
+>
+  <div class="mx-auto max-w-3xl px-6 py-12 pb-20">
+    <p class="text-sm text-neutral-500">
+      <a href="/" class="transition hover:text-cyan-400">Home</a>
+      <span> · </span>
+      <a href="/games/" class="transition hover:text-cyan-400">Games</a>
+    </p>
+    <h1 class="mt-3 text-3xl font-bold tracking-tight text-brand-cyan sm:text-4xl">Snake</h1>
+    <p class="mt-3 max-w-2xl text-neutral-400">
+      Eat a dot for five points. Do not hit yourself. Easy and Medium wrap the edges. Hard and Expert do not. Arrows
+      or WASD.
+    </p>
+
+    <div class="mt-6 flex items-center justify-between gap-3">
+      <a
+        href="/games/"
+        class="inline-flex items-center rounded-lg border border-neutral-600 bg-neutral-950 px-3 py-2 text-sm font-medium text-white transition hover:border-cyan-400 hover:text-cyan-300 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-cyan-400"
+      >
+        Back to Games
+      </a>
+      <button
+        type="button"
+        id="sn-sound"
+        aria-pressed="true"
+        class="inline-flex items-center rounded-lg border border-neutral-600 bg-neutral-950 px-3 py-2 text-sm font-medium text-white transition hover:border-cyan-400 hover:text-cyan-300 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-cyan-400"
+      >
+        Sound on
+      </button>
+    </div>
+
+    <div id="snake" class="mt-6">
+      <section data-screen="pick" aria-label="Choose a level">
+        <h2 class="text-sm font-semibold tracking-widest text-cyan-400">Choose a level</h2>
+        <ul class="mt-4 grid grid-cols-1 gap-3">
+          <li>
+            <button type="button" data-level="easy" class="sn-pick">
+              <span class="text-lg font-semibold text-brand-cyan">Easy</span>
+              <span class="mt-1 text-sm text-neutral-400">Slow. The edges wrap.</span>
+            </button>
+          </li>
+          <li>
+            <button type="button" data-level="medium" class="sn-pick">
+              <span class="text-lg font-semibold text-brand-cyan">Medium</span>
+              <span class="mt-1 text-sm text-neutral-400">Faster. The edges still wrap.</span>
+            </button>
+          </li>
+          <li>
+            <button type="button" data-level="hard" class="sn-pick">
+              <span class="text-lg font-semibold text-brand-cyan">Hard</span>
+              <span class="mt-1 text-sm text-neutral-400">Fast. The walls kill you.</span>
+            </button>
+          </li>
+          <li>
+            <button type="button" data-level="expert" class="sn-pick">
+              <span class="text-lg font-semibold text-brand-cyan">Expert</span>
+              <span class="mt-1 text-sm text-neutral-400">Very fast. The walls kill you.</span>
+            </button>
+          </li>
+        </ul>
+      </section>
+
+      <section data-screen="play" hidden aria-label="Snake in progress">
+        <button
+          type="button"
+          id="sn-back"
+          class="mb-4 inline-flex items-center rounded-lg border border-neutral-600 bg-neutral-950 px-3 py-2 text-sm font-medium text-white transition hover:border-cyan-400 hover:text-cyan-300 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-cyan-400"
+        >
+          Levels
+        </button>
+        <div class="grid grid-cols-3 gap-3 rounded-xl border border-neutral-800 bg-neutral-950 p-4 text-center">
+          <div>
+            <p id="sn-score" class="text-3xl font-bold tabular-nums text-brand-cyan">0</p>
+            <p class="mt-1 text-xs text-neutral-500">Score</p>
+          </div>
+          <div>
+            <p id="sn-level" class="text-xl font-bold text-brand-cyan sm:text-2xl">Easy</p>
+            <p class="mt-1 text-xs text-neutral-500">Level</p>
+          </div>
+          <div>
+            <p id="sn-best" class="text-3xl font-bold tabular-nums text-brand-cyan">0</p>
+            <p class="mt-1 text-xs text-neutral-500">Best</p>
+          </div>
+        </div>
+        <div class="sn-frame mt-6">
+          <canvas id="sn-canvas" width="480" height="480"></canvas>
+        </div>
+        <div class="sn-pad mt-4" aria-label="Direction pad">
+          <button type="button" data-dir="up">Up</button>
+          <div class="sn-pad-row">
+            <button type="button" data-dir="left">Left</button>
+            <button type="button" data-dir="down">Down</button>
+            <button type="button" data-dir="right">Right</button>
+          </div>
+        </div>
+      </section>
+
+      <section data-screen="done" hidden aria-label="Round over">
+        <div class="rounded-xl border border-neutral-800 bg-neutral-950 p-6 text-center sm:p-10">
+          <h2 id="sn-done-title" class="text-2xl font-bold tracking-tight text-brand-cyan">Crashed</h2>
+          <p class="mt-3 text-sm text-neutral-400">A crash does not change your score.</p>
+          <div class="mt-8 grid grid-cols-2 gap-3">
+            <div class="rounded-lg border border-neutral-800 p-4">
+              <p id="sn-final-score" class="text-3xl font-bold tabular-nums text-brand-cyan">0</p>
+              <p class="mt-1 text-xs text-neutral-500">Score</p>
+            </div>
+            <div class="rounded-lg border border-neutral-800 p-4">
+              <p id="sn-final-best" class="text-3xl font-bold tabular-nums text-brand-cyan">0</p>
+              <p class="mt-1 text-xs text-neutral-500">Best</p>
+            </div>
+          </div>
+          <div class="mt-8 flex flex-col gap-4">
+            <button
+              type="button"
+              id="sn-again"
+              class="inline-flex w-full items-center justify-center rounded-lg bg-cyan-400 px-5 py-3 text-sm font-medium text-black transition hover:bg-cyan-300 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-cyan-400"
+            >
+              Play again
+            </button>
+            <a
+              href="/games/"
+              class="inline-flex w-full items-center justify-center rounded-lg border border-neutral-600 bg-neutral-950 px-5 py-3 text-sm font-medium text-white transition hover:border-cyan-400 hover:text-cyan-300 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-cyan-400"
+            >
+              Back to Games
+            </a>
+          </div>
+        </div>
+      </section>
+    </div>
+  </div>
+</BaseLayout>
+
+<script>
+  // Grid + wrap + no-reverse from RabiRoshan/snake_game (MIT).
+  const SOUND_KEY = 'colinbuilds-snake-sound';
+  const BEST_KEY = 'colinbuilds-snake-best';
+  const COLS = 20;
+  const SIZE = 24;
+  const W = COLS * SIZE;
+  const LEVELS = {
+    easy: { label: 'Easy', ms: 140, wrap: true },
+    medium: { label: 'Medium', ms: 100, wrap: true },
+    hard: { label: 'Hard', ms: 85, wrap: false },
+    expert: { label: 'Expert', ms: 60, wrap: false },
+  };
+
+  const root = document.getElementById('snake');
+  const canvas = document.getElementById('sn-canvas');
+  if (!root || !(canvas instanceof HTMLCanvasElement)) throw new Error('Snake root missing');
+  const ctx = canvas.getContext('2d');
+  if (!ctx) throw new Error('Snake canvas missing');
+
+  const screens = {
+    pick: root.querySelector('[data-screen="pick"]'),
+    play: root.querySelector('[data-screen="play"]'),
+    done: root.querySelector('[data-screen="done"]'),
+  };
+  const scoreEl = document.getElementById('sn-score');
+  const levelEl = document.getElementById('sn-level');
+  const bestEl = document.getElementById('sn-best');
+  const finalScoreEl = document.getElementById('sn-final-score');
+  const finalBestEl = document.getElementById('sn-final-best');
+  const backEl = document.getElementById('sn-back');
+  const againEl = document.getElementById('sn-again');
+  const soundBtn = document.getElementById('sn-sound');
+
+  let soundOn = window.localStorage.getItem(SOUND_KEY) !== 'off';
+  /** @type {AudioContext | null} */
+  let audioCtx = null;
+  let tickTimer = null;
+  let pending = 'right';
+
+  const state = {
+    level: 'easy',
+    snake: [{ x: 8, y: 10 }, { x: 7, y: 10 }, { x: 6, y: 10 }],
+    dir: 'right',
+    food: { x: 14, y: 10 },
+    score: 0,
+    best: Number(window.localStorage.getItem(BEST_KEY) || 0) || 0,
+    running: false,
+  };
+
+  function getAudio() {
+    const AC = window.AudioContext || window.webkitAudioContext;
+    if (!AC) return null;
+    if (!audioCtx) audioCtx = new AC();
+    if (audioCtx.state === 'suspended') audioCtx.resume();
+    return audioCtx;
+  }
+
+  function beep({ freq, dur = 0.08, type = 'sine', vol = 0.08, delay = 0 }) {
+    if (!soundOn) return;
+    const c = getAudio();
+    if (!c) return;
+    const t0 = c.currentTime + delay;
+    const osc = c.createOscillator();
+    const g = c.createGain();
+    osc.type = type;
+    osc.frequency.setValueAtTime(freq, t0);
+    g.gain.setValueAtTime(vol, t0);
+    g.gain.exponentialRampToValueAtTime(0.001, t0 + dur);
+    osc.connect(g);
+    g.connect(c.destination);
+    osc.start(t0);
+    osc.stop(t0 + dur + 0.02);
+  }
+
+  function show(name) {
+    for (const [key, el] of Object.entries(screens)) {
+      if (el) el.hidden = key !== name;
+    }
+  }
+
+  function occupied(x, y) {
+    return state.snake.some((part) => part.x === x && part.y === y);
+  }
+
+  function placeFood() {
+    const free = [];
+    for (let y = 0; y < COLS; y += 1) {
+      for (let x = 0; x < COLS; x += 1) {
+        if (!occupied(x, y)) free.push({ x, y });
+      }
+    }
+    state.food = free[Math.floor(Math.random() * free.length)] || { x: 0, y: 0 };
+  }
+
+  function paintHud() {
+    if (scoreEl) scoreEl.textContent = String(state.score);
+    if (levelEl) levelEl.textContent = LEVELS[state.level].label;
+    if (bestEl) bestEl.textContent = String(state.best);
+  }
+
+  function draw() {
+    ctx.fillStyle = '#000000';
+    ctx.fillRect(0, 0, W, W);
+    ctx.strokeStyle = 'rgba(34, 211, 238, 0.08)';
+    ctx.lineWidth = 1;
+    ctx.beginPath();
+    for (let i = 0; i <= COLS; i += 1) {
+      ctx.moveTo(i * SIZE, 0);
+      ctx.lineTo(i * SIZE, W);
+      ctx.moveTo(0, i * SIZE);
+      ctx.lineTo(W, i * SIZE);
+    }
+    ctx.stroke();
+    ctx.fillStyle = '#22d3ee';
+    ctx.fillRect(state.food.x * SIZE + 5, state.food.y * SIZE + 5, SIZE - 10, SIZE - 10);
+    state.snake.forEach((part, i) => {
+      ctx.fillStyle = i === 0 ? '#67e8f9' : '#22d3ee';
+      ctx.fillRect(part.x * SIZE + 1, part.y * SIZE + 1, SIZE - 2, SIZE - 2);
+    });
+  }
+
+  function opposite(a, b) {
+    return (a === 'left' && b === 'right') || (a === 'right' && b === 'left') || (a === 'up' && b === 'down') || (a === 'down' && b === 'up');
+  }
+
+  function setDir(next) {
+    if (!next || opposite(state.dir, next)) return;
+    pending = next;
+  }
+
+  function finish() {
+    state.running = false;
+    if (tickTimer !== null) {
+      window.clearInterval(tickTimer);
+      tickTimer = null;
+    }
+    if (state.score > state.best) {
+      state.best = state.score;
+      window.localStorage.setItem(BEST_KEY, String(state.best));
+    }
+    if (finalScoreEl) finalScoreEl.textContent = String(state.score);
+    if (finalBestEl) finalBestEl.textContent = String(state.best);
+    beep({ freq: 180, dur: 0.16, type: 'square', vol: 0.06 });
+    show('done');
+  }
+
+  function step() {
+    if (!state.running) return;
+    if (!opposite(state.dir, pending)) state.dir = pending;
+    const head = state.snake[0];
+    let x = head.x + (state.dir === 'left' ? -1 : state.dir === 'right' ? 1 : 0);
+    let y = head.y + (state.dir === 'up' ? -1 : state.dir === 'down' ? 1 : 0);
+    const wrap = LEVELS[state.level].wrap;
+    if (wrap) {
+      if (x < 0) x = COLS - 1;
+      if (x >= COLS) x = 0;
+      if (y < 0) y = COLS - 1;
+      if (y >= COLS) y = 0;
+    } else if (x < 0 || x >= COLS || y < 0 || y >= COLS) {
+      finish();
+      return;
+    }
+    if (occupied(x, y)) {
+      finish();
+      return;
+    }
+    state.snake.unshift({ x, y });
+    if (x === state.food.x && y === state.food.y) {
+      state.score += 5;
+      paintHud();
+      beep({ freq: 880, dur: 0.07, vol: 0.07 });
+      placeFood();
+    } else {
+      state.snake.pop();
+    }
+    draw();
+  }
+
+  function startLevel(levelId) {
+    if (!LEVELS[levelId]) return;
+    if (tickTimer !== null) window.clearInterval(tickTimer);
+    state.level = levelId;
+    state.snake = [{ x: 8, y: 10 }, { x: 7, y: 10 }, { x: 6, y: 10 }];
+    state.dir = 'right';
+    pending = 'right';
+    state.score = 0;
+    state.running = true;
+    placeFood();
+    getAudio();
+    paintHud();
+    show('play');
+    draw();
+    beep({ freq: 523, dur: 0.08, vol: 0.08 });
+    tickTimer = window.setInterval(step, LEVELS[levelId].ms);
+  }
+
+  function goPick() {
+    state.running = false;
+    if (tickTimer !== null) {
+      window.clearInterval(tickTimer);
+      tickTimer = null;
+    }
+    show('pick');
+  }
+
+  root.querySelectorAll('[data-level]').forEach((btn) => {
+    btn.addEventListener('click', () => startLevel(btn.getAttribute('data-level') || ''));
+  });
+  root.querySelectorAll('[data-dir]').forEach((btn) => {
+    btn.addEventListener('click', () => setDir(btn.getAttribute('data-dir') || ''));
+  });
+  backEl?.addEventListener('click', goPick);
+  againEl?.addEventListener('click', () => startLevel(state.level));
+  soundBtn?.addEventListener('click', () => {
+    soundOn = !soundOn;
+    window.localStorage.setItem(SOUND_KEY, soundOn ? 'on' : 'off');
+    if (soundBtn) {
+      soundBtn.textContent = soundOn ? 'Sound on' : 'Sound off';
+      soundBtn.setAttribute('aria-pressed', soundOn ? 'true' : 'false');
+    }
+    if (soundOn) beep({ freq: 880, dur: 0.08, vol: 0.07 });
+  });
+  window.addEventListener(
+    'keydown',
+    (event) => {
+      if (screens.play?.hidden) return;
+      const map = {
+        ArrowLeft: 'left',
+        ArrowRight: 'right',
+        ArrowUp: 'up',
+        ArrowDown: 'down',
+        KeyA: 'left',
+        KeyD: 'right',
+        KeyW: 'up',
+        KeyS: 'down',
+      };
+      const next = map[event.code];
+      if (!next) return;
+      event.preventDefault();
+      setDir(next);
+    },
+    { capture: true },
+  );
+  if (soundBtn) soundBtn.textContent = soundOn ? 'Sound on' : 'Sound off';
+  paintHud();
+  window.addEventListener('pagehide', () => {
+    if (tickTimer !== null) window.clearInterval(tickTimer);
+  });
+</script>
+
+<style is:global>
+  .sn-pick {
+    display: flex;
+    width: 100%;
+    flex-direction: column;
+    border-radius: 0.75rem;
+    border: 1px solid #262626;
+    background: #0a0a0a;
+    padding: 1.25rem;
+    text-align: left;
+    cursor: pointer;
+  }
+
+  .sn-pick:hover,
+  .sn-pick:focus-visible {
+    border-color: #22d3ee;
+  }
+
+  .sn-frame {
+    overflow: hidden;
+    border-radius: 0.75rem;
+    border: 1px solid #262626;
+    background: #000;
+    max-width: 22rem;
+    margin-inline: auto;
+  }
+
+  #sn-canvas {
+    display: block;
+    width: 100%;
+    height: auto;
+  }
+
+  .sn-pad {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.45rem;
+  }
+
+  .sn-pad-row {
+    display: flex;
+    gap: 0.45rem;
+  }
+
+  .sn-pad button {
+    min-width: 4.5rem;
+    border-radius: 0.5rem;
+    border: 1px solid #404040;
+    background: #0a0a0a;
+    color: #fff;
+    padding: 0.55rem 0.8rem;
+    font-size: 0.875rem;
+  }
+
+  .sn-pad button:hover,
+  .sn-pad button:focus-visible {
+    border-color: #22d3ee;
+    color: #22d3ee;
+  }
+</style>

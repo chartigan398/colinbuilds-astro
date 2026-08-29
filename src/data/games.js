@@ -5,16 +5,23 @@
  */
 export const games = [
   {
+    slug: 'asteroids',
+    title: 'Asteroids',
+    description: 'Turn, thrust, and shoot the rocks. Four levels.',
+    mark: 'asteroids',
+    live: true,
+  },
+  {
     slug: 'connect-4',
     title: 'Connect 4',
-    description: 'Get four in a row. Play against the computer. Three levels.',
+    description: 'Get four in a row. Play against the computer. Four levels.',
     mark: 'connect',
     live: true,
   },
   {
     slug: 'geometry-runner',
     title: 'Geometry Runner',
-    description: 'Four levels. Jump, pads, orbs, a ship tunnel — then the last one.',
+    description: 'Four different levels. Rings and diamonds are five points each.',
     mark: 'runner',
     live: true,
   },
@@ -42,8 +49,15 @@ export const games = [
   {
     slug: 'quiz-show',
     title: 'Quiz Show',
-    description: 'Five questions. Fifteen seconds each.',
+    description: 'Four quiz levels. Each one is harder and gives you less time.',
     mark: 'quiz',
+    live: true,
+  },
+  {
+    slug: 'snake',
+    title: 'Snake',
+    description: 'Eat the dots. Do not hit yourself. Four speeds.',
+    mark: 'snake',
     live: true,
   },
   {
@@ -56,7 +70,7 @@ export const games = [
   {
     slug: 'word-scramble',
     title: 'Word Scramble',
-    description: 'Unscramble eight words. Five points each.',
+    description: 'Four scramble levels. Words are shuffled. Five points each.',
     mark: 'scramble',
     live: true,
   },

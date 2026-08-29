@@ -4,7 +4,7 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
 
 <BaseLayout
   title="Geometry Runner | ColinBuilds"
-  description="A Geometry Dash-style course with real jump spacing. Tap one square before a spike."
+  description="Four different levels. Rings and diamonds are five points each."
 >
   <div class="mx-auto max-w-3xl px-6 py-12 pb-20">
     <p class="text-sm text-neutral-500">
@@ -14,11 +14,16 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
     </p>
     <h1 class="mt-3 text-3xl font-bold tracking-tight text-brand-cyan sm:text-4xl">Geometry Runner</h1>
     <p class="mt-3 max-w-2xl text-neutral-400">
-      Four levels. Each one is harder than the last. Hold space to hop, including on blocks. Pads launch you. Orbs
-      need a tap. Then a ship tunnel.
+      Four different levels. Rings and diamonds are five points each. The score carries through the whole run.
     </p>
 
-    <div class="mt-6 flex justify-end">
+    <div class="mt-6 flex items-center justify-between gap-3">
+      <a
+        href="/games/"
+        class="inline-flex items-center rounded-lg border border-neutral-600 bg-neutral-950 px-3 py-2 text-sm font-medium text-white transition hover:border-cyan-400 hover:text-cyan-300 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-cyan-400"
+      >
+        Back to Games
+      </a>
       <button
         type="button"
         id="gr-sound"
@@ -34,7 +39,8 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
         <div class="rounded-xl border border-neutral-800 bg-neutral-950 p-6 sm:p-10">
           <ul class="space-y-2 text-left text-sm text-neutral-400">
             <li><span class="text-brand-cyan">Jump</span> — tap, or hold space. Holding keeps hopping when you land — including on blocks.</li>
-            <li><span class="text-brand-cyan">Four levels</span> — start at 1. Die and you retry that level, not the whole run.</li>
+            <li><span class="text-brand-cyan">Collect</span> — rings and diamonds. Five points each. The score carries to the last level.</li>
+            <li><span class="text-brand-cyan">Four levels</span> — each one is a different course. Start at 1. Die and you retry that level.</li>
           </ul>
           <div class="mt-8 text-center">
             <button
@@ -95,11 +101,11 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
               <p class="mt-1 text-xs text-neutral-500">Best</p>
             </div>
           </div>
-          <div class="mt-8 flex flex-col gap-3 sm:flex-row sm:justify-center">
+          <div class="mt-8 flex flex-col gap-4">
             <button
               type="button"
               id="gr-again"
-              class="inline-flex items-center justify-center rounded-lg bg-cyan-400 px-4 py-2.5 text-sm font-medium text-black transition hover:bg-cyan-300 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-cyan-400"
+              class="inline-flex w-full items-center justify-center rounded-lg bg-cyan-400 px-5 py-3 text-sm font-medium text-black transition hover:bg-cyan-300 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-cyan-400"
             >
               Play again
             </button>
@@ -107,17 +113,16 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
               type="button"
               id="gr-next"
               hidden
-              class="inline-flex items-center justify-center rounded-lg bg-cyan-400 px-4 py-2.5 text-sm font-medium text-black transition hover:bg-cyan-300 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-cyan-400"
+              class="inline-flex w-full items-center justify-center rounded-lg bg-cyan-400 px-5 py-3 text-sm font-medium text-black transition hover:bg-cyan-300 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-cyan-400"
             >
               Next level
             </button>
-            <button
-              type="button"
-              id="gr-home"
-              class="inline-flex items-center justify-center rounded-lg border border-neutral-600 bg-neutral-950 px-4 py-2.5 text-sm font-medium text-white transition hover:border-cyan-400 hover:text-cyan-300 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-cyan-400"
+            <a
+              href="/games/"
+              class="inline-flex w-full items-center justify-center rounded-lg border border-neutral-600 bg-neutral-950 px-5 py-3 text-sm font-medium text-white transition hover:border-cyan-400 hover:text-cyan-300 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-cyan-400"
             >
-              Back
-            </button>
+              Back to Games
+            </a>
           </div>
         </div>
       </section>
@@ -134,6 +139,12 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
       >
         OK
       </button>
+      <a
+        href="/games/"
+        class="mt-4 inline-flex items-center justify-center rounded-lg border border-neutral-600 bg-neutral-950 px-4 py-2.5 text-sm font-medium text-white transition hover:border-cyan-400 hover:text-cyan-300 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-cyan-400"
+      >
+        Back to Games
+      </a>
     </div>
   </div>
 </BaseLayout>
@@ -163,100 +174,71 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
   const LEFT_WIN = -(SPEED * 60 * 3);
 
   const LEVELS = {
+    // Jump school — floor only, room to land.
     1: [
-      { t: 'spike', c: 12 },
-      { t: 'spike', c: 24 },
-      { t: 'spike', c: 25 },
-      { t: 'block', c: 38, h: 1 },
-      { t: 'block', c: 40, h: 2 },
-      { t: 'block', c: 42, h: 3 },
-      { t: 'gem', c: 48, y: 4.2 },
-      { t: 'spike', c: 58 },
-      { t: 'pad', c: 70 },
-      { t: 'spike', c: 73 },
-      { t: 'spike', c: 74 },
-      { t: 'spike', c: 75 },
-      { t: 'orb', c: 88, y: 2.1 },
-      { t: 'spike', c: 90 },
-      { t: 'spike', c: 91 },
-      { t: 'gem', c: 94, y: 3.6 },
-      { t: 'spike', c: 102 },
-      { t: 'ship', c: 114 },
-      { t: 'spike', c: 126 },
-      { t: 'cspike', c: 138 },
-      { t: 'gem', c: 144, y: 3.8 },
-      { t: 'spike', c: 150 },
-      { t: 'cube', c: 162 },
-      { t: 'spike', c: 174 },
-      { t: 'end', c: 186 },
+      { t: 'spike', c: 14 },
+      { t: 'gem', c: 20, y: 2.3 },
+      { t: 'spike', c: 30 },
+      { t: 'spike', c: 31 },
+      { t: 'block', c: 42, h: 1 },
+      { t: 'block', c: 44, h: 2 },
+      { t: 'gem', c: 44, y: 3.1 },
+      { t: 'orb', c: 58, y: 2.0 },
+      { t: 'spike', c: 61 },
+      { t: 'gem', c: 72, y: 2.3 },
+      { t: 'spike', c: 84 },
+      { t: 'end', c: 96 },
     ],
+    // Stairs and pads — still on foot, no ship.
     2: [
-      { t: 'spike', c: 10 },
-      { t: 'spike', c: 18 },
-      { t: 'spike', c: 19 },
-      { t: 'block', c: 28, h: 1 },
-      { t: 'block', c: 30, h: 2 },
-      { t: 'block', c: 32, h: 3 },
-      { t: 'spike', c: 40 },
-      { t: 'spike', c: 41 },
+      { t: 'spike', c: 12 },
+      { t: 'block', c: 22, h: 1 },
+      { t: 'block', c: 24, h: 2 },
+      { t: 'block', c: 26, h: 3 },
+      { t: 'gem', c: 26, y: 4.2 },
+      { t: 'spike', c: 38 },
+      { t: 'spike', c: 39 },
       { t: 'pad', c: 50 },
       { t: 'spike', c: 53 },
       { t: 'spike', c: 54 },
       { t: 'spike', c: 55 },
-      { t: 'orb', c: 64, y: 2.1 },
-      { t: 'spike', c: 66 },
-      { t: 'spike', c: 67 },
-      { t: 'gem', c: 70, y: 3.6 },
-      { t: 'spike', c: 76 },
-      { t: 'ship', c: 86 },
-      { t: 'spike', c: 96 },
-      { t: 'cspike', c: 104 },
-      { t: 'spike', c: 112 },
-      { t: 'gem', c: 116, y: 3.8 },
-      { t: 'cube', c: 124 },
-      { t: 'spike', c: 134 },
-      { t: 'spike', c: 135 },
-      { t: 'end', c: 146 },
-    ],
-    3: [
-      { t: 'spike', c: 8 },
-      { t: 'spike', c: 15 },
-      { t: 'spike', c: 16 },
-      { t: 'spike', c: 17 },
-      { t: 'block', c: 24, h: 1 },
-      { t: 'block', c: 26, h: 2 },
-      { t: 'block', c: 28, h: 3 },
-      { t: 'spike', c: 36 },
-      { t: 'spike', c: 37 },
-      { t: 'pad', c: 46 },
-      { t: 'spike', c: 49 },
-      { t: 'spike', c: 50 },
-      { t: 'spike', c: 51 },
-      { t: 'orb', c: 60, y: 2.1 },
-      { t: 'spike', c: 62 },
-      { t: 'spike', c: 63 },
-      { t: 'orb', c: 72, y: 2.2 },
+      { t: 'spike', c: 56 },
+      { t: 'gem', c: 58, y: 3.8 },
+      { t: 'orb', c: 70, y: 2.1 },
+      { t: 'spike', c: 73 },
       { t: 'spike', c: 74 },
-      { t: 'spike', c: 75 },
-      { t: 'gem', c: 78, y: 3.6 },
-      { t: 'ship', c: 86 },
-      { t: 'spike', c: 94 },
-      { t: 'cspike', c: 100 },
-      { t: 'spike', c: 106 },
-      { t: 'cspike', c: 112 },
-      { t: 'gem', c: 116, y: 3.8 },
-      { t: 'cube', c: 122 },
-      { t: 'block', c: 130, h: 1 },
-      { t: 'block', c: 132, h: 2 },
-      { t: 'spike', c: 140 },
-      { t: 'spike', c: 141 },
-      { t: 'spike', c: 142 },
-      { t: 'end', c: 152 },
+      { t: 'orb', c: 86, y: 2.2 },
+      { t: 'gem', c: 96, y: 2.4 },
+      { t: 'spike', c: 108 },
+      { t: 'end', c: 120 },
     ],
+    // Ship tunnel — fly for most of it.
+    3: [
+      { t: 'spike', c: 10 },
+      { t: 'gem', c: 16, y: 2.3 },
+      { t: 'ship', c: 24 },
+      { t: 'spike', c: 34 },
+      { t: 'cspike', c: 42 },
+      { t: 'orb', c: 50, y: 3.4 },
+      { t: 'spike', c: 58 },
+      { t: 'cspike', c: 66 },
+      { t: 'gem', c: 74, y: 3.6 },
+      { t: 'spike', c: 82 },
+      { t: 'cspike', c: 88 },
+      { t: 'orb', c: 96, y: 3.2 },
+      { t: 'cube', c: 106 },
+      { t: 'spike', c: 116 },
+      { t: 'block', c: 126, h: 1 },
+      { t: 'block', c: 128, h: 2 },
+      { t: 'gem', c: 128, y: 3.1 },
+      { t: 'end', c: 140 },
+    ],
+    // Looks like a short course. The wall is the joke.
     4: [
-      { t: 'block', c: 10, h: 1 },
-      { t: 'block', c: 18, h: 4 },
-      { t: 'gem', c: 18, y: 5.2 },
+      { t: 'spike', c: 8 },
+      { t: 'block', c: 16, h: 1 },
+      { t: 'block', c: 24, h: 4 },
+      { t: 'gem', c: 24, y: 5.2 },
     ],
   };
 
@@ -288,7 +270,6 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
   const againEl = document.getElementById('gr-again');
   const nextEl = document.getElementById('gr-next');
   const backEl = document.getElementById('gr-back');
-  const homeEl = document.getElementById('gr-home');
   const trackEl = document.getElementById('gr-track');
   const soundBtn = document.getElementById('gr-sound');
   const smartEl = document.getElementById('gr-smart');
@@ -316,6 +297,7 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
       mode: 'cube',
       canJump: true,
       score: 0,
+      scoreAtLevel: 0,
       best: Number(window.localStorage.getItem(BEST_KEY) || 0) || 0,
       used: new Set(),
       last: 0,
@@ -427,7 +409,7 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
     if (state.level === 4) return '';
     return state.mode === 'ship'
       ? 'Hold to fly up. Release to drop.'
-      : 'Tap to jump. Hold space to hop up the blocks.';
+      : 'Tap to jump. Rings and diamonds are five points each.';
   }
 
   function paintHud() {
@@ -687,11 +669,14 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
       }
       if (ob.t === 'orb' && !state.used.has(ob)) {
         const b = orbBox(ob);
-        if (overlaps(p.x, p.y, p.w, p.h, b.x, b.y, b.w, b.h) && (pressed || held)) {
+        if (overlaps(p.x, p.y, p.w, p.h, b.x, b.y, b.w, b.h)) {
           state.used.add(ob);
-          state.vy = JUMP;
-          state.canJump = false;
-          playJump();
+          state.score += 5;
+          playPick();
+          if (state.mode === 'cube' && (pressed || held)) {
+            state.vy = JUMP;
+            state.canJump = false;
+          }
         }
       }
       if (ob.t === 'gem' && !state.used.has(ob)) {
@@ -726,12 +711,8 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
   function finish(won) {
     stopLoop();
     state.won = won;
-    if (won) {
-      state.score += 10;
-      playWin();
-    } else {
-      playCrash();
-    }
+    if (won) playWin();
+    else playCrash();
     if (state.score > state.best) {
       state.best = state.score;
       window.localStorage.setItem(BEST_KEY, String(state.best));
@@ -747,7 +728,7 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
       if (won && state.level === 4) doneNoteEl.textContent = 'You went the other way.';
       else if (won) doneNoteEl.textContent = 'Next one is harder.';
       else if (state.level === 4) doneNoteEl.textContent = '';
-      else doneNoteEl.textContent = 'Tap to jump. Hold space to hop up the blocks.';
+      else doneNoteEl.textContent = 'Tap to jump. Rings and diamonds are five points each.';
     }
     if (nextEl) nextEl.hidden = !(won && state.level < 4);
     if (finalScoreEl) finalScoreEl.textContent = String(state.score);
@@ -824,13 +805,15 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
     raf = window.requestAnimationFrame(tick);
   }
 
-  function startRun(level) {
+  function startRun(level, carryScore = 0) {
     stopLoop();
     const best = state.best;
     const nextLevel = Number(level) || state.level || 1;
     state = freshState();
     state.best = best;
     state.level = nextLevel;
+    state.score = carryScore;
+    state.scoreAtLevel = carryScore;
     state.running = true;
     state.last = performance.now();
     held = false;
@@ -859,11 +842,13 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
     show('pick');
   }
 
-  startEl?.addEventListener('click', () => startRun(1));
-  againEl?.addEventListener('click', () => startRun(state.won && state.level === 4 ? 1 : state.level));
-  nextEl?.addEventListener('click', () => startRun(state.level + 1));
+  startEl?.addEventListener('click', () => startRun(1, 0));
+  againEl?.addEventListener('click', () => {
+    if (state.won && state.level === 4) startRun(1, 0);
+    else startRun(state.level, state.scoreAtLevel);
+  });
+  nextEl?.addEventListener('click', () => startRun(state.level + 1, state.score));
   backEl?.addEventListener('click', goPick);
-  homeEl?.addEventListener('click', goPick);
   smartOkEl?.addEventListener('click', () => {
     hideSmart();
     show('done');

@@ -4,7 +4,7 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
 
 <BaseLayout
   title="Quiz Show | ColinBuilds"
-  description="Answer five questions. Fifteen seconds each. Five points for a correct answer."
+  description="Four quiz levels. Each one is harder and gives you less time."
 >
   <div class="mx-auto max-w-3xl px-6 py-12 pb-20">
     <p class="text-sm text-neutral-500">
@@ -14,10 +14,17 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
     </p>
     <h1 class="mt-3 text-3xl font-bold tracking-tight text-brand-cyan sm:text-4xl">Quiz Show</h1>
     <p class="mt-3 max-w-2xl text-neutral-400">
-      Five questions. Fifteen seconds each. Five points for a correct answer. A wrong answer, or running out of time, does not change your score.
+      Four levels. Each one is harder and the clock is shorter. Five points for a correct answer. A wrong answer, or
+      running out of time, does not change your score.
     </p>
 
-    <div class="mt-6 flex justify-end">
+    <div class="mt-6 flex items-center justify-between gap-3">
+      <a
+        href="/games/"
+        class="inline-flex items-center rounded-lg border border-neutral-600 bg-neutral-950 px-3 py-2 text-sm font-medium text-white transition hover:border-cyan-400 hover:text-cyan-300 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-cyan-400"
+      >
+        Back to Games
+      </a>
       <button
         type="button"
         id="qs-sound"
@@ -29,17 +36,34 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
     </div>
 
     <div id="quiz-show" class="mt-6">
-      <section data-screen="pick" aria-label="Start quiz">
-        <div class="rounded-xl border border-neutral-800 bg-neutral-950 p-6 text-center sm:p-10">
-          <p class="text-sm text-neutral-400">Ready when you are.</p>
-          <button
-            type="button"
-            id="qs-start"
-            class="mt-6 inline-flex items-center justify-center rounded-lg bg-cyan-400 px-4 py-2.5 text-sm font-medium text-black transition hover:bg-cyan-300 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-cyan-400"
-          >
-            Start
-          </button>
-        </div>
+      <section data-screen="pick" aria-label="Choose a level">
+        <h2 class="text-sm font-semibold tracking-widest text-cyan-400">Choose a level</h2>
+        <ul class="mt-4 grid grid-cols-1 gap-3">
+          <li>
+            <button type="button" data-level="easy" class="qs-pick">
+              <span class="text-lg font-semibold text-brand-cyan">Easy</span>
+              <span class="mt-1 text-sm text-neutral-400">Five questions. Fifteen seconds each.</span>
+            </button>
+          </li>
+          <li>
+            <button type="button" data-level="medium" class="qs-pick">
+              <span class="text-lg font-semibold text-brand-cyan">Medium</span>
+              <span class="mt-1 text-sm text-neutral-400">Harder facts. Twelve seconds each.</span>
+            </button>
+          </li>
+          <li>
+            <button type="button" data-level="hard" class="qs-pick">
+              <span class="text-lg font-semibold text-brand-cyan">Hard</span>
+              <span class="mt-1 text-sm text-neutral-400">Tighter questions. Ten seconds each.</span>
+            </button>
+          </li>
+          <li>
+            <button type="button" data-level="expert" class="qs-pick">
+              <span class="text-lg font-semibold text-brand-cyan">Expert</span>
+              <span class="mt-1 text-sm text-neutral-400">The hard set. Eight seconds each.</span>
+            </button>
+          </li>
+        </ul>
       </section>
 
       <section data-screen="play" hidden aria-label="Quiz in progress">
@@ -48,7 +72,7 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
           id="qs-back"
           class="mb-4 inline-flex items-center rounded-lg border border-neutral-600 bg-neutral-950 px-3 py-2 text-sm font-medium text-white transition hover:border-cyan-400 hover:text-cyan-300 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-cyan-400"
         >
-          Back
+          Levels
         </button>
         <div class="grid grid-cols-3 gap-3 rounded-xl border border-neutral-800 bg-neutral-950 p-4 text-center">
           <div>
@@ -113,33 +137,52 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
 
 <script>
   const SOUND_KEY = 'colinbuilds-quiz-show-sound';
-  const QUESTIONS = [
-    {
-      question: 'What is the capital of France?',
-      options: ['London', 'Berlin', 'Paris', 'Madrid'],
-      answer: 2,
+  const LEVELS = {
+    easy: {
+      label: 'Easy',
+      seconds: 15,
+      questions: [
+        { question: 'What is the capital of France?', options: ['London', 'Berlin', 'Paris', 'Madrid'], answer: 2 },
+        { question: 'Which planet is known as the Red Planet?', options: ['Venus', 'Mars', 'Jupiter', 'Saturn'], answer: 1 },
+        { question: 'What is 5 × 5?', options: ['10', '20', '25', '55'], answer: 2 },
+        { question: 'Which animal is the fastest land animal?', options: ['Lion', 'Cheetah', 'Horse', 'Elephant'], answer: 1 },
+        { question: 'What do plants need to make food?', options: ['Sunlight', 'Pizza', 'Music', 'Sleep'], answer: 0 },
+      ],
     },
-    {
-      question: 'Which planet is known as the Red Planet?',
-      options: ['Venus', 'Mars', 'Jupiter', 'Saturn'],
-      answer: 1,
+    medium: {
+      label: 'Medium',
+      seconds: 12,
+      questions: [
+        { question: 'How many continents are there?', options: ['5', '6', '7', '8'], answer: 2 },
+        { question: 'What gas do humans need to breathe?', options: ['Oxygen', 'Helium', 'Nitrogen only', 'Steam'], answer: 0 },
+        { question: 'What is 12 × 8?', options: ['86', '96', '108', '128'], answer: 1 },
+        { question: 'Which ocean is the largest?', options: ['Atlantic', 'Indian', 'Arctic', 'Pacific'], answer: 3 },
+        { question: 'Who wrote Romeo and Juliet?', options: ['Dickens', 'Shakespeare', 'Austen', 'Homer'], answer: 1 },
+      ],
     },
-    {
-      question: 'What is 5 × 5?',
-      options: ['10', '20', '25', '55'],
-      answer: 2,
+    hard: {
+      label: 'Hard',
+      seconds: 10,
+      questions: [
+        { question: 'In which year did the Second World War end?', options: ['1918', '1939', '1945', '1963'], answer: 2 },
+        { question: 'What is the chemical symbol for gold?', options: ['Au', 'Ag', 'Gd', 'Go'], answer: 0 },
+        { question: 'What is the square root of 81?', options: ['8', '9', '10', '18'], answer: 1 },
+        { question: 'What is the capital of Japan?', options: ['Kyoto', 'Osaka', 'Tokyo', 'Seoul'], answer: 2 },
+        { question: 'How many degrees are in a right angle?', options: ['45', '90', '180', '360'], answer: 1 },
+      ],
     },
-    {
-      question: 'Which animal is the fastest land animal?',
-      options: ['Lion', 'Cheetah', 'Horse', 'Elephant'],
-      answer: 1,
+    expert: {
+      label: 'Expert',
+      seconds: 8,
+      questions: [
+        { question: 'What is 17 × 19?', options: ['303', '313', '323', '333'], answer: 2 },
+        { question: 'What is the first element on the periodic table?', options: ['Helium', 'Hydrogen', 'Carbon', 'Oxygen'], answer: 1 },
+        { question: 'In which year did the first person walk on the Moon?', options: ['1959', '1961', '1969', '1975'], answer: 2 },
+        { question: 'What does CPU stand for?', options: ['Central Processing Unit', 'Computer Power Unit', 'Core Program Utility', 'Central Print Unit'], answer: 0 },
+        { question: 'What is the boiling point of water at standard pressure?', options: ['90°C', '100°C', '120°C', '212°C only'], answer: 1 },
+      ],
     },
-    {
-      question: 'What do plants need to make food?',
-      options: ['Sunlight', 'Pizza', 'Music', 'Sleep'],
-      answer: 0,
-    },
-  ];
+  };
 
   const root = document.getElementById('quiz-show');
   if (!root) {
@@ -160,7 +203,6 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
   const optionEls = [...root.querySelectorAll('[data-option]')];
   const finalScoreEl = document.getElementById('qs-final-score');
   const finalCorrectEl = document.getElementById('qs-final-correct');
-  const startEl = document.getElementById('qs-start');
   const againEl = document.getElementById('qs-again');
   const backEl = document.getElementById('qs-back');
   const soundBtn = document.getElementById('qs-sound');
@@ -169,8 +211,9 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
   /** @type {AudioContext | null} */
   let audioCtx = null;
 
-  /** @type {{ index: number, score: number, correct: number, timeLeft: number, locked: boolean, timer: number | null, nextTimer: number | null }} */
+  /** @type {{ level: string | null, index: number, score: number, correct: number, timeLeft: number, locked: boolean, timer: number | null, nextTimer: number | null }} */
   const state = {
+    level: null,
     index: 0,
     score: 0,
     correct: 0,
@@ -179,6 +222,10 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
     timer: null,
     nextTimer: null,
   };
+
+  function currentLevel() {
+    return state.level ? LEVELS[state.level] : null;
+  }
 
   function getAudio() {
     const AC = window.AudioContext || window.webkitAudioContext;
@@ -248,20 +295,23 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
   }
 
   function current() {
-    return QUESTIONS[state.index];
+    const level = currentLevel();
+    return level ? level.questions[state.index] : null;
   }
 
   function paintHud() {
+    const level = currentLevel();
     if (scoreEl) scoreEl.textContent = String(state.score);
     if (timeEl) {
       timeEl.textContent = String(state.timeLeft);
       timeEl.classList.toggle('qs-pulse', state.timeLeft <= 5 && !state.locked);
     }
-    if (progressEl) progressEl.textContent = `${state.index + 1} / ${QUESTIONS.length}`;
+    if (progressEl && level) progressEl.textContent = `${state.index + 1} / ${level.questions.length}`;
   }
 
   function paintQuestion() {
     const q = current();
+    if (!q) return;
     if (questionEl) questionEl.textContent = q.question;
     if (feedbackEl) feedbackEl.textContent = '';
     optionEls.forEach((btn, i) => {
@@ -278,6 +328,7 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
 
   function reveal(selected) {
     const q = current();
+    if (!q) return;
     optionEls.forEach((btn, i) => {
       btn.disabled = true;
       if (i === q.answer) btn.dataset.state = 'right';
@@ -290,12 +341,14 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
     stopTimers();
     playWin();
     if (finalScoreEl) finalScoreEl.textContent = String(state.score);
-    if (finalCorrectEl) finalCorrectEl.textContent = `${state.correct} / ${QUESTIONS.length}`;
+    const level = currentLevel();
+    if (finalCorrectEl && level) finalCorrectEl.textContent = `${state.correct} / ${level.questions.length}`;
     show('done');
   }
 
   function goNext() {
-    if (state.index < QUESTIONS.length - 1) {
+    const level = currentLevel();
+    if (level && state.index < level.questions.length - 1) {
       state.index += 1;
       showQuestion();
       return;
@@ -328,8 +381,10 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
   }
 
   function showQuestion() {
+    const level = currentLevel();
+    if (!level) return;
     stopTimers();
-    state.timeLeft = 15;
+    state.timeLeft = level.seconds;
     state.locked = false;
     paintQuestion();
     paintHud();
@@ -343,16 +398,24 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
     }, 1000);
   }
 
-  function startGame() {
+  function startLevel(levelId) {
+    if (!LEVELS[levelId]) return;
     stopTimers();
+    state.level = levelId;
     state.index = 0;
     state.score = 0;
     state.correct = 0;
+    getAudio();
     show('play');
     showQuestion();
   }
 
-  startEl?.addEventListener('click', startGame);
+  root.querySelectorAll('[data-level]').forEach((btn) => {
+    btn.addEventListener('click', () => {
+      const levelId = btn.getAttribute('data-level');
+      if (levelId) startLevel(levelId);
+    });
+  });
   againEl?.addEventListener('click', () => {
     stopTimers();
     show('pick');
@@ -367,7 +430,9 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
     btn.addEventListener('click', () => {
       if (state.locked) return;
       const selected = Number(btn.getAttribute('data-option'));
-      const kind = selected === current().answer ? 'correct' : 'wrong';
+      const q = current();
+      if (!q) return;
+      const kind = selected === q.answer ? 'correct' : 'wrong';
       settle(kind, selected);
     });
   });
@@ -384,6 +449,29 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
 </script>
 
 <style is:global>
+  .qs-pick {
+    display: flex;
+    width: 100%;
+    flex-direction: column;
+    border-radius: 0.75rem;
+    border: 1px solid #262626;
+    background: #0a0a0a;
+    padding: 1.25rem;
+    text-align: left;
+    cursor: pointer;
+    transition: border-color 0.15s ease;
+  }
+
+  .qs-pick:hover,
+  .qs-pick:focus-visible {
+    border-color: #22d3ee;
+  }
+
+  .qs-pick:focus-visible {
+    outline: 2px solid #22d3ee;
+    outline-offset: 2px;
+  }
+
   .qs-option {
     min-height: 3.5rem;
     border-radius: 0.75rem;

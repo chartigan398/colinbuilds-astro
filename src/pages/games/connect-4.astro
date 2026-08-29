@@ -4,7 +4,7 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
 
 <BaseLayout
   title="Connect 4 | ColinBuilds"
-  description="Get four in a row. Play against the computer. Three levels."
+  description="Get four in a row. Play against the computer. Four levels."
 >
   <div class="mx-auto max-w-3xl px-6 py-12 pb-20">
     <p class="text-sm text-neutral-500">
@@ -14,11 +14,17 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
     </p>
     <h1 class="mt-3 text-3xl font-bold tracking-tight text-brand-cyan sm:text-4xl">Connect 4</h1>
     <p class="mt-3 max-w-2xl text-neutral-400">
-      Drop a disc. Get four in a row. You are cyan. The computer is white. A win is five points. A loss or a draw
-      does not change your score.
+      Drop a disc. Get four in a row. You are cyan. The computer is white. Four levels. A win is five points. A
+      loss or a draw does not change your score.
     </p>
 
-    <div class="mt-6 flex justify-end">
+    <div class="mt-6 flex items-center justify-between gap-3">
+      <a
+        href="/games/"
+        class="inline-flex items-center rounded-lg border border-neutral-600 bg-neutral-950 px-3 py-2 text-sm font-medium text-white transition hover:border-cyan-400 hover:text-cyan-300 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-cyan-400"
+      >
+        Back to Games
+      </a>
       <button
         type="button"
         id="c4-sound"
@@ -49,6 +55,12 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
             <button type="button" data-difficulty="hard" class="c4-pick">
               <span class="text-lg font-semibold text-brand-cyan">Hard</span>
               <span class="mt-1 text-sm text-neutral-400">The computer blocks and takes wins.</span>
+            </button>
+          </li>
+          <li>
+            <button type="button" data-difficulty="expert" class="c4-pick">
+              <span class="text-lg font-semibold text-brand-cyan">Expert</span>
+              <span class="mt-1 text-sm text-neutral-400">The computer looks several moves ahead.</span>
             </button>
           </li>
         </ul>
@@ -82,6 +94,7 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
         </p>
 
         <div class="mt-6 rounded-xl border border-neutral-800 bg-neutral-950 p-3 sm:p-5">
+          <div id="c4-cols" class="c4-cols" role="group" aria-label="Drop a disc"></div>
           <div id="c4-board" class="c4-board" role="grid" aria-label="Connect 4 board"></div>
           <p id="c4-feedback" class="mt-4 min-h-6 text-center text-sm text-neutral-500" aria-live="polite"></p>
           <div id="c4-end" class="mt-4 hidden justify-center">
@@ -106,7 +119,7 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
   const EMPTY = 0;
   const YOU = 1;
   const CPU = 2;
-  const LABELS = { easy: 'Easy', medium: 'Medium', hard: 'Hard' };
+  const LABELS = { easy: 'Easy', medium: 'Medium', hard: 'Hard', expert: 'Expert' };
 
   const root = document.getElementById('connect-4');
   if (!root) {
@@ -118,6 +131,7 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
     play: root.querySelector('[data-screen="play"]'),
   };
 
+  const colsEl = document.getElementById('c4-cols');
   const boardEl = document.getElementById('c4-board');
   const youEl = document.getElementById('c4-you');
   const cpuEl = document.getElementById('c4-cpu');
@@ -133,7 +147,7 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
   /** @type {AudioContext | null} */
   let audioCtx = null;
 
-  /** @type {{ difficulty: string | null, board: number[][], turn: number, locked: boolean, you: number, cpu: number, score: number, winning: number[][], hover: number | null, aiTimer: number | null }} */
+  /** @type {{ difficulty: string | null, board: number[][], turn: number, locked: boolean, you: number, cpu: number, score: number, winning: number[][], aiTimer: number | null }} */
   const state = {
     difficulty: null,
     board: emptyBoard(),
@@ -143,7 +157,6 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
     cpu: 0,
     score: 0,
     winning: [],
-    hover: null,
     aiTimer: null,
   };
 
@@ -272,6 +285,83 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
     return Boolean(winnerAt(dropped.board, dropped.row, col, piece));
   }
 
+  function windowsOfFour(board) {
+    const windows = [];
+    for (let r = 0; r < ROWS; r += 1) {
+      for (let c = 0; c < COLS - 3; c += 1) {
+        windows.push([board[r][c], board[r][c + 1], board[r][c + 2], board[r][c + 3]]);
+      }
+    }
+    for (let c = 0; c < COLS; c += 1) {
+      for (let r = 0; r < ROWS - 3; r += 1) {
+        windows.push([board[r][c], board[r + 1][c], board[r + 2][c], board[r + 3][c]]);
+      }
+    }
+    for (let r = 0; r < ROWS - 3; r += 1) {
+      for (let c = 0; c < COLS - 3; c += 1) {
+        windows.push([board[r][c], board[r + 1][c + 1], board[r + 2][c + 2], board[r + 3][c + 3]]);
+        windows.push([board[r + 3][c], board[r + 2][c + 1], board[r + 1][c + 2], board[r][c + 3]]);
+      }
+    }
+    return windows;
+  }
+
+  function scoreWindow(cells, piece) {
+    const other = piece === CPU ? YOU : CPU;
+    const mine = cells.filter((v) => v === piece).length;
+    const empty = cells.filter((v) => v === EMPTY).length;
+    const opp = cells.filter((v) => v === other).length;
+    if (mine === 4) return 100;
+    if (mine === 3 && empty === 1) return 5;
+    if (mine === 2 && empty === 2) return 2;
+    if (opp === 3 && empty === 1) return -4;
+    return 0;
+  }
+
+  function scoreBoard(board, piece) {
+    let score = 0;
+    for (let r = 0; r < ROWS; r += 1) {
+      if (board[r][3] === piece) score += 3;
+    }
+    for (const cells of windowsOfFour(board)) score += scoreWindow(cells, piece);
+    return score;
+  }
+
+  function hasWin(board, piece) {
+    return windowsOfFour(board).some((cells) => cells.every((v) => v === piece));
+  }
+
+  function minimax(board, depth, alpha, beta, maximizing) {
+    const open = openCols(board);
+    if (hasWin(board, CPU)) return { score: 100000 + depth };
+    if (hasWin(board, YOU)) return { score: -100000 - depth };
+    if (depth === 0 || open.length === 0) return { score: scoreBoard(board, CPU) };
+
+    if (maximizing) {
+      let best = { score: -Infinity, col: open[0] };
+      for (const col of open) {
+        const dropped = dropOn(board, col, CPU);
+        if (!dropped) continue;
+        const result = minimax(dropped.board, depth - 1, alpha, beta, false);
+        if (result.score > best.score) best = { score: result.score, col };
+        alpha = Math.max(alpha, best.score);
+        if (alpha >= beta) break;
+      }
+      return best;
+    }
+
+    let best = { score: Infinity, col: open[0] };
+    for (const col of open) {
+      const dropped = dropOn(board, col, YOU);
+      if (!dropped) continue;
+      const result = minimax(dropped.board, depth - 1, alpha, beta, true);
+      if (result.score < best.score) best = { score: result.score, col };
+      beta = Math.min(beta, best.score);
+      if (alpha >= beta) break;
+    }
+    return best;
+  }
+
   function pickCpuCol() {
     const open = openCols(state.board);
     if (open.length === 0) return null;
@@ -291,6 +381,10 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
       return randomCol();
     };
 
+    if (state.difficulty === 'expert') {
+      const picked = minimax(state.board, 4, -Infinity, Infinity, true);
+      return picked.col ?? randomCol();
+    }
     if (state.difficulty === 'hard') return smart();
     return Math.random() > 0.5 ? smart() : randomCol();
   }
@@ -299,49 +393,51 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
     return `${row}-${col}`;
   }
 
+  function buildBoard() {
+    if (colsEl && colsEl.childElementCount === 0) {
+      for (let col = 0; col < COLS; col += 1) {
+        const btn = document.createElement('button');
+        btn.type = 'button';
+        btn.className = 'c4-drop';
+        btn.dataset.col = String(col);
+        btn.setAttribute('aria-label', `Drop in column ${col + 1}`);
+        btn.addEventListener('click', () => playYou(col));
+        colsEl.appendChild(btn);
+      }
+    }
+    if (boardEl && boardEl.childElementCount === 0) {
+      for (let row = 0; row < ROWS; row += 1) {
+        for (let col = 0; col < COLS; col += 1) {
+          const hole = document.createElement('div');
+          hole.className = 'c4-cell';
+          hole.dataset.row = String(row);
+          hole.dataset.col = String(col);
+          hole.addEventListener('click', () => playYou(col));
+          boardEl.appendChild(hole);
+        }
+      }
+    }
+    paintBoard();
+  }
+
   function paintBoard() {
     if (!boardEl) return;
     const win = new Set(state.winning.map(([r, c]) => cellKey(r, c)));
     const yourTurn = !state.locked && state.turn === YOU;
-    boardEl.replaceChildren();
-    const frag = document.createDocumentFragment();
-
-    for (let row = 0; row < ROWS; row += 1) {
-      for (let col = 0; col < COLS; col += 1) {
-        const btn = document.createElement('button');
-        btn.type = 'button';
-        btn.className = 'c4-cell';
-        btn.dataset.col = String(col);
-        const piece = state.board[row][col];
+    for (const hole of boardEl.querySelectorAll('.c4-cell')) {
+      const row = Number(hole.dataset.row);
+      const col = Number(hole.dataset.col);
+      const piece = state.board[row][col];
+      hole.classList.toggle('is-you', piece === YOU);
+      hole.classList.toggle('is-cpu', piece === CPU);
+      hole.classList.toggle('is-win', win.has(cellKey(row, col)));
+    }
+    if (colsEl) {
+      for (const btn of colsEl.querySelectorAll('.c4-drop')) {
+        const col = Number(btn.dataset.col);
         const open = state.board[0][col] === EMPTY;
         btn.disabled = !yourTurn || !open;
-        if (piece === YOU) btn.classList.add('is-you');
-        if (piece === CPU) btn.classList.add('is-cpu');
-        if (win.has(cellKey(row, col))) btn.classList.add('is-win');
-        if (state.hover === col && open && yourTurn) btn.classList.add('is-hover');
-        const who = piece === YOU ? 'you' : piece === CPU ? 'computer' : 'empty';
-        btn.setAttribute('aria-label', `Column ${col + 1}, row ${row + 1}, ${who}`);
-        btn.addEventListener('click', () => playYou(col));
-        btn.addEventListener('mouseenter', () => {
-          state.hover = col;
-          paintHover();
-        });
-        btn.addEventListener('mouseleave', () => {
-          if (state.hover === col) state.hover = null;
-          paintHover();
-        });
-        frag.appendChild(btn);
       }
-    }
-    boardEl.appendChild(frag);
-  }
-
-  function paintHover() {
-    if (!boardEl) return;
-    for (const btn of boardEl.querySelectorAll('.c4-cell')) {
-      const col = Number(btn.dataset.col);
-      const open = state.board[0][col] === EMPTY;
-      btn.classList.toggle('is-hover', state.hover === col && open && !state.locked && state.turn === YOU);
     }
   }
 
@@ -434,7 +530,6 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
     state.turn = YOU;
     state.locked = false;
     state.winning = [];
-    state.hover = null;
     if (endEl) {
       endEl.classList.add('hidden');
       endEl.classList.remove('flex');
@@ -453,16 +548,13 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
     show('play');
     startRound();
     playStart();
+    screens.play?.scrollIntoView({ block: 'start' });
   }
 
   function goPick() {
     clearAi();
     state.difficulty = null;
     show('pick');
-  }
-
-  function buildBoard() {
-    paintBoard();
   }
 
   root.querySelectorAll('[data-difficulty]').forEach((btn) => {
@@ -525,47 +617,94 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
     outline-offset: 2px;
   }
 
-  .c4-board {
+  .c4-cols {
     display: grid;
     grid-template-columns: repeat(7, minmax(0, 1fr));
-    gap: 0.4rem;
+    gap: 0.35rem;
+    max-width: 22rem;
+    margin: 0 auto 0.4rem;
   }
 
-  .c4-cell {
-    aspect-ratio: 1;
-    border-radius: 999px;
-    border: 2px solid #262626;
-    background: #050505;
-  }
-
-  .c4-cell:hover:not(:disabled),
-  .c4-cell.is-hover:not(:disabled) {
-    border-color: #22d3ee;
+  .c4-drop {
+    height: 2.25rem;
+    border-radius: 0.5rem;
+    border: 2px solid #22d3ee;
     background: #083344;
+    color: #22d3ee;
+    cursor: pointer;
   }
 
-  .c4-cell:focus-visible {
+  .c4-drop::after {
+    content: '';
+    display: block;
+    width: 0;
+    height: 0;
+    margin: 0 auto;
+    border-left: 0.4rem solid transparent;
+    border-right: 0.4rem solid transparent;
+    border-top: 0.55rem solid #22d3ee;
+  }
+
+  .c4-drop:hover:not(:disabled) {
+    background: #155e75;
+  }
+
+  .c4-drop:disabled {
+    border-color: #404040;
+    background: #0a0a0a;
+    cursor: default;
+  }
+
+  .c4-drop:disabled::after {
+    border-top-color: #404040;
+  }
+
+  .c4-drop:focus-visible {
     outline: 2px solid #22d3ee;
     outline-offset: 2px;
   }
 
+  .c4-board {
+    display: grid;
+    grid-template-columns: repeat(7, minmax(0, 1fr));
+    gap: 0.35rem;
+    max-width: 22rem;
+    margin-inline: auto;
+    padding: 0.55rem;
+    border-radius: 0.85rem;
+    background: #155e75;
+  }
+
+  .c4-cell {
+    display: block;
+    width: 100%;
+    min-height: 0;
+    aspect-ratio: 1;
+    border-radius: 999px;
+    border: 2px solid #083344;
+    background: #000000;
+    cursor: pointer;
+  }
+
   .c4-cell.is-you {
-    border-color: #22d3ee;
+    border-color: #a5f3fc;
     background: #22d3ee;
   }
 
   .c4-cell.is-cpu {
-    border-color: #d4d4d4;
+    border-color: #e5e5e5;
     background: #fafafa;
   }
 
   .c4-cell.is-win {
-    box-shadow: 0 0 0 3px #22d3ee;
+    box-shadow: 0 0 0 3px #ffffff;
   }
 
   @media (min-width: 640px) {
+    .c4-cols,
     .c4-board {
-      gap: 0.55rem;
+      max-width: 24rem;
+      gap: 0.4rem;
     }
   }
 </style>

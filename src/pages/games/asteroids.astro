@@ -1,0 +1,572 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+---
+
+<BaseLayout
+  title="Asteroids | ColinBuilds"
+  description="Turn, thrust, and shoot the rocks. Four levels. Five points each."
+>
+  <div class="mx-auto max-w-3xl px-6 py-12 pb-20">
+    <p class="text-sm text-neutral-500">
+      <a href="/" class="transition hover:text-cyan-400">Home</a>
+      <span> · </span>
+      <a href="/games/" class="transition hover:text-cyan-400">Games</a>
+    </p>
+    <h1 class="mt-3 text-3xl font-bold tracking-tight text-brand-cyan sm:text-4xl">Asteroids</h1>
+    <p class="mt-3 max-w-2xl text-neutral-400">
+      Left and right turn. Up or W thrusts. Space shoots. Rocks wrap around the screen. Five points for each rock
+      you break. A crash does not change your score.
+    </p>
+
+    <div class="mt-6 flex items-center justify-between gap-3">
+      <a
+        href="/games/"
+        class="inline-flex items-center rounded-lg border border-neutral-600 bg-neutral-950 px-3 py-2 text-sm font-medium text-white transition hover:border-cyan-400 hover:text-cyan-300 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-cyan-400"
+      >
+        Back to Games
+      </a>
+      <button
+        type="button"
+        id="as-sound"
+        aria-pressed="true"
+        class="inline-flex items-center rounded-lg border border-neutral-600 bg-neutral-950 px-3 py-2 text-sm font-medium text-white transition hover:border-cyan-400 hover:text-cyan-300 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-cyan-400"
+      >
+        Sound on
+      </button>
+    </div>
+
+    <div id="asteroids" class="mt-6">
+      <section data-screen="pick" aria-label="Choose a level">
+        <h2 class="text-sm font-semibold tracking-widest text-cyan-400">Choose a level</h2>
+        <ul class="mt-4 grid grid-cols-1 gap-3">
+          <li>
+            <button type="button" data-level="easy" class="as-pick">
+              <span class="text-lg font-semibold text-brand-cyan">Easy</span>
+              <span class="mt-1 text-sm text-neutral-400">Three slow rocks.</span>
+            </button>
+          </li>
+          <li>
+            <button type="button" data-level="medium" class="as-pick">
+              <span class="text-lg font-semibold text-brand-cyan">Medium</span>
+              <span class="mt-1 text-sm text-neutral-400">Four rocks. They move faster.</span>
+            </button>
+          </li>
+          <li>
+            <button type="button" data-level="hard" class="as-pick">
+              <span class="text-lg font-semibold text-brand-cyan">Hard</span>
+              <span class="mt-1 text-sm text-neutral-400">Five rocks. Less room.</span>
+            </button>
+          </li>
+          <li>
+            <button type="button" data-level="expert" class="as-pick">
+              <span class="text-lg font-semibold text-brand-cyan">Expert</span>
+              <span class="mt-1 text-sm text-neutral-400">Six rocks. Fast.</span>
+            </button>
+          </li>
+        </ul>
+      </section>
+
+      <section data-screen="play" hidden aria-label="Asteroids in progress">
+        <button
+          type="button"
+          id="as-back"
+          class="mb-4 inline-flex items-center rounded-lg border border-neutral-600 bg-neutral-950 px-3 py-2 text-sm font-medium text-white transition hover:border-cyan-400 hover:text-cyan-300 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-cyan-400"
+        >
+          Levels
+        </button>
+        <div class="grid grid-cols-3 gap-3 rounded-xl border border-neutral-800 bg-neutral-950 p-4 text-center">
+          <div>
+            <p id="as-score" class="text-3xl font-bold tabular-nums text-brand-cyan">0</p>
+            <p class="mt-1 text-xs text-neutral-500">Score</p>
+          </div>
+          <div>
+            <p id="as-level" class="text-xl font-bold text-brand-cyan sm:text-2xl">Easy</p>
+            <p class="mt-1 text-xs text-neutral-500">Level</p>
+          </div>
+          <div>
+            <p id="as-left" class="text-3xl font-bold tabular-nums text-brand-cyan">0</p>
+            <p class="mt-1 text-xs text-neutral-500">Rocks</p>
+          </div>
+        </div>
+        <div class="as-frame mt-6">
+          <canvas id="as-canvas" width="800" height="420"></canvas>
+        </div>
+        <p class="mt-3 text-center text-sm text-neutral-500">Arrows turn. Up thrusts. Space shoots.</p>
+        <div class="as-pad mt-4" aria-label="Ship controls">
+          <button type="button" data-hold="left">Left</button>
+          <button type="button" data-hold="right">Right</button>
+          <button type="button" data-hold="up">Thrust</button>
+          <button type="button" data-hold="space">Fire</button>
+        </div>
+      </section>
+
+      <section data-screen="done" hidden aria-label="Round over">
+        <div class="rounded-xl border border-neutral-800 bg-neutral-950 p-6 text-center sm:p-10">
+          <h2 id="as-done-title" class="text-2xl font-bold tracking-tight text-brand-cyan">Crashed</h2>
+          <p id="as-done-note" class="mt-3 text-sm text-neutral-400"></p>
+          <div class="mt-8 grid grid-cols-2 gap-3">
+            <div class="rounded-lg border border-neutral-800 p-4">
+              <p id="as-final-score" class="text-3xl font-bold tabular-nums text-brand-cyan">0</p>
+              <p class="mt-1 text-xs text-neutral-500">Score</p>
+            </div>
+            <div class="rounded-lg border border-neutral-800 p-4">
+              <p id="as-final-best" class="text-3xl font-bold tabular-nums text-brand-cyan">0</p>
+              <p class="mt-1 text-xs text-neutral-500">Best</p>
+            </div>
+          </div>
+          <div class="mt-8 flex flex-col gap-4">
+            <button
+              type="button"
+              id="as-again"
+              class="inline-flex w-full items-center justify-center rounded-lg bg-cyan-400 px-5 py-3 text-sm font-medium text-black transition hover:bg-cyan-300 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-cyan-400"
+            >
+              Play again
+            </button>
+            <a
+              href="/games/"
+              class="inline-flex w-full items-center justify-center rounded-lg border border-neutral-600 bg-neutral-950 px-5 py-3 text-sm font-medium text-white transition hover:border-cyan-400 hover:text-cyan-300 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-cyan-400"
+            >
+              Back to Games
+            </a>
+          </div>
+        </div>
+      </section>
+    </div>
+  </div>
+</BaseLayout>
+
+<script>
+  // Wrap, ship thrust, rock split from dmcinnes/HTML5-Asteroids (MIT), without jQuery.
+  const SOUND_KEY = 'colinbuilds-asteroids-sound';
+  const BEST_KEY = 'colinbuilds-asteroids-best';
+  const W = 800;
+  const H = 420;
+  const ROCK = [-10, 0, -5, 7, -3, 4, 1, 10, 5, 4, 10, 0, 5, -6, 2, -10, -4, -10, -4, -5];
+  const LEVELS = {
+    easy: { label: 'Easy', rocks: 3, speed: 0.7 },
+    medium: { label: 'Medium', rocks: 4, speed: 1.05 },
+    hard: { label: 'Hard', rocks: 5, speed: 1.35 },
+    expert: { label: 'Expert', rocks: 6, speed: 1.7 },
+  };
+
+  const root = document.getElementById('asteroids');
+  const canvas = document.getElementById('as-canvas');
+  if (!root || !(canvas instanceof HTMLCanvasElement)) throw new Error('Asteroids root missing');
+  const ctx = canvas.getContext('2d');
+  if (!ctx) throw new Error('Asteroids canvas missing');
+
+  const screens = {
+    pick: root.querySelector('[data-screen="pick"]'),
+    play: root.querySelector('[data-screen="play"]'),
+    done: root.querySelector('[data-screen="done"]'),
+  };
+  const scoreEl = document.getElementById('as-score');
+  const levelEl = document.getElementById('as-level');
+  const leftEl = document.getElementById('as-left');
+  const doneTitleEl = document.getElementById('as-done-title');
+  const doneNoteEl = document.getElementById('as-done-note');
+  const finalScoreEl = document.getElementById('as-final-score');
+  const finalBestEl = document.getElementById('as-final-best');
+  const backEl = document.getElementById('as-back');
+  const againEl = document.getElementById('as-again');
+  const soundBtn = document.getElementById('as-sound');
+
+  let soundOn = window.localStorage.getItem(SOUND_KEY) !== 'off';
+  /** @type {AudioContext | null} */
+  let audioCtx = null;
+  let raf = 0;
+  const keys = { left: false, right: false, up: false, space: false };
+  let spaceLatch = false;
+
+  const state = {
+    level: 'easy',
+    running: false,
+    score: 0,
+    best: Number(window.localStorage.getItem(BEST_KEY) || 0) || 0,
+    ship: { x: W / 2, y: H / 2, rot: 0, vx: 0, vy: 0, safe: 90 },
+    bullets: [],
+    rocks: [],
+    last: 0,
+    won: false,
+  };
+
+  function getAudio() {
+    const AC = window.AudioContext || window.webkitAudioContext;
+    if (!AC) return null;
+    if (!audioCtx) audioCtx = new AC();
+    if (audioCtx.state === 'suspended') audioCtx.resume();
+    return audioCtx;
+  }
+
+  function beep({ freq, dur = 0.08, type = 'sine', vol = 0.07, delay = 0 }) {
+    if (!soundOn) return;
+    const c = getAudio();
+    if (!c) return;
+    const t0 = c.currentTime + delay;
+    const osc = c.createOscillator();
+    const g = c.createGain();
+    osc.type = type;
+    osc.frequency.setValueAtTime(freq, t0);
+    g.gain.setValueAtTime(vol, t0);
+    g.gain.exponentialRampToValueAtTime(0.001, t0 + dur);
+    osc.connect(g);
+    g.connect(c.destination);
+    osc.start(t0);
+    osc.stop(t0 + dur + 0.02);
+  }
+
+  function show(name) {
+    for (const [key, el] of Object.entries(screens)) {
+      if (el) el.hidden = key !== name;
+    }
+  }
+
+  function wrap(v, max) {
+    if (v < 0) return v + max;
+    if (v > max) return v - max;
+    return v;
+  }
+
+  function makeRock(scale, speed) {
+    const edge = Math.floor(Math.random() * 4);
+    let x = Math.random() * W;
+    let y = Math.random() * H;
+    if (edge === 0) y = -20;
+    if (edge === 1) y = H + 20;
+    if (edge === 2) x = -20;
+    if (edge === 3) x = W + 20;
+    const ang = Math.random() * Math.PI * 2;
+    return {
+      x,
+      y,
+      vx: Math.cos(ang) * speed * (0.6 + Math.random()),
+      vy: Math.sin(ang) * speed * (0.6 + Math.random()),
+      rot: Math.random() * 360,
+      spin: Math.random() * 2 - 1,
+      scale,
+    };
+  }
+
+  function paintHud() {
+    if (scoreEl) scoreEl.textContent = String(state.score);
+    if (levelEl) levelEl.textContent = LEVELS[state.level].label;
+    if (leftEl) leftEl.textContent = String(state.rocks.length);
+  }
+
+  function drawShip() {
+    const s = state.ship;
+    ctx.save();
+    ctx.translate(s.x, s.y);
+    ctx.rotate((s.rot * Math.PI) / 180);
+    ctx.strokeStyle = '#22d3ee';
+    ctx.lineWidth = 2;
+    ctx.beginPath();
+    ctx.moveTo(12, 0);
+    ctx.lineTo(-10, 8);
+    ctx.lineTo(-6, 0);
+    ctx.lineTo(-10, -8);
+    ctx.closePath();
+    ctx.stroke();
+    if (keys.up) {
+      ctx.beginPath();
+      ctx.moveTo(-8, 0);
+      ctx.lineTo(-16, 4);
+      ctx.lineTo(-16, -4);
+      ctx.closePath();
+      ctx.stroke();
+    }
+    ctx.restore();
+  }
+
+  function drawRock(rock) {
+    ctx.save();
+    ctx.translate(rock.x, rock.y);
+    ctx.rotate((rock.rot * Math.PI) / 180);
+    ctx.scale(rock.scale, rock.scale);
+    ctx.strokeStyle = '#22d3ee';
+    ctx.lineWidth = 1.4 / rock.scale;
+    ctx.beginPath();
+    ctx.moveTo(ROCK[0], ROCK[1]);
+    for (let i = 2; i < ROCK.length; i += 2) ctx.lineTo(ROCK[i], ROCK[i + 1]);
+    ctx.closePath();
+    ctx.stroke();
+    ctx.restore();
+  }
+
+  function draw() {
+    ctx.fillStyle = '#000000';
+    ctx.fillRect(0, 0, W, H);
+    state.rocks.forEach(drawRock);
+    ctx.fillStyle = '#22d3ee';
+    for (const b of state.bullets) {
+      ctx.fillRect(b.x - 1.5, b.y - 1.5, 3, 3);
+    }
+    if (state.ship.safe <= 0 || Math.floor(state.ship.safe / 6) % 2 === 0) drawShip();
+  }
+
+  function dist(ax, ay, bx, by) {
+    return Math.hypot(ax - bx, ay - by);
+  }
+
+  function finish(won) {
+    state.running = false;
+    state.won = won;
+    window.cancelAnimationFrame(raf);
+    if (state.score > state.best) {
+      state.best = state.score;
+      window.localStorage.setItem(BEST_KEY, String(state.best));
+    }
+    if (doneTitleEl) doneTitleEl.textContent = won ? 'Field clear' : 'Crashed';
+    if (doneNoteEl) {
+      doneNoteEl.textContent = won ? 'Every rock is gone.' : 'A crash does not change your score.';
+    }
+    if (finalScoreEl) finalScoreEl.textContent = String(state.score);
+    if (finalBestEl) finalBestEl.textContent = String(state.best);
+    if (won) {
+      beep({ freq: 523, dur: 0.1, vol: 0.07 });
+      beep({ freq: 784, dur: 0.16, vol: 0.07, delay: 0.1 });
+    } else {
+      beep({ freq: 180, dur: 0.16, type: 'square', vol: 0.06 });
+    }
+    show('done');
+  }
+
+  function shoot() {
+    const s = state.ship;
+    const rad = (s.rot * Math.PI) / 180;
+    state.bullets.push({
+      x: s.x + Math.cos(rad) * 14,
+      y: s.y + Math.sin(rad) * 14,
+      vx: s.vx + Math.cos(rad) * 7,
+      vy: s.vy + Math.sin(rad) * 7,
+      life: 45,
+    });
+    beep({ freq: 920, dur: 0.04, vol: 0.05 });
+  }
+
+  function tick(now) {
+    if (!state.running) return;
+    const frames = Math.min(2, ((now - state.last) || 16.67) / 16.67);
+    state.last = now;
+    const s = state.ship;
+    if (keys.left) s.rot -= 4.2 * frames;
+    if (keys.right) s.rot += 4.2 * frames;
+    if (s.rot < 0) s.rot += 360;
+    if (s.rot >= 360) s.rot -= 360;
+    if (keys.up) {
+      const rad = (s.rot * Math.PI) / 180;
+      s.vx += Math.cos(rad) * 0.12 * frames;
+      s.vy += Math.sin(rad) * 0.12 * frames;
+    }
+    s.vx *= 0.995;
+    s.vy *= 0.995;
+    s.x = wrap(s.x + s.vx * frames, W);
+    s.y = wrap(s.y + s.vy * frames, H);
+    if (s.safe > 0) s.safe -= frames;
+
+    if (keys.space && !spaceLatch) {
+      shoot();
+      spaceLatch = true;
+    }
+    if (!keys.space) spaceLatch = false;
+
+    state.bullets = state.bullets.filter((b) => {
+      b.x = wrap(b.x + b.vx * frames, W);
+      b.y = wrap(b.y + b.vy * frames, H);
+      b.life -= frames;
+      return b.life > 0;
+    });
+
+    for (const rock of state.rocks) {
+      rock.x = wrap(rock.x + rock.vx * frames, W);
+      rock.y = wrap(rock.y + rock.vy * frames, H);
+      rock.rot += rock.spin * frames;
+    }
+
+    const born = [];
+    const keep = [];
+    for (const rock of state.rocks) {
+      const radius = 10 * rock.scale;
+      let hit = false;
+      state.bullets = state.bullets.filter((b) => {
+        if (dist(b.x, b.y, rock.x, rock.y) < radius) {
+          hit = true;
+          return false;
+        }
+        return true;
+      });
+      if (hit) {
+        state.score += 5;
+        beep({ freq: 220, dur: 0.08, type: 'square', vol: 0.05 });
+        if (rock.scale > 1.4) {
+          const next = rock.scale / 2.2;
+          born.push(makeRock(next, LEVELS[state.level].speed));
+          born.push(makeRock(next, LEVELS[state.level].speed));
+          born[born.length - 1].x = rock.x;
+          born[born.length - 1].y = rock.y;
+          born[born.length - 2].x = rock.x;
+          born[born.length - 2].y = rock.y;
+        }
+      } else {
+        keep.push(rock);
+      }
+    }
+    state.rocks = keep.concat(born);
+    paintHud();
+
+    if (state.ship.safe <= 0) {
+      for (const rock of state.rocks) {
+        if (dist(s.x, s.y, rock.x, rock.y) < 10 * rock.scale + 8) {
+          finish(false);
+          draw();
+          return;
+        }
+      }
+    }
+
+    if (state.rocks.length === 0) {
+      finish(true);
+      draw();
+      return;
+    }
+
+    draw();
+    raf = window.requestAnimationFrame(tick);
+  }
+
+  function startLevel(levelId) {
+    if (!LEVELS[levelId]) return;
+    window.cancelAnimationFrame(raf);
+    const spec = LEVELS[levelId];
+    state.level = levelId;
+    state.score = 0;
+    state.won = false;
+    state.running = true;
+    state.last = performance.now();
+    state.ship = { x: W / 2, y: H / 2, rot: -90, vx: 0, vy: 0, safe: 90 };
+    state.bullets = [];
+    state.rocks = Array.from({ length: spec.rocks }, () => makeRock(3.2, spec.speed));
+    keys.left = keys.right = keys.up = keys.space = false;
+    spaceLatch = false;
+    getAudio();
+    paintHud();
+    show('play');
+    beep({ freq: 523, dur: 0.08, vol: 0.08 });
+    raf = window.requestAnimationFrame(tick);
+  }
+
+  function goPick() {
+    state.running = false;
+    window.cancelAnimationFrame(raf);
+    show('pick');
+  }
+
+  root.querySelectorAll('[data-level]').forEach((btn) => {
+    btn.addEventListener('click', () => startLevel(btn.getAttribute('data-level') || ''));
+  });
+  root.querySelectorAll('[data-hold]').forEach((btn) => {
+    const key = btn.getAttribute('data-hold');
+    if (!key || !(key in keys)) return;
+    const set = (on) => {
+      keys[key] = on;
+    };
+    btn.addEventListener('pointerdown', (event) => {
+      event.preventDefault();
+      set(true);
+    });
+    btn.addEventListener('pointerup', () => set(false));
+    btn.addEventListener('pointerleave', () => set(false));
+    btn.addEventListener('pointercancel', () => set(false));
+  });
+  backEl?.addEventListener('click', goPick);
+  againEl?.addEventListener('click', () => startLevel(state.level));
+  soundBtn?.addEventListener('click', () => {
+    soundOn = !soundOn;
+    window.localStorage.setItem(SOUND_KEY, soundOn ? 'on' : 'off');
+    if (soundBtn) {
+      soundBtn.textContent = soundOn ? 'Sound on' : 'Sound off';
+      soundBtn.setAttribute('aria-pressed', soundOn ? 'true' : 'false');
+    }
+    if (soundOn) beep({ freq: 880, dur: 0.08, vol: 0.07 });
+  });
+
+  window.addEventListener(
+    'keydown',
+    (event) => {
+      if (screens.play?.hidden) return;
+      const code = event.code;
+      if (['ArrowLeft', 'ArrowRight', 'ArrowUp', 'ArrowDown', 'Space', 'KeyW', 'KeyA', 'KeyD'].includes(code)) {
+        event.preventDefault();
+      }
+      if (code === 'ArrowLeft' || code === 'KeyA') keys.left = true;
+      if (code === 'ArrowRight' || code === 'KeyD') keys.right = true;
+      if (code === 'ArrowUp' || code === 'KeyW') keys.up = true;
+      if (code === 'Space') keys.space = true;
+    },
+    { capture: true },
+  );
+  window.addEventListener('keyup', (event) => {
+    const code = event.code;
+    if (code === 'ArrowLeft' || code === 'KeyA') keys.left = false;
+    if (code === 'ArrowRight' || code === 'KeyD') keys.right = false;
+    if (code === 'ArrowUp' || code === 'KeyW') keys.up = false;
+    if (code === 'Space') keys.space = false;
+  });
+
+  if (soundBtn) soundBtn.textContent = soundOn ? 'Sound on' : 'Sound off';
+  window.addEventListener('pagehide', () => window.cancelAnimationFrame(raf));
+</script>
+
+<style is:global>
+  .as-pick {
+    display: flex;
+    width: 100%;
+    flex-direction: column;
+    border-radius: 0.75rem;
+    border: 1px solid #262626;
+    background: #0a0a0a;
+    padding: 1.25rem;
+    text-align: left;
+    cursor: pointer;
+  }
+
+  .as-pick:hover,
+  .as-pick:focus-visible {
+    border-color: #22d3ee;
+  }
+
+  .as-frame {
+    overflow: hidden;
+    border-radius: 0.75rem;
+    border: 1px solid #262626;
+    background: #000;
+  }
+
+  #as-canvas {
+    display: block;
+    width: 100%;
+    height: auto;
+  }
+
+  .as-pad {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 0.45rem;
+  }
+
+  .as-pad button {
+    border-radius: 0.5rem;
+    border: 1px solid #404040;
+    background: #0a0a0a;
+    color: #fff;
+    padding: 0.7rem 0.4rem;
+    font-size: 0.875rem;
+    touch-action: none;
+  }
+
+  .as-pad button:hover,
+  .as-pad button:focus-visible {
+    border-color: #22d3ee;
+    color: #22d3ee;
+  }
+</style>

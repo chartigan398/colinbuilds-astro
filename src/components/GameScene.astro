@@ -5,6 +5,10 @@ const path = Astro.url.pathname;
 
 const scene = path.includes('geometry-runner')
   ? 'runner'
+  : path.includes('asteroids')
+    ? 'asteroids'
+  : path.includes('snake')
+    ? 'snake'
   : path.includes('connect-4')
     ? 'connect'
   : path.includes('hangman')
@@ -90,7 +94,7 @@ const scene = path.includes('geometry-runner')
     }
 
     {
-      (scene === 'hub' || scene === 'runner' || scene === 'connect' || scene === 'hangman' || scene === 'sprint' || scene === 'match' || scene === 'quiz' || scene === 'type' || scene === 'scramble') && (
+      (scene === 'hub' || scene === 'runner' || scene === 'asteroids' || scene === 'snake' || scene === 'connect' || scene === 'hangman' || scene === 'sprint' || scene === 'match' || scene === 'quiz' || scene === 'type' || scene === 'scramble') && (
         <>
           <g class="game-scene-ring game-scene-ring-slow" opacity="0.55">
             <circle cx="400" cy="210" r="150" fill="none" stroke="#22d3ee" stroke-width="1.25"></circle>

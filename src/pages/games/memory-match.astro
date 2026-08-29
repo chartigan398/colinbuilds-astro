@@ -17,7 +17,13 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
       Each pair is the same shape. Flip two cards. A match stays up. Find every pair.
     </p>
 
-    <div class="mt-6 flex justify-end">
+    <div class="mt-6 flex items-center justify-between gap-3">
+      <a
+        href="/games/"
+        class="inline-flex items-center rounded-lg border border-neutral-600 bg-neutral-950 px-3 py-2 text-sm font-medium text-white transition hover:border-cyan-400 hover:text-cyan-300 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-cyan-400"
+      >
+        Back to Games
+      </a>
       <button
         type="button"
         id="mm-sound"
