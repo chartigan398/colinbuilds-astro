@@ -21,7 +21,8 @@ const canonicalURL = new URL(Astro.url.pathname, Astro.site);
 const path = Astro.url.pathname;
 const isCompareSection =
   path === '/compare/' || path.startsWith('/compare/') || path.startsWith('/models/');
-const showScene = !hideFooter && !isCompareSection;
+const isGuidesSection = path === '/guides/' || path.startsWith('/guides/');
+const showScene = !hideFooter && !isCompareSection && !isGuidesSection;
 
 const jsonLd = {
   '@context': 'https://schema.org',

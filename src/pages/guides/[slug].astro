@@ -19,7 +19,7 @@ const published = guide.data.pubDate.toLocaleDateString('en-GB', {
   year: 'numeric',
 });
 const guideNo = guide.data.guide_no;
-const isGuideSeries = ['what-are-ai-machine-learning-and-generative-ai', 'how-machine-learning-actually-learns'].includes(guide.slug);
+const isGuideSeries = guide.slug !== 'a-beginners-history-of-ai';
 ---
 
 <BaseLayout title={`${guide.data.title} | ColinBuilds`} description={guide.data.description}>
