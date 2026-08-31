@@ -2,6 +2,7 @@
 import '../styles/global.css';
 import GameScene from '../components/GameScene.astro';
 import Brand from '../components/Brand.astro';
+import ThemeToggle from '../components/ThemeToggle.astro';
 import { SITE_TITLE, SITE_DESCRIPTION } from '../data/site.js';
 
 interface Props {
@@ -35,9 +36,20 @@ const jsonLd = {
 ---
 
 <!doctype html>
-<html lang="en" class:list={[hideFooter && 'h-dvh']}>
+<html lang="en" data-theme="dark" class:list={[hideFooter && 'h-dvh']}>
   <head>
     <meta charset="UTF-8" />
+    <script is:inline>
+      (function () {
+        try {
+          var t = localStorage.getItem('cb-theme');
+          if (t !== 'light' && t !== 'alt') t = 'dark';
+          document.documentElement.setAttribute('data-theme', t);
+        } catch (e) {
+          document.documentElement.setAttribute('data-theme', 'dark');
+        }
+      })();
+    </script>
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta name="description" content={description} />
     {noIndex && <meta name="robots" content="noindex, nofollow" />}
@@ -59,7 +71,7 @@ const jsonLd = {
     <script defer src="/_vercel/insights/script.js"></script>
   </head>
   <body class:list={['bg-black text-white antialiased', hideFooter ? 'flex h-dvh flex-col overflow-hidden' : 'min-h-screen', showScene && 'has-scene']}>
-    <header class:list={['border-b border-neutral-800 bg-black/95 backdrop-blur', hideFooter && 'shrink-0']}>
+    <header class:list={['site-header border-b border-neutral-800 bg-black/95 backdrop-blur', hideFooter && 'shrink-0']}>
       <div class="mx-auto flex max-w-[90rem] items-center justify-between gap-x-4 px-6 py-4">
         <a href="/" class="shrink-0 text-base font-semibold tracking-tight">
           <Brand />
@@ -75,16 +87,7 @@ const jsonLd = {
               <path stroke-linecap="round" d="m20 20-3-3"></path>
             </svg>
           </a>
-          <span
-            class="inline-flex h-9 w-9 items-center justify-center rounded-lg text-neutral-300"
-            aria-hidden="true"
-            title="Dark mode"
-          >
-            <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75">
-              <circle cx="12" cy="12" r="4"></circle>
-              <path stroke-linecap="round" d="M12 3v1.5M12 19.5V21M4.93 4.93l1.06 1.06M17.99 17.99l1.06 1.06M3 12h1.5M19.5 12H21M4.93 19.07l1.06-1.06M17.99 6.01l1.06-1.06"></path>
-            </svg>
-          </span>
+          <ThemeToggle />
         </div>
       </div>
     </header>
@@ -94,7 +97,7 @@ const jsonLd = {
     </main>
     {
       !hideFooter && (
-        <footer class="border-t border-neutral-800 py-8 text-center text-sm text-neutral-500">
+        <footer class="site-footer border-t border-neutral-800 py-8 text-center text-sm text-neutral-500">
           <Brand /> · A place to learn. Read or play.
         </footer>
       )

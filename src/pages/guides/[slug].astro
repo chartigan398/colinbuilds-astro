@@ -54,9 +54,9 @@ const isGuideSeries = guide.slug !== 'a-beginners-history-of-ai';
     margin: 0;
     aspect-ratio: 16 / 9;
     object-fit: contain;
-    background: #000;
+    background: var(--cb-bg);
     border-radius: 0.75rem;
-    border: 1px solid #262626;
+    border: 1px solid var(--cb-border);
   }
 
   .guide-prose :global(p:has(img)) {
@@ -74,7 +74,7 @@ const isGuideSeries = guide.slug !== 'a-beginners-history-of-ai';
     font-size: 1.25rem;
     font-weight: 600;
     letter-spacing: -0.02em;
-    color: #22d3ee;
+    color: var(--cb-accent);
   }
 
   .guide-prose :global(h3) {
@@ -82,19 +82,19 @@ const isGuideSeries = guide.slug !== 'a-beginners-history-of-ai';
     margin-bottom: 0.5rem;
     font-size: 1.05rem;
     font-weight: 600;
-    color: #22d3ee;
+    color: var(--cb-accent);
   }
 
   .guide-prose :global(p) {
     margin-top: 0.85rem;
     line-height: 1.7;
-    color: #ffffff;
+    color: var(--cb-fg);
   }
 
   .guide-prose :global(ul) {
     margin-top: 0.85rem;
     padding-left: 1.25rem;
-    color: #ffffff;
+    color: var(--cb-fg);
     line-height: 1.7;
     list-style: disc;
   }
@@ -102,7 +102,7 @@ const isGuideSeries = guide.slug !== 'a-beginners-history-of-ai';
   .guide-prose :global(ol) {
     margin-top: 0.85rem;
     padding-left: 1.25rem;
-    color: #ffffff;
+    color: var(--cb-fg);
     line-height: 1.75;
     list-style: decimal;
   }
@@ -113,33 +113,33 @@ const isGuideSeries = guide.slug !== 'a-beginners-history-of-ai';
 
   .guide-prose :global(blockquote) {
     margin-top: 1rem;
-    border-left: 2px solid #22d3ee;
+    border-left: 2px solid var(--cb-accent);
     padding-left: 1rem;
-    color: #ffffff;
+    color: var(--cb-fg);
     font-style: italic;
   }
 
   .guide-prose :global(a) {
-    color: #22d3ee;
+    color: var(--cb-accent);
     text-decoration: underline;
     text-underline-offset: 3px;
   }
 
   .guide-prose :global(a:hover) {
-    color: #67e8f9;
+    color: var(--cb-accent-hot);
   }
 
   .guide-prose :global(em) {
-    color: #ffffff;
+    color: var(--cb-fg);
   }
 
   .guide-prose :global(strong) {
-    color: #ffffff;
+    color: var(--cb-fg);
     font-weight: 600;
   }
 
   .guide-02 .guide-prose :global(strong) {
-    color: var(--color-brand-cyan);
+    color: var(--cb-accent);
     font-weight: 600;
   }
 
@@ -148,13 +148,13 @@ const isGuideSeries = guide.slug !== 'a-beginners-history-of-ai';
     flex-wrap: wrap;
     gap: 0.75rem;
     margin: 0 0 1.75rem;
-    color: #ffffff;
+    color: var(--cb-fg);
     font-size: 0.875rem;
   }
 
   .guide-prose :global(.guide-meta span) {
     padding: 0.35rem 0.65rem;
-    border: 1px solid #262626;
+    border: 1px solid var(--cb-border);
     border-radius: 999px;
   }
 
@@ -164,7 +164,7 @@ const isGuideSeries = guide.slug !== 'a-beginners-history-of-ai';
 
   .guide-prose :global(figcaption) {
     margin-top: 0.75rem;
-    color: #ffffff;
+    color: var(--cb-fg);
     font-size: 0.875rem;
     line-height: 1.5;
   }
@@ -172,9 +172,9 @@ const isGuideSeries = guide.slug !== 'a-beginners-history-of-ai';
   .guide-prose :global(.guide-diagram) {
     overflow: hidden;
     padding: clamp(1.25rem, 4vw, 2rem);
-    border: 1px solid #262626;
+    border: 1px solid var(--cb-border);
     border-radius: 0.75rem;
-    background: #0a0a0a;
+    background: var(--cb-bg-raised);
   }
 
   .guide-prose :global(.guide-map) {
@@ -185,19 +185,19 @@ const isGuideSeries = guide.slug !== 'a-beginners-history-of-ai';
   .guide-prose :global(.map-box) {
     position: relative;
     padding: 1rem 1.15rem;
-    border: 1px solid #262626;
+    border: 1px solid var(--cb-border);
     border-radius: 0.75rem;
-    background: #111111;
+    background: var(--cb-bg-raised);
   }
 
   .guide-prose :global(.map-box b) {
     display: block;
-    color: var(--color-brand-cyan);
+    color: var(--cb-accent);
     font-size: 1.05rem;
   }
 
   .guide-prose :global(.map-box span) {
-    color: #ffffff;
+    color: var(--cb-fg);
     font-size: 0.9rem;
   }
 
@@ -206,14 +206,14 @@ const isGuideSeries = guide.slug !== 'a-beginners-history-of-ai';
     position: absolute;
     left: 50%;
     bottom: -1.45rem;
-    color: var(--color-brand-cyan);
+    color: var(--cb-accent);
     font-weight: 700;
     transform: translateX(-50%);
   }
 
   .guide-prose :global(.map-note) {
     margin: 0;
-    color: #ffffff;
+    color: var(--cb-fg);
     font-size: 0.875rem;
   }
 
@@ -226,7 +226,7 @@ const isGuideSeries = guide.slug !== 'a-beginners-history-of-ai';
 
   .guide-prose :global(.split-heading) {
     margin: 0 0 0.85rem;
-    color: var(--color-brand-cyan);
+    color: var(--cb-accent);
     font-size: 0.8rem;
     font-weight: 700;
     letter-spacing: 0.12em;
@@ -256,7 +256,7 @@ const isGuideSeries = guide.slug !== 'a-beginners-history-of-ai';
   .guide-prose :global(.computer-guess) {
     display: block;
     margin-top: 0.4rem;
-    color: var(--color-brand-cyan);
+    color: var(--cb-accent);
     font-size: 0.8rem;
     font-weight: 700;
     letter-spacing: 0.08em;
@@ -270,14 +270,14 @@ const isGuideSeries = guide.slug !== 'a-beginners-history-of-ai';
 
   .guide-prose :global(.split-text) {
     margin: 0.85rem 0 0;
-    color: #ffffff;
+    color: var(--cb-fg);
     font-size: 0.9rem;
     line-height: 1.5;
   }
 
   .guide-prose :global(.teach-arrow) {
     align-self: center;
-    color: var(--color-brand-cyan);
+    color: var(--cb-accent);
     font-size: 1.75rem;
     font-weight: 700;
     text-align: center;
@@ -292,9 +292,9 @@ const isGuideSeries = guide.slug !== 'a-beginners-history-of-ai';
 
   .guide-prose :global(.mail-card) {
     padding: 1.15rem;
-    border: 1px solid #262626;
+    border: 1px solid var(--cb-border);
     border-radius: 0.75rem;
-    background: #111111;
+    background: var(--cb-bg-raised);
   }
 
   .guide-prose :global(.mail-card p) {
@@ -303,7 +303,7 @@ const isGuideSeries = guide.slug !== 'a-beginners-history-of-ai';
 
   .guide-prose :global(.mail-card .mail-meta) {
     margin: 0;
-    color: #ffffff;
+    color: var(--cb-fg);
     font-size: 0.75rem;
     font-weight: 700;
     letter-spacing: 0.08em;
@@ -321,7 +321,7 @@ const isGuideSeries = guide.slug !== 'a-beginners-history-of-ai';
     height: auto;
     margin: 0;
     background: #fff;
-    border: 1px solid #262626;
+    border: 1px solid var(--cb-border);
     border-radius: 0.75rem;
     image-rendering: pixelated;
   }
@@ -334,18 +334,18 @@ const isGuideSeries = guide.slug !== 'a-beginners-history-of-ai';
 
   .guide-prose :global(.answer-card) {
     padding: 1.15rem;
-    border: 1px solid #262626;
+    border: 1px solid var(--cb-border);
     border-radius: 0.75rem;
-    background: #111111;
+    background: var(--cb-bg-raised);
   }
 
   .guide-prose :global(.answer-card p) {
     margin: 0.5rem 0 0;
-    color: #ffffff;
+    color: var(--cb-fg);
   }
 
   .guide-prose :global(.answer-card .label) {
-    color: #ffffff;
+    color: var(--cb-fg);
     font-size: 0.75rem;
     font-weight: 700;
     letter-spacing: 0.08em;
@@ -353,20 +353,20 @@ const isGuideSeries = guide.slug !== 'a-beginners-history-of-ai';
   }
 
   .guide-prose :global(.answer-card.false) {
-    border-color: var(--color-brand-cyan);
+    border-color: var(--cb-accent);
   }
 
   .guide-prose :global(.false-mark) {
-    color: var(--color-brand-cyan);
+    color: var(--cb-accent);
     font-weight: 700;
   }
 
   .guide-prose :global(.guide-callout) {
     margin: 1.75rem 0 2.25rem;
     padding: 1.35rem;
-    border: 1px solid var(--color-brand-cyan);
+    border: 1px solid var(--cb-accent);
     border-radius: 0.75rem;
-    background: color-mix(in srgb, var(--color-brand-cyan) 12%, transparent);
+    background: color-mix(in srgb, var(--cb-accent) 12%, transparent);
   }
 
   .guide-prose :global(.guide-callout h2) {
@@ -381,23 +381,23 @@ const isGuideSeries = guide.slug !== 'a-beginners-history-of-ai';
 
   .guide-prose :global(.guide-recap p) {
     font-weight: 700;
-    color: #ffffff;
+    color: var(--cb-fg);
   }
 
   .guide-prose :global(.guide-key) {
     margin: 1.25rem 0;
     padding: 1rem 1.15rem;
-    border-left: 4px solid var(--color-brand-cyan);
-    background: #0a0a0a;
+    border-left: 4px solid var(--cb-accent);
+    background: var(--cb-bg-raised);
   }
 
   .guide-prose :global(.guide-logo-wrap) {
     display: flex;
     justify-content: center;
     padding: 1.5rem 1.25rem;
-    border: 1px solid #262626;
+    border: 1px solid var(--cb-border);
     border-radius: 0.75rem;
-    background: #0a0a0a;
+    background: var(--cb-bg-raised);
   }
 
   .guide-prose :global(.guide-logo) {
@@ -423,13 +423,13 @@ const isGuideSeries = guide.slug !== 'a-beginners-history-of-ai';
   .guide-prose :global(th),
   .guide-prose :global(td) {
     padding: 0.85rem 0.75rem;
-    border-bottom: 1px solid #262626;
+    border-bottom: 1px solid var(--cb-border);
     text-align: left;
     vertical-align: top;
   }
 
   .guide-prose :global(th) {
-    color: var(--color-brand-cyan);
+    color: var(--cb-accent);
     font-size: 0.75rem;
     letter-spacing: 0.06em;
     text-transform: uppercase;

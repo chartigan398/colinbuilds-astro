@@ -40,13 +40,13 @@ const { Content } = await render(edition);
     font-size: 1.25rem;
     font-weight: 600;
     letter-spacing: -0.02em;
-    color: #22d3ee;
+    color: var(--cb-accent);
   }
 
   .weekly-prose :global(p) {
     margin-top: 0.85rem;
     line-height: 1.7;
-    color: #ffffff;
+    color: var(--cb-fg);
   }
 
   .weekly-prose :global(blockquote) {
@@ -55,7 +55,7 @@ const { Content } = await render(edition);
     border: 1px solid rgb(34 211 238 / 0.28);
     background: rgb(34 211 238 / 0.06);
     padding: 1rem 1.1rem;
-    color: #ffffff;
+    color: var(--cb-fg);
     font-style: normal;
   }
 
@@ -66,7 +66,7 @@ const { Content } = await render(edition);
   .weekly-prose :global(blockquote strong) {
     display: block;
     margin-bottom: 0.35rem;
-    color: #22d3ee;
+    color: var(--cb-accent);
     font-size: 0.75rem;
     font-weight: 600;
     letter-spacing: 0.14em;
@@ -74,7 +74,7 @@ const { Content } = await render(edition);
   }
 
   .weekly-prose :global(a) {
-    color: #22d3ee;
+    color: var(--cb-accent);
     text-decoration: underline;
     text-underline-offset: 3px;
     overflow-wrap: anywhere;
@@ -85,7 +85,7 @@ const { Content } = await render(edition);
   }
 
   .weekly-prose :global(strong) {
-    color: #22d3ee;
+    color: var(--cb-accent);
     font-weight: 600;
   }
 
@@ -93,7 +93,7 @@ const { Content } = await render(edition);
   .weekly-prose :global(ol) {
     margin-top: 0.85rem;
     padding-left: 1.25rem;
-    color: #ffffff;
+    color: var(--cb-fg);
     line-height: 1.7;
   }
 

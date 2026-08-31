@@ -39,8 +39,8 @@ const scene = path.includes('geometry-runner')
   <svg class="game-scene-svg" viewBox="0 0 800 480" preserveAspectRatio="xMidYMid slice">
     <defs>
       <linearGradient id="game-floor" x1="0" y1="0" x2="0" y2="1">
-        <stop offset="0%" stop-color="#22d3ee" stop-opacity="0.18"></stop>
-        <stop offset="100%" stop-color="#22d3ee" stop-opacity="0"></stop>
+        <stop offset="0%" stop-color="currentColor" stop-opacity="0.18"></stop>
+        <stop offset="100%" stop-color="currentColor" stop-opacity="0"></stop>
       </linearGradient>
     </defs>
 
@@ -48,19 +48,19 @@ const scene = path.includes('geometry-runner')
       scene === 'home' && (
         <>
           <g class="game-scene-ring game-scene-ring-slow" opacity="0.4">
-            <ellipse cx="400" cy="200" rx="280" ry="90" fill="none" stroke="#22d3ee" stroke-width="1.25"></ellipse>
+            <ellipse cx="400" cy="200" rx="280" ry="90" fill="none" stroke="currentColor" stroke-width="1.25"></ellipse>
           </g>
           <g class="game-scene-ring" opacity="0.28">
-            <ellipse cx="400" cy="200" rx="360" ry="130" fill="none" stroke="#22d3ee" stroke-width="1" stroke-dasharray="3 16"></ellipse>
+            <ellipse cx="400" cy="200" rx="360" ry="130" fill="none" stroke="currentColor" stroke-width="1" stroke-dasharray="3 16"></ellipse>
           </g>
-          <path class="game-scene-horizon" d="M40 320 H760" fill="none" stroke="#22d3ee" stroke-width="1"></path>
+          <path class="game-scene-horizon" d="M40 320 H760" fill="none" stroke="currentColor" stroke-width="1"></path>
         </>
       )
     }
 
     {
       scene === 'guides' && (
-        <g class="game-scene-pages" fill="none" stroke="#22d3ee" stroke-width="1.5">
+        <g class="game-scene-pages" fill="none" stroke="currentColor" stroke-width="1.5">
           <rect x="220" y="90" width="240" height="300" rx="6" stroke-opacity="0.16"></rect>
           <rect x="250" y="70" width="240" height="300" rx="6" stroke-opacity="0.22"></rect>
           <rect x="280" y="50" width="240" height="300" rx="6" stroke-opacity="0.32"></rect>
@@ -78,17 +78,17 @@ const scene = path.includes('geometry-runner')
       scene === 'builds' && (
         <>
           <g class="game-scene-ring" opacity="0.45">
-            <circle cx="400" cy="210" r="70" fill="none" stroke="#22d3ee" stroke-width="1.5"></circle>
+            <circle cx="400" cy="210" r="70" fill="none" stroke="currentColor" stroke-width="1.5"></circle>
           </g>
           <g class="game-scene-ring game-scene-ring-slow" opacity="0.32">
-            <circle cx="400" cy="210" r="140" fill="none" stroke="#22d3ee" stroke-width="1.25" stroke-dasharray="2 12"></circle>
+            <circle cx="400" cy="210" r="140" fill="none" stroke="currentColor" stroke-width="1.25" stroke-dasharray="2 12"></circle>
           </g>
           <g class="game-scene-ring-fast" opacity="0.22">
-            <circle cx="400" cy="210" r="210" fill="none" stroke="#22d3ee" stroke-width="1" stroke-dasharray="1 18"></circle>
+            <circle cx="400" cy="210" r="210" fill="none" stroke="currentColor" stroke-width="1" stroke-dasharray="1 18"></circle>
           </g>
-          <circle cx="470" cy="140" r="2" fill="#22d3ee" fill-opacity="0.5"></circle>
-          <circle cx="330" cy="260" r="1.5" fill="#22d3ee" fill-opacity="0.4"></circle>
-          <circle cx="510" cy="250" r="1.5" fill="#22d3ee" fill-opacity="0.4"></circle>
+          <circle cx="470" cy="140" r="2" fill="currentColor" fill-opacity="0.5"></circle>
+          <circle cx="330" cy="260" r="1.5" fill="currentColor" fill-opacity="0.4"></circle>
+          <circle cx="510" cy="250" r="1.5" fill="currentColor" fill-opacity="0.4"></circle>
         </>
       )
     }
@@ -97,11 +97,11 @@ const scene = path.includes('geometry-runner')
       (scene === 'hub' || scene === 'runner' || scene === 'asteroids' || scene === 'snake' || scene === 'connect' || scene === 'hangman' || scene === 'sprint' || scene === 'match' || scene === 'quiz' || scene === 'type' || scene === 'scramble') && (
         <>
           <g class="game-scene-ring game-scene-ring-slow" opacity="0.55">
-            <circle cx="400" cy="210" r="150" fill="none" stroke="#22d3ee" stroke-width="1.25"></circle>
-            <circle cx="400" cy="210" r="150" fill="none" stroke="#22d3ee" stroke-width="1.25" stroke-dasharray="4 18"></circle>
+            <circle cx="400" cy="210" r="150" fill="none" stroke="currentColor" stroke-width="1.25"></circle>
+            <circle cx="400" cy="210" r="150" fill="none" stroke="currentColor" stroke-width="1.25" stroke-dasharray="4 18"></circle>
           </g>
           <g class="game-scene-ring" opacity="0.42">
-            <circle cx="400" cy="210" r="220" fill="none" stroke="#22d3ee" stroke-width="1.25" stroke-dasharray="2 14"></circle>
+            <circle cx="400" cy="210" r="220" fill="none" stroke="currentColor" stroke-width="1.25" stroke-dasharray="2 14"></circle>
           </g>
         </>
       )
@@ -109,7 +109,7 @@ const scene = path.includes('geometry-runner')
 
     {
       scene === 'runner' && (
-        <g fill="none" stroke="#22d3ee" stroke-opacity="0.22" stroke-width="2" stroke-linejoin="round">
+        <g fill="none" stroke="currentColor" stroke-opacity="0.22" stroke-width="2" stroke-linejoin="round">
           <rect x="220" y="200" width="48" height="48"></rect>
           <path d="M360 248 400 168 440 248Z"></path>
           <path d="M500 248 540 188 580 248Z"></path>
@@ -119,7 +119,7 @@ const scene = path.includes('geometry-runner')
     }
     {
       scene === 'connect' && (
-        <g fill="none" stroke="#22d3ee" stroke-opacity="0.22" stroke-width="2">
+        <g fill="none" stroke="currentColor" stroke-opacity="0.22" stroke-width="2">
           <circle cx="220" cy="240" r="28"></circle>
           <circle cx="300" cy="240" r="28"></circle>
           <circle cx="380" cy="240" r="28"></circle>
@@ -134,7 +134,7 @@ const scene = path.includes('geometry-runner')
     }
     {
       scene === 'hangman' && (
-        <g fill="none" stroke="#22d3ee" stroke-opacity="0.22" stroke-width="2" stroke-linecap="round">
+        <g fill="none" stroke="currentColor" stroke-opacity="0.22" stroke-width="2" stroke-linecap="round">
           <path d="M250 360h220M300 360V90h180v40"></path>
           <circle cx="480" cy="160" r="28"></circle>
           <path d="M480 188v70M455 210h50M460 290l20-32 20 32"></path>
@@ -143,14 +143,14 @@ const scene = path.includes('geometry-runner')
     }
     {
       scene === 'sprint' && (
-        <g fill="none" stroke="#22d3ee" stroke-opacity="0.2" stroke-width="18">
+        <g fill="none" stroke="currentColor" stroke-opacity="0.2" stroke-width="18">
           <path d="M250 210h300M400 60v300"></path>
         </g>
       )
     }
     {
       scene === 'match' && (
-        <g fill="none" stroke="#22d3ee" stroke-opacity="0.18" stroke-width="2">
+        <g fill="none" stroke="currentColor" stroke-opacity="0.18" stroke-width="2">
           <rect x="250" y="90" width="140" height="190" rx="12"></rect>
           <rect x="410" y="120" width="140" height="190" rx="12"></rect>
         </g>
@@ -158,21 +158,21 @@ const scene = path.includes('geometry-runner')
     }
     {
       scene === 'quiz' && (
-        <g fill="none" stroke="#22d3ee" stroke-opacity="0.2" stroke-width="2">
+        <g fill="none" stroke="currentColor" stroke-opacity="0.2" stroke-width="2">
           <path d="M400 70 560 230 400 390 240 230Z"></path>
         </g>
       )
     }
     {
       scene === 'type' && (
-        <g stroke="#22d3ee" stroke-opacity="0.2" stroke-width="3" stroke-linecap="round">
+        <g stroke="currentColor" stroke-opacity="0.2" stroke-width="3" stroke-linecap="round">
           <path d="M180 160h440M180 230h320M180 300h380"></path>
         </g>
       )
     }
     {
       scene === 'scramble' && (
-        <g fill="none" stroke="#22d3ee" stroke-opacity="0.2" stroke-width="2">
+        <g fill="none" stroke="currentColor" stroke-opacity="0.2" stroke-width="2">
           <rect x="250" y="110" width="90" height="90" rx="10"></rect>
           <rect x="360" y="110" width="90" height="90" rx="10"></rect>
           <rect x="470" y="110" width="90" height="90" rx="10"></rect>

@@ -1,0 +1,60 @@
+---
+---
+
+<button
+  type="button"
+  id="theme-toggle"
+  class="inline-flex h-9 w-9 items-center justify-center rounded-lg text-neutral-300 transition hover:text-cyan-300 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-cyan-400"
+  aria-label="Theme: Dark. Next: Light."
+  title="Dark"
+>
+  <svg data-theme-icon="dark" class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" aria-hidden="true">
+    <path stroke-linecap="round" stroke-linejoin="round" d="M21 14.5A8.5 8.5 0 1 1 9.5 3 7 7 0 0 0 21 14.5Z"></path>
+  </svg>
+  <svg data-theme-icon="light" class="hidden h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" aria-hidden="true">
+    <circle cx="12" cy="12" r="4"></circle>
+    <path stroke-linecap="round" d="M12 3v1.5M12 19.5V21M4.93 4.93l1.06 1.06M17.99 17.99l1.06 1.06M3 12h1.5M19.5 12H21M4.93 19.07l1.06-1.06M17.99 6.01l1.06-1.06"></path>
+  </svg>
+  <svg data-theme-icon="alt" class="hidden h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" aria-hidden="true">
+    <rect x="4" y="4" width="16" height="16" rx="2"></rect>
+    <path stroke-linecap="round" d="M12 4v16"></path>
+  </svg>
+</button>
+
+<script>
+  const THEMES = ['dark', 'light', 'alt'] as const;
+  type Theme = (typeof THEMES)[number];
+  const LABELS: Record<Theme, string> = { dark: 'Dark', light: 'Light', alt: 'Alt' };
+
+  function readTheme(): Theme {
+    const stored = localStorage.getItem('cb-theme');
+    return stored === 'light' || stored === 'alt' ? stored : 'dark';
+  }
+
+  function applyTheme(theme: Theme) {
+    document.documentElement.setAttribute('data-theme', theme);
+    localStorage.setItem('cb-theme', theme);
+    const meta = document.querySelector('meta[name="theme-color"]');
+    if (meta) {
+      const bg = getComputedStyle(document.documentElement).getPropertyValue('--cb-bg').trim();
+      meta.setAttribute('content', bg || (theme === 'dark' ? '#000000' : '#ffffff'));
+    }
+    const next = THEMES[(THEMES.indexOf(theme) + 1) % THEMES.length];
+    const button = document.getElementById('theme-toggle');
+    if (button) {
+      button.setAttribute('aria-label', `Theme: ${LABELS[theme]}. Next: ${LABELS[next]}.`);
+      button.setAttribute('title', LABELS[theme]);
+    }
+    document.querySelectorAll('[data-theme-icon]').forEach((icon) => {
+      icon.classList.toggle('hidden', icon.getAttribute('data-theme-icon') !== theme);
+    });
+  }
+
+  const button = document.getElementById('theme-toggle');
+  applyTheme(readTheme());
+  button?.addEventListener('click', () => {
+    const current = readTheme();
+    const next = THEMES[(THEMES.indexOf(current) + 1) % THEMES.length];
+    applyTheme(next);
+  });
+</script>
