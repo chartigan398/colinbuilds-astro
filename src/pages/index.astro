@@ -5,11 +5,11 @@ import { SITE_TITLE, SITE_DESCRIPTION } from '../data/site.js';
 
 const sections = [
   {
-    id: 'learn',
-    href: '#learn',
-    title: 'Learn',
-    description: 'Coming.',
-    icon: 'learn',
+    id: 'philosophia',
+    href: '/philosophia/',
+    title: 'Philosophia',
+    description: 'Schools of Thought.',
+    icon: 'philosophia',
     accent: 'cyan',
   },
   {
@@ -133,10 +133,10 @@ const iconBox = 'h-6 w-6';
                     ]}
                   >
                     <span class:list={['inline-flex', tone.icon]}>
-                      {section.icon === 'learn' && (
+                      {section.icon === 'philosophia' && (
                         <svg class={iconBox} viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" aria-hidden="true">
-                          <path stroke-linecap="round" stroke-linejoin="round" d="M21.42 10.922a1 1 0 0 0-.019-1.838L12.83 5.18a2 2 0 0 0-1.66 0L2.6 9.08a1 1 0 0 0 0 1.832l8.57 3.908a2 2 0 0 0 1.66 0z"></path>
-                          <path stroke-linecap="round" stroke-linejoin="round" d="M22 10v6M6 12.5V16a6 3 0 0 0 12 0v-3.5"></path>
+                          <circle cx="12" cy="12" r="9"></circle>
+                          <path stroke-linecap="round" d="M12 3v18M3 12h18"></path>
                         </svg>
                       )}
                       {section.icon === 'guides' && (

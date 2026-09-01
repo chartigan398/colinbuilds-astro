@@ -1,0 +1,47 @@
+/* Philosophia lessons: same cyan geometry as Games. No gold, no React chrome. */
+
+.school-board {
+  margin-top: 1.5rem;
+  border: 1px solid var(--cb-border);
+  border-radius: 0.75rem;
+  background: var(--cb-bg-raised);
+  padding: 1.5rem;
+}
+
+.school-step {
+  min-height: 10rem;
+  display: flex;
+  align-items: center;
+  font-size: 1.25rem;
+  line-height: 1.7;
+  color: var(--cb-fg);
+}
+
+.school-progress {
+  margin-top: 1.5rem;
+  height: 2px;
+  overflow: hidden;
+  background: var(--cb-border);
+}
+
+.school-progress > span {
+  display: block;
+  height: 100%;
+  width: 0;
+  background: var(--cb-accent);
+}
+
+.school-actions {
+  margin-top: 1.25rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+}
+
+.school-pos {
+  font-size: 0.75rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--cb-muted);
+}

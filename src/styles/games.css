@@ -59,8 +59,8 @@ body.has-scene:has(.game-scene[data-scene='home']) #sections li a {
   animation: none;
 }
 
-.game-scene[data-scene='guides'] .game-scene-glow {
-  opacity: 0.5;
+.game-scene[data-scene='philosophia'] .game-scene-glow {
+  opacity: 0.45;
 }
 
 .game-scene-horizon {

@@ -1,0 +1,38 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+---
+
+<BaseLayout
+  title="Philosophia | ColinBuilds"
+  description="Explore the major philosophical movements in short, conversational lessons."
+>
+  <div class="mx-auto max-w-6xl px-6 py-12 pb-20">
+    <p class="text-sm text-neutral-500">
+      <a href="/" class="transition hover:text-cyan-400">Home</a>
+      <span> · Philosophia</span>
+    </p>
+    <h1 class="mt-3 text-3xl font-bold tracking-tight text-brand-cyan sm:text-4xl">Philosophia</h1>
+    <p class="mt-3 max-w-2xl text-neutral-400">Short lessons. One idea at a time.</p>
+
+    <ul class="mt-10 grid grid-cols-1 gap-4 sm:grid-cols-2">
+      <li>
+        <a
+          href="/philosophia/schools/"
+          class="group game-listing-card flex h-full flex-col rounded-xl border border-neutral-800 bg-neutral-950/80 p-5 transition hover:border-cyan-400 focus-visible:border-cyan-400 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-cyan-400"
+        >
+          <div class="game-card-art">
+            <svg class="game-mark" viewBox="0 0 48 48" fill="none" aria-hidden="true">
+              <circle cx="24" cy="24" r="14" stroke="currentColor" stroke-width="1.75"></circle>
+              <path d="M24 10v28M10 24h28" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"></path>
+            </svg>
+          </div>
+          <h2 class="text-lg font-semibold tracking-tight text-brand-cyan">Schools of Thought</h2>
+          <p class="mt-2 flex-1 text-sm leading-relaxed text-neutral-400">
+            Explore the major philosophical movements in short, conversational lessons.
+          </p>
+          <span class="mt-5 text-sm text-cyan-400 group-hover:text-cyan-300">Explore →</span>
+        </a>
+      </li>
+    </ul>
+  </div>
+</BaseLayout>

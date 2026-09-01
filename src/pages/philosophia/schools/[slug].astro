@@ -1,0 +1,88 @@
+---
+import '../../../styles/philosophia.css';
+import BaseLayout from '../../../layouts/BaseLayout.astro';
+import { allSchools, getSchool } from '../../../data/schools.js';
+
+export function getStaticPaths() {
+  return allSchools().map((school) => ({
+    params: { slug: school.id },
+  }));
+}
+
+const { slug } = Astro.params;
+const school = getSchool(slug);
+
+if (!school) {
+  throw new Error(`Unknown school: ${slug}`);
+}
+---
+
+<BaseLayout
+  title={`${school.name} | ColinBuilds`}
+  description={school.summary}
+>
+  <div class="mx-auto max-w-3xl px-6 py-12 pb-20">
+    <p class="text-sm text-neutral-500">
+      <a href="/" class="transition hover:text-cyan-400">Home</a>
+      <span> · </span>
+      <a href="/philosophia/" class="transition hover:text-cyan-400">Philosophia</a>
+      <span> · </span>
+      <a href="/philosophia/schools/" class="transition hover:text-cyan-400">Schools</a>
+    </p>
+    <h1 class="mt-3 text-3xl font-bold tracking-tight text-brand-cyan sm:text-4xl">{school.name}</h1>
+    <p class="mt-2 text-sm text-neutral-500">
+      {school.region} · {school.era}
+    </p>
+    <p class="mt-3 max-w-2xl text-neutral-400">{school.summary}</p>
+
+    <div class="school-board" id="school-lesson">
+      <p class="school-pos" id="school-pos"></p>
+      <p class="school-step mt-4" id="school-step"></p>
+      <div class="school-progress" aria-hidden="true">
+        <span id="school-bar"></span>
+      </div>
+      <div class="school-actions">
+        <a
+          href="/philosophia/schools/"
+          class="inline-flex items-center rounded-lg border border-neutral-600 bg-neutral-950 px-3 py-2 text-sm font-medium text-white transition hover:border-cyan-400 hover:text-cyan-300 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-cyan-400"
+        >
+          Back to Schools
+        </a>
+        <button
+          type="button"
+          id="school-next"
+          class="inline-flex items-center rounded-lg border border-cyan-400 bg-cyan-400 px-4 py-2 text-sm font-medium text-black transition hover:bg-cyan-300 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-cyan-400"
+        >
+          Continue
+        </button>
+      </div>
+    </div>
+  </div>
+</BaseLayout>
+
+<script define:vars={{ steps: school.lesson }}>
+  const textEl = document.getElementById('school-step');
+  const posEl = document.getElementById('school-pos');
+  const barEl = document.getElementById('school-bar');
+  const nextEl = document.getElementById('school-next');
+  let index = 0;
+
+  function render() {
+    if (!textEl || !posEl || !barEl || !nextEl) return;
+    textEl.textContent = steps[index];
+    posEl.textContent = `${index + 1} / ${steps.length}`;
+    barEl.style.width = `${((index + 1) / steps.length) * 100}%`;
+    nextEl.textContent = index === steps.length - 1 ? 'Finish' : 'Continue';
+  }
+
+  nextEl?.addEventListener('click', () => {
+    if (index < steps.length - 1) {
+      index += 1;
+      render();
+      return;
+    }
+    window.location.href = '/philosophia/schools/';
+  });
+
+  render();
+</script>
