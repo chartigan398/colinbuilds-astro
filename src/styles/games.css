@@ -24,7 +24,39 @@
 }
 
 .game-scene[data-scene='home'] .game-scene-glow {
-  animation: game-glow-pulse 9s ease-in-out infinite alternate;
+  top: 18%;
+  width: 58rem;
+  height: 32rem;
+  animation: home-nebula-breathe 80s ease-in-out infinite;
+}
+
+.home-nebula {
+  pointer-events: none;
+  position: absolute;
+  left: 56%;
+  top: 28%;
+  width: 30rem;
+  height: 14rem;
+  transform: translate(-50%, -50%) rotate(-16deg);
+  background: radial-gradient(ellipse, var(--cb-glow) 0%, transparent 72%);
+  animation: home-nebula-drift 110s ease-in-out infinite;
+}
+
+.home-galaxy {
+  transform-origin: center;
+  transform-box: fill-box;
+  animation: home-galaxy-spin 240s linear infinite;
+}
+
+.home-stars-far {
+  transform-origin: center;
+  transform-box: fill-box;
+  animation: home-galaxy-spin 420s linear infinite reverse;
+}
+
+body.has-scene:has(.game-scene[data-scene='home']) main h1,
+body.has-scene:has(.game-scene[data-scene='home']) #sections li a {
+  animation: none;
 }
 
 .game-scene[data-scene='guides'] .game-scene-glow {
@@ -85,6 +117,36 @@
   to {
     opacity: 1;
     transform: translate(-50%, -42%) scale(1.08);
+  }
+}
+
+@keyframes home-galaxy-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes home-nebula-breathe {
+  0%,
+  100% {
+    opacity: 0.42;
+    transform: translate(-50%, -40%) scale(1);
+  }
+  50% {
+    opacity: 0.62;
+    transform: translate(-52%, -38%) scale(1.04);
+  }
+}
+
+@keyframes home-nebula-drift {
+  0%,
+  100% {
+    opacity: 0.4;
+    transform: translate(-50%, -50%) rotate(-16deg);
+  }
+  50% {
+    opacity: 0.62;
+    transform: translate(-44%, -56%) rotate(-10deg);
   }
 }
 
@@ -370,6 +432,9 @@ a.group.game-listing-card:focus-visible::after {
   .game-scene-pages,
   .game-scene-horizon,
   .game-scene[data-scene='home'] .game-scene-glow,
+  .home-galaxy,
+  .home-stars-far,
+  .home-nebula,
   .game-mark-draw,
   #ms-question.ms-pop,
   #qs-options .qs-option.qs-in,

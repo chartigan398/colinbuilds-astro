@@ -32,33 +32,17 @@ html[data-theme="dark"] {
 html[data-theme="light"] {
   color-scheme: light;
   --cb-bg: #ffffff;
-  --cb-bg-raised: #f4f4f4;
-  --cb-fg: #2a2a2a;
-  --cb-muted: #5c5c5c;
-  --cb-border: #d4d4d4;
-  --cb-accent: #c9a227;
-  --cb-accent-hot: #b42318;
-  --cb-header: rgb(255 255 255 / 0.94);
-  --cb-scene: #b42318;
-  --cb-glow: rgb(201 162 39 / 0.2);
-  --cb-brand: #2a2a2a;
-  --cb-brand-mark: #b42318;
-}
-
-html[data-theme="alt"] {
-  color-scheme: light;
-  --cb-bg: #f6f6f4;
-  --cb-bg-raised: #ffffff;
+  --cb-bg-raised: #f5f5f5;
   --cb-fg: #171717;
   --cb-muted: #525252;
-  --cb-border: #e4e4e4;
-  --cb-accent: #171717;
-  --cb-accent-hot: #404040;
-  --cb-header: rgb(246 246 244 / 0.96);
-  --cb-scene: #a3a3a3;
-  --cb-glow: rgb(0 0 0 / 0.04);
+  --cb-border: #e5e5e5;
+  --cb-accent: #0891b2;
+  --cb-accent-hot: #0e7490;
+  --cb-header: rgb(255 255 255 / 0.94);
+  --cb-scene: #22d3ee;
+  --cb-glow: rgb(8 145 178 / 0.16);
   --cb-brand: #171717;
-  --cb-brand-mark: #171717;
+  --cb-brand-mark: #0891b2;
 }
 
 body {
@@ -84,25 +68,20 @@ body :is(
   color: var(--cb-muted);
 }
 
-html[data-theme="light"] :is(.bg-black, .bg-neutral-950),
-html[data-theme="alt"] :is(.bg-black, .bg-neutral-950) {
+html[data-theme="light"] :is(.bg-black, .bg-neutral-950) {
   background-color: var(--cb-bg);
 }
 
-html[data-theme="light"] :is(.bg-neutral-950\/80, .bg-black\/40),
-html[data-theme="alt"] :is(.bg-neutral-950\/80, .bg-black\/40) {
+html[data-theme="light"] :is(.bg-neutral-950\/80, .bg-black\/40) {
   background-color: var(--cb-bg-raised);
 }
 
 html[data-theme="light"] .bg-black\/95,
-html[data-theme="alt"] .bg-black\/95,
-html[data-theme="light"] .bg-black\/40,
-html[data-theme="alt"] .bg-black\/40 {
+html[data-theme="light"] .bg-black\/40 {
   background-color: var(--cb-header);
 }
 
-html[data-theme="light"] :is(.text-white, .text-neutral-100),
-html[data-theme="alt"] :is(.text-white, .text-neutral-100) {
+html[data-theme="light"] :is(.text-white, .text-neutral-100) {
   color: var(--cb-fg);
 }
 
@@ -112,14 +91,7 @@ html[data-theme="light"] [class*="text-green"],
 html[data-theme="light"] [class*="text-purple"],
 html[data-theme="light"] [class*="text-pink"],
 html[data-theme="light"] [class*="text-yellow"],
-html[data-theme="light"] [class*="text-blue-"],
-html[data-theme="alt"] [class*="text-cyan"],
-html[data-theme="alt"] [class*="text-sky"],
-html[data-theme="alt"] [class*="text-green"],
-html[data-theme="alt"] [class*="text-purple"],
-html[data-theme="alt"] [class*="text-pink"],
-html[data-theme="alt"] [class*="text-yellow"],
-html[data-theme="alt"] [class*="text-blue-"] {
+html[data-theme="light"] [class*="text-blue-"] {
   color: var(--cb-accent);
 }
 
@@ -128,18 +100,11 @@ html[data-theme="light"] :is(
   .hover\:text-cyan-400:hover,
   .group-hover\:text-cyan-300:hover,
   .group:hover .group-hover\:text-cyan-300
-),
-html[data-theme="alt"] :is(
-  .hover\:text-cyan-300:hover,
-  .hover\:text-cyan-400:hover,
-  .group-hover\:text-cyan-300:hover,
-  .group:hover .group-hover\:text-cyan-300
 ) {
   color: var(--cb-accent-hot);
 }
 
-html[data-theme="light"] :is(.border-neutral-800, .border-neutral-700, .border-neutral-600),
-html[data-theme="alt"] :is(.border-neutral-800, .border-neutral-700, .border-neutral-600) {
+html[data-theme="light"] :is(.border-neutral-800, .border-neutral-700, .border-neutral-600) {
   border-color: var(--cb-border);
 }
 
@@ -153,29 +118,16 @@ html[data-theme="light"] :is(
   .hover\:border-blue-400:hover,
   .focus-visible\:border-cyan-400:focus-visible,
   .focus\:border-cyan-400:focus
-),
-html[data-theme="alt"] :is(
-  .hover\:border-cyan-400:hover,
-  .hover\:border-green-400:hover,
-  .hover\:border-purple-400:hover,
-  .hover\:border-pink-400:hover,
-  .hover\:border-yellow-400:hover,
-  .hover\:border-sky-400:hover,
-  .hover\:border-blue-400:hover,
-  .focus-visible\:border-cyan-400:focus-visible,
-  .focus\:border-cyan-400:focus
 ) {
   border-color: var(--cb-accent);
 }
 
-html[data-theme="light"] :is(.bg-cyan-400, .bg-cyan-300),
-html[data-theme="alt"] :is(.bg-cyan-400, .bg-cyan-300) {
+html[data-theme="light"] :is(.bg-cyan-400, .bg-cyan-300) {
   background-color: var(--cb-accent);
   color: var(--cb-bg);
 }
 
-html[data-theme="light"] :is(.focus-visible\:outline-cyan-400:focus-visible, .outline-cyan-400),
-html[data-theme="alt"] :is(.focus-visible\:outline-cyan-400:focus-visible, .outline-cyan-400) {
+html[data-theme="light"] :is(.focus-visible\:outline-cyan-400:focus-visible, .outline-cyan-400) {
   outline-color: var(--cb-accent);
 }
 

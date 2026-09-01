@@ -43,7 +43,7 @@ const jsonLd = {
       (function () {
         try {
           var t = localStorage.getItem('cb-theme');
-          if (t !== 'light' && t !== 'alt') t = 'dark';
+          if (t !== 'light') t = 'dark';
           document.documentElement.setAttribute('data-theme', t);
         } catch (e) {
           document.documentElement.setAttribute('data-theme', 'dark');
