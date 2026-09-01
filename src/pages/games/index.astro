@@ -7,15 +7,20 @@ const live = games.filter((game) => game.live);
 ---
 
 <BaseLayout
-  title="Retro Games | ColinBuilds"
-  description="Games."
+  title="Games | ColinBuilds"
+  description="Practise memory, maths, spelling, typing and reactions. Eleven short games."
 >
   <div class="mx-auto max-w-6xl px-6 py-12 pb-20">
     <p class="text-sm text-neutral-500">
       <a href="/" class="transition hover:text-cyan-400">Home</a>
+      <span> · </span>
+      <a href="/learn/" class="transition hover:text-cyan-400">Learn</a>
       <span> · Games</span>
     </p>
-    <h1 class="mt-3 text-3xl font-bold tracking-tight text-brand-cyan sm:text-4xl">Retro Games</h1>
+    <h1 class="mt-3 text-3xl font-bold tracking-tight text-brand-cyan sm:text-4xl">Games</h1>
+    <p class="mt-3 max-w-2xl text-neutral-400">
+      Practise after you read. Each game trains one skill: memory, maths, spelling, typing or reactions.
+    </p>
 
     {
       live.length === 0 ? (
@@ -32,6 +37,7 @@ const live = games.filter((game) => game.live);
                   <GameMark name={game.mark} />
                 </div>
                 <h2 class="text-lg font-semibold tracking-tight text-brand-cyan">{game.title}</h2>
+                <p class="mt-1 text-xs uppercase tracking-widest text-neutral-500">{game.skill}</p>
                 <p class="mt-2 flex-1 text-sm leading-relaxed text-neutral-400">{game.description}</p>
                 <span class="mt-5 text-sm text-cyan-400 group-hover:text-cyan-300">Play →</span>
               </a>

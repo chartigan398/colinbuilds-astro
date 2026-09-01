@@ -1,0 +1,35 @@
+---
+import '../../styles/philosophia.css';
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import { journalPrompts } from '../../data/coming.js';
+---
+
+<BaseLayout
+  title="Philosopher's Journal | ColinBuilds"
+  description="Reflect on philosophical prompts. Feedback from the greats is coming soon."
+>
+  <div class="mx-auto max-w-3xl px-6 py-12 pb-20">
+    <p class="text-sm text-neutral-500">
+      <a href="/" class="transition hover:text-cyan-400">Home</a>
+      <span> · </span>
+      <a href="/philosophia/" class="transition hover:text-cyan-400">Philosophia</a>
+      <span> · Journal</span>
+    </p>
+    <h1 class="mt-3 text-3xl font-bold tracking-tight text-brand-cyan sm:text-4xl">Philosopher's Journal</h1>
+    <p class="mt-3 max-w-2xl text-neutral-400">
+      Reflect on philosophical prompts. Feedback from the greats stays coming soon.
+    </p>
+
+    <div class="philo-soon">
+      <p class="text-sm text-neutral-400">Coming soon: write an entry and get a reply. The prompts are here now.</p>
+    </div>
+
+    <ol class="mt-8 grid grid-cols-1 gap-3">
+      {
+        journalPrompts.map((prompt) => (
+          <li class="rounded-xl border border-neutral-800 bg-neutral-950/80 p-5 text-neutral-300">{prompt}</li>
+        ))
+      }
+    </ol>
+  </div>
+</BaseLayout>

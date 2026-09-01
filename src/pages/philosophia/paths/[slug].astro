@@ -1,0 +1,57 @@
+---
+import BaseLayout from '../../../layouts/BaseLayout.astro';
+import { paths, getPath, moduleHref } from '../../../data/paths.js';
+
+export function getStaticPaths() {
+  return paths.map((item) => ({ params: { slug: item.id } }));
+}
+
+const { slug } = Astro.params;
+const path = getPath(slug);
+
+if (!path) {
+  throw new Error(`Unknown path: ${slug}`);
+}
+
+function typeLabel(type) {
+  if (type === 'lesson') return 'Lesson';
+  if (type === 'thought-experiment') return 'Thought experiment';
+  if (type === 'socratic-dialogue') return 'Dialogue';
+  if (type === 'paradox') return 'Paradox';
+  if (type === 'quiz') return 'Quiz';
+  return type;
+}
+---
+
+<BaseLayout title={`${path.title} | ColinBuilds`} description={path.tagline}>
+  <div class="mx-auto max-w-3xl px-6 py-12 pb-20">
+    <p class="text-sm text-neutral-500">
+      <a href="/" class="transition hover:text-cyan-400">Home</a>
+      <span> · </span>
+      <a href="/philosophia/" class="transition hover:text-cyan-400">Philosophia</a>
+      <span> · </span>
+      <a href="/philosophia/paths/" class="transition hover:text-cyan-400">Paths</a>
+    </p>
+    <h1 class="mt-3 text-3xl font-bold tracking-tight text-brand-cyan sm:text-4xl">{path.title}</h1>
+    <p class="mt-3 max-w-2xl text-neutral-400">{path.description}</p>
+
+    <ol class="mt-10 grid grid-cols-1 gap-4">
+      {
+        path.modules.map((module, index) => (
+          <li>
+            <a
+              href={moduleHref(path.id, module)}
+              class="group game-listing-card flex h-full flex-col rounded-xl border border-neutral-800 bg-neutral-950/80 p-5 transition hover:border-cyan-400 focus-visible:border-cyan-400 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-cyan-400"
+            >
+              <p class="text-xs uppercase tracking-widest text-neutral-500">
+                {index + 1} · {typeLabel(module.type)} · {module.estimatedTime}
+              </p>
+              <h2 class="mt-2 text-lg font-semibold tracking-tight text-brand-cyan">{module.title}</h2>
+              <span class="mt-5 text-sm text-cyan-400 group-hover:text-cyan-300">Begin →</span>
+            </a>
+          </li>
+        ))
+      }
+    </ol>
+  </div>
+</BaseLayout>

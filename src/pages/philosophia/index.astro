@@ -1,38 +1,102 @@
 ---
 import BaseLayout from '../../layouts/BaseLayout.astro';
+import PhiloCard from '../../components/PhiloCard.astro';
+
+const playable = [
+  {
+    href: '/philosophia/schools/',
+    title: 'Schools of Thought',
+    description: 'Short lessons on ways of thinking. Start with Stoicism, Plato, or Empiricism.',
+  },
+  {
+    href: '/philosophia/thought-experiments/',
+    title: 'Thought Experiments',
+    description: 'A hard choice. Pick a side. See what it meant.',
+  },
+  {
+    href: '/philosophia/paradoxes/',
+    title: 'Paradoxes',
+    description: 'Untangle mind-bending puzzles that have stumped philosophers for centuries.',
+  },
+  {
+    href: '/philosophia/dialogues/',
+    title: 'Socratic Dialogues',
+    description: 'Explore philosophical ideas through guided, branching conversations.',
+  },
+  {
+    href: '/philosophia/paths/',
+    title: 'Learning Paths',
+    description: 'Follow structured courses to build your philosophical knowledge from the ground up.',
+  },
+  {
+    href: '/philosophia/quiz/',
+    title: 'Quiz',
+    description: 'Four questions. Pick an answer, then see how you did.',
+  },
+  {
+    href: '/philosophia/match/',
+    title: 'Match',
+    description: 'Pair each philosopher with the idea they are known for.',
+  },
+];
+
+const soon = [
+  {
+    href: '/philosophia/agora/',
+    title: 'The Agora',
+    description: 'Meet the great minds of history. Talk or call — once we have a voice that can talk back.',
+  },
+  {
+    href: '/philosophia/debates/',
+    title: 'Philosopher Debates',
+    description: 'Stage a showdown between two great thinkers on a topic of your choice.',
+  },
+  {
+    href: '/philosophia/journal/',
+    title: "Philosopher's Journal",
+    description: 'Reflect on philosophical prompts. Feedback from the greats comes later.',
+  },
+  {
+    href: '/philosophia/workshop/',
+    title: 'Thought Experiment Workshop',
+    description: 'Design your own ethical dilemmas. The collaborator is not live yet.',
+  },
+];
 ---
 
 <BaseLayout
-  title="Philosophia | ColinBuilds"
-  description="Explore the major philosophical movements in short, conversational lessons."
+  title="Philosophy | ColinBuilds"
+  description="Short beginner lessons on ways of thinking. Part of the free learning hub."
 >
   <div class="mx-auto max-w-6xl px-6 py-12 pb-20">
     <p class="text-sm text-neutral-500">
       <a href="/" class="transition hover:text-cyan-400">Home</a>
-      <span> · Philosophia</span>
+      <span> · </span>
+      <a href="/learn/" class="transition hover:text-cyan-400">Learn</a>
+      <span> · Philosophy</span>
     </p>
-    <h1 class="mt-3 text-3xl font-bold tracking-tight text-brand-cyan sm:text-4xl">Philosophia</h1>
-    <p class="mt-3 max-w-2xl text-neutral-400">Short lessons. One idea at a time.</p>
+    <h1 class="mt-3 text-3xl font-bold tracking-tight text-brand-cyan sm:text-4xl">Philosophy</h1>
+    <p class="mt-3 max-w-2xl text-neutral-400">
+      Free lessons on this site, next to the AI guides and the games. Start with a school of thought.
+    </p>
 
     <ul class="mt-10 grid grid-cols-1 gap-4 sm:grid-cols-2">
-      <li>
-        <a
-          href="/philosophia/schools/"
-          class="group game-listing-card flex h-full flex-col rounded-xl border border-neutral-800 bg-neutral-950/80 p-5 transition hover:border-cyan-400 focus-visible:border-cyan-400 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-cyan-400"
-        >
-          <div class="game-card-art">
-            <svg class="game-mark" viewBox="0 0 48 48" fill="none" aria-hidden="true">
-              <circle cx="24" cy="24" r="14" stroke="currentColor" stroke-width="1.75"></circle>
-              <path d="M24 10v28M10 24h28" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"></path>
-            </svg>
-          </div>
-          <h2 class="text-lg font-semibold tracking-tight text-brand-cyan">Schools of Thought</h2>
-          <p class="mt-2 flex-1 text-sm leading-relaxed text-neutral-400">
-            Explore the major philosophical movements in short, conversational lessons.
-          </p>
-          <span class="mt-5 text-sm text-cyan-400 group-hover:text-cyan-300">Explore →</span>
-        </a>
-      </li>
+      {playable.map((item) => (
+        <li>
+          <PhiloCard href={item.href} title={item.title} description={item.description} />
+        </li>
+      ))}
+    </ul>
+
+    <h2 class="mt-14 border-b border-neutral-800 pb-2 text-sm font-semibold tracking-widest text-cyan-400">
+      Coming soon
+    </h2>
+    <ul class="mt-4 grid grid-cols-1 gap-4 sm:grid-cols-2">
+      {soon.map((item) => (
+        <li>
+          <PhiloCard href={item.href} title={item.title} description={item.description} soon />
+        </li>
+      ))}
     </ul>
   </div>
 </BaseLayout>

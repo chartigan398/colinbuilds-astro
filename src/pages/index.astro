@@ -1,188 +1,143 @@
 ---
 import BaseLayout from '../layouts/BaseLayout.astro';
 import Brand from '../components/Brand.astro';
-import { SITE_TITLE, SITE_DESCRIPTION } from '../data/site.js';
+import { SITE_DESCRIPTION } from '../data/site.js';
 
-const sections = [
+const startHere = [
   {
-    id: 'philosophia',
-    href: '/philosophia/',
-    title: 'Philosophia',
-    description: 'Schools of Thought.',
-    icon: 'philosophia',
-    accent: 'cyan',
-  },
-  {
-    id: 'guides',
     href: '/guides/',
-    title: 'Guides',
-    description: 'Read.',
-    icon: 'guides',
+    title: 'Start with AI',
+    description: 'Four short guides. Begin with the history, then what the words mean.',
+    cta: 'Start learning →',
     accent: 'green',
   },
   {
-    id: 'builds',
+    href: '/philosophia/',
+    title: 'Learn philosophy',
+    description: 'Short lessons on ways of thinking. One idea at a time.',
+    cta: 'Open philosophy →',
+    accent: 'cyan',
+  },
+  {
+    href: '/games/',
+    title: 'Practise with games',
+    description: 'Memory, maths, spelling, typing and reactions.',
+    cta: 'Open games →',
+    accent: 'pink',
+  },
+];
+
+const alsoHere = [
+  {
     href: '/builds/nebula-x/',
     title: 'Builds',
-    description: 'Nebula X.',
-    icon: 'builds',
+    description: 'Nebula X, a free music visualizer that runs on your computer.',
+    cta: 'Open Nebula X →',
     accent: 'purple',
   },
   {
-    id: 'tools',
-    href: '#tools',
-    title: 'Tools',
-    description: 'Coming.',
-    icon: 'tools',
-    accent: 'yellow',
-  },
-  {
-    id: 'games',
-    href: '/games/',
-    title: 'Retro Games',
-    description: 'Play.',
-    icon: 'games',
-    accent: 'pink',
-  },
-  {
-    id: 'weekly',
-    href: '/weekly/',
-    title: 'AI Weekly',
-    description: 'Edition 01.',
-    icon: 'weekly',
-    accent: 'sky',
-  },
-  {
-    id: 'compare',
     href: '/compare/',
-    title: 'API Pricing',
-    description: 'Models.',
-    icon: 'compare',
+    title: 'AI Tools',
+    description: 'Compare API prices and model pages. For people who already use the tools.',
+    cta: 'Compare models →',
     accent: 'blue',
   },
-] as const;
+  {
+    href: '/weekly/',
+    title: 'AI Weekly',
+    description: 'A roundup of AI news. Written for people who already follow this field.',
+    cta: 'Read edition 01 →',
+    accent: 'sky',
+  },
+];
 
 const accents = {
-  cyan: {
-    icon: 'text-cyan-400',
-    hover: 'hover:border-cyan-400 focus-visible:border-cyan-400',
-    explore: 'text-cyan-400 group-hover:text-cyan-300',
-  },
-  green: {
-    icon: 'text-green-400',
-    hover: 'hover:border-green-400 focus-visible:border-green-400',
-    explore: 'text-green-400 group-hover:text-green-300',
-  },
-  purple: {
-    icon: 'text-purple-400',
-    hover: 'hover:border-purple-400 focus-visible:border-purple-400',
-    explore: 'text-purple-400 group-hover:text-purple-300',
-  },
-  yellow: {
-    icon: 'text-yellow-400',
-    hover: 'hover:border-yellow-400 focus-visible:border-yellow-400',
-    explore: 'text-yellow-400 group-hover:text-yellow-300',
-  },
-  pink: {
-    icon: 'text-pink-400',
-    hover: 'hover:border-pink-400 focus-visible:border-pink-400',
-    explore: 'text-pink-400 group-hover:text-pink-300',
-  },
-  sky: {
-    icon: 'text-sky-300',
-    hover: 'hover:border-sky-300 focus-visible:border-sky-300',
-    explore: 'text-sky-300 group-hover:text-sky-200',
-  },
-  blue: {
-    icon: 'text-blue-400',
-    hover: 'hover:border-blue-400 focus-visible:border-blue-400',
-    explore: 'text-blue-400 group-hover:text-blue-300',
-  },
+  cyan: 'hover:border-cyan-400 text-cyan-400 group-hover:text-cyan-300',
+  green: 'hover:border-green-400 text-green-400 group-hover:text-green-300',
+  purple: 'hover:border-purple-400 text-purple-400 group-hover:text-purple-300',
+  pink: 'hover:border-pink-400 text-pink-400 group-hover:text-pink-300',
+  sky: 'hover:border-sky-300 text-sky-300 group-hover:text-sky-200',
+  blue: 'hover:border-blue-400 text-blue-400 group-hover:text-blue-300',
 };
-
-const iconBox = 'h-6 w-6';
 ---
 
-<BaseLayout
-  title={SITE_TITLE}
-  description={SITE_DESCRIPTION}
->
-  <div class="relative mx-auto max-w-[90rem] px-6 py-12 pb-20">
-      <section aria-labelledby="home-hero-title">
-        <h1 id="home-hero-title" class="max-w-xl text-4xl font-bold tracking-tight text-white sm:text-5xl">
-          Welcome to <Brand />
-        </h1>
-        <p class="mt-4 max-w-lg text-neutral-400">
-          A place to learn. Read or play.
-        </p>
-      </section>
+<BaseLayout title="ColinBuilds — Free lessons for beginners" description={SITE_DESCRIPTION}>
+  <div class="relative mx-auto max-w-6xl px-6 py-12 pb-20">
+    <section aria-labelledby="home-hero-title">
+      <h1 id="home-hero-title" class="max-w-3xl text-4xl font-bold tracking-tight text-white sm:text-5xl">
+        Welcome to <Brand />
+      </h1>
+      <p class="mt-4 max-w-xl text-lg text-neutral-400">
+        Free lessons, guides and games for beginners.
+      </p>
+      <p class="mt-3 max-w-xl text-neutral-400">
+        A free learning hub. Start with AI, try a philosophy lesson, or practise with a game.
+      </p>
+      <a
+        href="/learn/"
+        class="mt-8 inline-flex items-center rounded-lg border border-cyan-400 bg-cyan-400 px-5 py-2.5 text-sm font-medium text-black transition hover:bg-cyan-300 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-cyan-400"
+      >
+        Start learning
+      </a>
+    </section>
 
-      <section id="sections" class="mt-14" aria-label="All sections">
-        <ul class="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4 xl:grid-cols-7">
-          {
-            sections.map((section) => {
-              const tone = accents[section.accent];
-              return (
-                <li class="min-w-0">
-                  <a
-                    id={section.id}
-                    href={section.href}
-                    class:list={[
-                      'group game-listing-card flex h-full scroll-mt-24 flex-col rounded-xl border border-neutral-800 bg-neutral-950/80 p-5 transition focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-cyan-400',
-                      tone.hover,
-                    ]}
-                  >
-                    <span class:list={['inline-flex', tone.icon]}>
-                      {section.icon === 'philosophia' && (
-                        <svg class={iconBox} viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" aria-hidden="true">
-                          <circle cx="12" cy="12" r="9"></circle>
-                          <path stroke-linecap="round" d="M12 3v18M3 12h18"></path>
-                        </svg>
-                      )}
-                      {section.icon === 'guides' && (
-                        <svg class={iconBox} viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" aria-hidden="true">
-                          <path stroke-linecap="round" stroke-linejoin="round" d="M12 7v14M3 18a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1h5a4 4 0 0 1 4 4 4 4 0 0 1 4-4h5a1 1 0 0 1 1 1v13a1 1 0 0 1-1 1h-6a3 3 0 0 0-3 3 3 3 0 0 0-3-3z"></path>
-                        </svg>
-                      )}
-                      {section.icon === 'builds' && (
-                        <svg class={iconBox} viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" aria-hidden="true">
-                          <path stroke-linecap="round" stroke-linejoin="round" d="M21 8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16Z"></path>
-                          <path stroke-linecap="round" stroke-linejoin="round" d="M3.3 7 12 12l8.7-5M12 22V12"></path>
-                        </svg>
-                      )}
-                      {section.icon === 'tools' && (
-                        <svg class={iconBox} viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" aria-hidden="true">
-                          <path stroke-linecap="round" stroke-linejoin="round" d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94z"></path>
-                        </svg>
-                      )}
-                      {section.icon === 'games' && (
-                        <svg class={iconBox} viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" aria-hidden="true">
-                          <path stroke-linecap="round" stroke-linejoin="round" d="M6 11h4M8 9v4m7 .5h.01M18 10h.01M6.5 6h11A3.5 3.5 0 0 1 21 9.5v3A5.5 5.5 0 0 1 15.5 18h-7A5.5 5.5 0 0 1 3 12.5v-3A3.5 3.5 0 0 1 6.5 6Z"></path>
-                        </svg>
-                      )}
-                      {section.icon === 'weekly' && (
-                        <svg class={iconBox} viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" aria-hidden="true">
-                          <path stroke-linecap="round" stroke-linejoin="round" d="M12 20h9M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4Z"></path>
-                        </svg>
-                      )}
-                      {section.icon === 'compare' && (
-                        <svg class={iconBox} viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" aria-hidden="true">
-                          <path stroke-linecap="round" stroke-linejoin="round" d="m16 16 3-8 3 8c-.87.65-1.92 1-3 1s-2.13-.35-3-1Z"></path>
-                          <path stroke-linecap="round" stroke-linejoin="round" d="m2 16 3-8 3 8c-.87.65-1.92 1-3 1s-2.13-.35-3-1Z"></path>
-                          <path stroke-linecap="round" d="M7 21h10M12 3v18"></path>
-                          <path stroke-linecap="round" stroke-linejoin="round" d="M3 7h2c2 0 5-1 7-2 2 1 5 2 7 2h2"></path>
-                        </svg>
-                      )}
-                    </span>
-                    <h2 class="mt-4 whitespace-nowrap text-base font-semibold tracking-tight text-white">{section.title}</h2>
-                    <p class="mt-2 flex-1 text-sm leading-relaxed text-neutral-400">{section.description}</p>
-                    <span class:list={['mt-5 text-sm', tone.explore]}>Explore →</span>
-                  </a>
-                </li>
-              );
-            })
-          }
-        </ul>
-      </section>
-    </div>
+    <section class="mt-16" aria-labelledby="start-here-title">
+      <h2 id="start-here-title" class="text-sm font-semibold tracking-widest text-cyan-400">Start here</h2>
+      <ul class="mt-4 grid grid-cols-1 gap-4 sm:grid-cols-3">
+        {
+          startHere.map((item) => (
+            <li>
+              <a
+                href={item.href}
+                class:list={[
+                  'group game-listing-card flex h-full flex-col rounded-xl border border-neutral-800 bg-neutral-950/80 p-5 transition focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-cyan-400',
+                  accents[item.accent].split(' ')[0],
+                ]}
+              >
+                <h3 class="text-lg font-semibold tracking-tight text-white">{item.title}</h3>
+                <p class="mt-2 flex-1 text-sm leading-relaxed text-neutral-400">{item.description}</p>
+                <span class:list={['mt-5 text-sm', accents[item.accent].split(' ').slice(1).join(' ')]}>
+                  {item.cta}
+                </span>
+              </a>
+            </li>
+          ))
+        }
+      </ul>
+    </section>
+
+    <section class="mt-16" aria-labelledby="also-here-title">
+      <h2 id="also-here-title" class="text-sm font-semibold tracking-widest text-cyan-400">Also here</h2>
+      <ul class="mt-4 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
+        {
+          alsoHere.map((item) => (
+            <li>
+              <a
+                href={item.href}
+                class:list={[
+                  'group game-listing-card flex h-full flex-col rounded-xl border border-neutral-800 bg-neutral-950/80 p-5 transition focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-cyan-400',
+                  accents[item.accent].split(' ')[0],
+                ]}
+              >
+                <h3 class="text-lg font-semibold tracking-tight text-white">{item.title}</h3>
+                <p class="mt-2 flex-1 text-sm leading-relaxed text-neutral-400">{item.description}</p>
+                <span class:list={['mt-5 text-sm', accents[item.accent].split(' ').slice(1).join(' ')]}>
+                  {item.cta}
+                </span>
+              </a>
+            </li>
+          ))
+        }
+        <li>
+          <div class="flex h-full flex-col rounded-xl border border-neutral-800 bg-neutral-950/80 p-5">
+            <h3 class="text-lg font-semibold tracking-tight text-white">More tools</h3>
+            <p class="mt-2 flex-1 text-sm leading-relaxed text-neutral-400">
+              Extra tools besides the price comparison. Not ready yet.
+            </p>
+            <span class="mt-5 text-sm text-neutral-500">Coming soon</span>
+          </div>
+        </li>
+      </ul>
+    </section>
+  </div>
 </BaseLayout>

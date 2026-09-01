@@ -5,19 +5,52 @@ import { schoolCategories } from '../../../data/schools.js';
 
 <BaseLayout
   title="Schools of Thought | ColinBuilds"
-  description="Explore the major philosophical movements in short, conversational lessons."
+  description="Short beginner lessons on ways of thinking. Start with Stoicism, Plato, or Empiricism."
 >
   <div class="mx-auto max-w-6xl px-6 py-12 pb-20">
     <p class="text-sm text-neutral-500">
       <a href="/" class="transition hover:text-cyan-400">Home</a>
       <span> · </span>
-      <a href="/philosophia/" class="transition hover:text-cyan-400">Philosophia</a>
+      <a href="/learn/" class="transition hover:text-cyan-400">Learn</a>
+      <span> · </span>
+      <a href="/philosophia/" class="transition hover:text-cyan-400">Philosophy</a>
       <span> · Schools</span>
     </p>
     <h1 class="mt-3 text-3xl font-bold tracking-tight text-brand-cyan sm:text-4xl">Schools of Thought</h1>
     <p class="mt-3 max-w-2xl text-neutral-400">
-      Explore the major philosophical movements in short, conversational lessons.
+      Part of the free lessons on ColinBuilds. Each school is a short read. Start with one of these three.
     </p>
+
+    <section class="mt-10" aria-labelledby="start-schools">
+      <h2 id="start-schools" class="text-sm font-semibold tracking-widest text-cyan-400">Start here</h2>
+      <ul class="mt-4 grid grid-cols-1 gap-4 sm:grid-cols-3">
+        <li>
+          <a href="/philosophia/schools/stoicism/" class="group game-listing-card flex h-full flex-col rounded-xl border border-neutral-800 bg-neutral-950/80 p-5 transition hover:border-cyan-400">
+            <h3 class="text-lg font-semibold text-white">Stoicism</h3>
+            <p class="mt-2 text-sm text-neutral-400">Stay steady. You do not control what happens. You do control how you answer.</p>
+            <span class="mt-5 text-sm text-cyan-400">Begin →</span>
+          </a>
+        </li>
+        <li>
+          <a href="/philosophia/schools/platonism/" class="group game-listing-card flex h-full flex-col rounded-xl border border-neutral-800 bg-neutral-950/80 p-5 transition hover:border-cyan-400">
+            <h3 class="text-lg font-semibold text-white">Platonism</h3>
+            <p class="mt-2 text-sm text-neutral-400">The real world is a shadow of perfect ideas, like a perfect circle.</p>
+            <span class="mt-5 text-sm text-cyan-400">Begin →</span>
+          </a>
+        </li>
+        <li>
+          <a href="/philosophia/schools/empiricism/" class="group game-listing-card flex h-full flex-col rounded-xl border border-neutral-800 bg-neutral-950/80 p-5 transition hover:border-cyan-400">
+            <h3 class="text-lg font-semibold text-white">Empiricism</h3>
+            <p class="mt-2 text-sm text-neutral-400">Knowledge comes from what we see, hear and test.</p>
+            <span class="mt-5 text-sm text-cyan-400">Begin →</span>
+          </a>
+        </li>
+      </ul>
+    </section>
+
+    <h2 class="mt-16 border-b border-neutral-800 pb-2 text-sm font-semibold tracking-widest text-cyan-400">
+      All schools
+    </h2>
 
     {
       schoolCategories.map((category) => (

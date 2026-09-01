@@ -45,3 +45,112 @@
   text-transform: uppercase;
   color: var(--cb-muted);
 }
+
+.philo-choices {
+  display: grid;
+  gap: 0.75rem;
+}
+
+@media (min-width: 640px) {
+  .philo-choices {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+.philo-choice {
+  text-align: left;
+  border: 1px solid var(--cb-border);
+  border-radius: 0.75rem;
+  background: var(--cb-bg);
+  padding: 1rem;
+  color: var(--cb-fg);
+  transition: border-color 0.15s ease;
+}
+
+.philo-choice:hover,
+.philo-choice:focus-visible {
+  border-color: var(--cb-accent);
+  outline: none;
+}
+
+.philo-choice.is-picked,
+.philo-choice.is-right {
+  border-color: var(--cb-accent);
+  color: var(--cb-accent);
+}
+
+.philo-choice.is-wrong {
+  opacity: 0.45;
+}
+
+.philo-choice:disabled {
+  cursor: default;
+}
+
+.philo-log {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  min-height: 12rem;
+}
+
+.philo-log-ai,
+.philo-log-you {
+  max-width: 38rem;
+  border: 1px solid var(--cb-border);
+  border-radius: 0.75rem;
+  padding: 0.85rem 1rem;
+  line-height: 1.65;
+}
+
+.philo-log-you {
+  align-self: flex-end;
+  border-color: var(--cb-accent);
+}
+
+.philo-soon {
+  margin-top: 1.5rem;
+  border: 1px dashed var(--cb-border);
+  border-radius: 0.75rem;
+  padding: 1.25rem;
+}
+
+.match-board {
+  display: grid;
+  gap: 1.5rem;
+}
+
+@media (min-width: 768px) {
+  .match-board {
+    grid-template-columns: 1fr 1.5fr;
+  }
+}
+
+.match-col {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.match-chip {
+  text-align: left;
+  border: 1px solid var(--cb-border);
+  border-radius: 0.75rem;
+  background: var(--cb-bg);
+  padding: 0.75rem 1rem;
+}
+
+.match-chip.is-picked {
+  border-color: var(--cb-accent);
+  color: var(--cb-accent);
+}
+
+.match-chip.is-used {
+  opacity: 0.4;
+}
+
+.match-pair {
+  border: 1px solid var(--cb-border);
+  border-radius: 0.75rem;
+  padding: 0.75rem 1rem;
+}

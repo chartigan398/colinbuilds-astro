@@ -1,0 +1,67 @@
+---
+interface Props {
+  questions: {
+    question: string;
+    options: string[];
+    answer: number;
+  }[];
+}
+
+const { questions } = Astro.props;
+---
+
+<section class="guide-check school-board" aria-label="Quick check">
+  <h2 class="text-lg font-semibold tracking-tight text-brand-cyan">Quick check</h2>
+  <p class="mt-2 text-sm text-neutral-400">Three questions. No score stored on a server. It stays on this computer.</p>
+  <div id="guide-check" class="mt-6" data-questions={JSON.stringify(questions)}></div>
+</section>
+
+<script>
+  const root = document.getElementById('guide-check');
+  if (root) {
+    const questions = JSON.parse(root.getAttribute('data-questions') || '[]') as {
+      question: string;
+      options: string[];
+      answer: number;
+    }[];
+    let index = 0;
+    let score = 0;
+
+    function render() {
+      if (!root) return;
+      const item = questions[index];
+      if (!item) {
+        root.replaceChildren();
+        const p = document.createElement('p');
+        p.className = 'school-step';
+        p.textContent = `You got ${score} of ${questions.length}.`;
+        root.appendChild(p);
+        return;
+      }
+      root.replaceChildren();
+      const pos = document.createElement('p');
+      pos.className = 'school-pos';
+      pos.textContent = `${index + 1} / ${questions.length}`;
+      const q = document.createElement('p');
+      q.className = 'school-step mt-3';
+      q.textContent = item.question;
+      const box = document.createElement('div');
+      box.className = 'philo-choices mt-4';
+      item.options.forEach((option, optionIndex) => {
+        const button = document.createElement('button');
+        button.type = 'button';
+        button.className = 'philo-choice';
+        button.textContent = option;
+        button.addEventListener('click', () => {
+          if (optionIndex === item.answer) score += 1;
+          index += 1;
+          render();
+        });
+        box.appendChild(button);
+      });
+      root.append(pos, q, box);
+    }
+
+    render();
+  }
+</script>

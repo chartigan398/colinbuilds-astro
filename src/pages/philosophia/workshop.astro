@@ -1,0 +1,35 @@
+---
+import '../../styles/philosophia.css';
+import BaseLayout from '../../layouts/BaseLayout.astro';
+---
+
+<BaseLayout
+  title="Thought Experiment Workshop | ColinBuilds"
+  description="Design your own ethical dilemmas. Coming soon."
+>
+  <div class="mx-auto max-w-3xl px-6 py-12 pb-20">
+    <p class="text-sm text-neutral-500">
+      <a href="/" class="transition hover:text-cyan-400">Home</a>
+      <span> · </span>
+      <a href="/philosophia/" class="transition hover:text-cyan-400">Philosophia</a>
+      <span> · Workshop</span>
+    </p>
+    <h1 class="mt-3 text-3xl font-bold tracking-tight text-brand-cyan sm:text-4xl">Thought Experiment Workshop</h1>
+    <p class="mt-3 max-w-2xl text-neutral-400">
+      Become the philosopher. Design your own ethical dilemmas. The collaborator is not live yet.
+    </p>
+
+    <div class="philo-soon">
+      <p class="text-sm text-neutral-400">
+        Coming soon: a workshop where you write the setup and the choices. Until then, play the thought experiments
+        that already exist.
+      </p>
+      <a
+        href="/philosophia/thought-experiments/"
+        class="mt-4 inline-flex items-center text-sm text-cyan-400 transition hover:text-cyan-300"
+      >
+        Thought Experiments →
+      </a>
+    </div>
+  </div>
+</BaseLayout>

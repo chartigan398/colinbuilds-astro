@@ -1,0 +1,92 @@
+export const philosophers = [
+  { id: 'socrates', name: 'Socrates', tagline: 'The Inquisitive Guide' },
+  { id: 'aristotle', name: 'Aristotle', tagline: 'The Logician of Virtue' },
+  { id: 'nietzsche', name: 'Friedrich Nietzsche', tagline: 'The Challenger of Morals' },
+  { id: 'debeauvoir', name: 'Simone de Beauvoir', tagline: 'The Existentialist Thinker' },
+  { id: 'aurelius', name: 'Marcus Aurelius', tagline: 'The Stoic Emperor' },
+  { id: 'camus', name: 'Albert Camus', tagline: 'The Rebel of the Absurd' },
+  { id: 'russell', name: 'Bertrand Russell', tagline: 'The Logician and Activist' },
+  { id: 'sun-tzu', name: 'Sun Tzu', tagline: 'The Master Strategist' },
+  { id: 'laozi', name: 'Laozi', tagline: 'The Old Master' },
+  { id: 'bell-hooks', name: 'bell hooks', tagline: 'The Voice of Love and Liberation' },
+  { id: 'fanon', name: 'Frantz Fanon', tagline: 'The Theorist of Decolonization' },
+  { id: 'schopenhauer', name: 'Arthur Schopenhauer', tagline: 'The Prophet of Pessimism' },
+  { id: 'hobbes', name: 'Thomas Hobbes', tagline: 'The Architect of Order' },
+  { id: 'marx', name: 'Karl Marx', tagline: 'The Critic of Capitalism' },
+  { id: 'foucault', name: 'Michel Foucault', tagline: 'The Archaeologist of Power' },
+  { id: 'desade', name: 'Marquis de Sade', tagline: 'The Libertine of Cruelty' },
+  { id: 'heidegger', name: 'Martin Heidegger', tagline: 'The Shepherd of Being' },
+  { id: 'rand', name: 'Ayn Rand', tagline: 'The Champion of the Individual' },
+  { id: 'machiavelli', name: 'Niccolò Machiavelli', tagline: 'The Prince of Pragmatism' },
+  { id: 'confucius', name: 'Confucius', tagline: 'The Great Sage' },
+  { id: 'wollstonecraft', name: 'Mary Wollstonecraft', tagline: 'The Advocate of Reason' },
+  { id: 'khaldun', name: 'Ibn Khaldun', tagline: 'The Father of Sociology' },
+  { id: 'eastman', name: 'Charles Eastman', tagline: 'The Voice of the Forest' },
+  { id: 'plato', name: 'Plato', tagline: 'The Seeker of Forms' },
+  { id: 'kant', name: 'Immanuel Kant', tagline: 'The Architect of Duty' },
+  { id: 'bentham', name: 'Jeremy Bentham', tagline: 'The Utilitarian Calculator' },
+  { id: 'sartre', name: 'Jean-Paul Sartre', tagline: 'The Champion of Freedom' },
+  { id: 'mill', name: 'John Stuart Mill', tagline: 'The Defender of Liberty' },
+  { id: 'arendt', name: 'Hannah Arendt', tagline: 'The Thinker of Action' },
+  { id: 'schmitt', name: 'Carl Schmitt', tagline: 'The Theorist of the Political' },
+  { id: 'kierkegaard', name: 'Søren Kierkegaard', tagline: 'The Knight of Faith' },
+  { id: 'dawkins', name: 'Richard Dawkins', tagline: 'The Advocate for Reason' },
+  { id: 'spinoza', name: 'Baruch Spinoza', tagline: 'The God-Intoxicated Philosopher' },
+  { id: 'pascal', name: 'Blaise Pascal', tagline: 'The Thinking Reed' },
+  { id: 'wilde', name: 'Oscar Wilde', tagline: 'The Aesthete' },
+  { id: 'sontag', name: 'Susan Sontag', tagline: 'The Radical Critic' },
+  { id: 'scruton', name: 'Roger Scruton', tagline: 'The Guardian of Beauty' },
+  { id: 'wittgenstein', name: 'Ludwig Wittgenstein', tagline: 'The Language Therapist' },
+  { id: 'hegel', name: 'G.W.F. Hegel', tagline: 'The World-Spirit' },
+];
+
+export const debateLibrary = [
+  {
+    category: 'Morality & Ethics',
+    debates: [
+      { title: 'Nietzsche vs. Socrates', prompt: 'What makes a good life?' },
+      { title: 'Machiavelli vs. Marcus Aurelius', prompt: 'Should leaders prioritize morality or results?' },
+      { title: 'Kant vs. Bentham', prompt: 'Should morality be based on duty or consequences?' },
+      { title: 'Sartre vs. Confucius', prompt: 'Is morality personal freedom or social harmony?' },
+    ],
+  },
+  {
+    category: 'Society & Politics',
+    debates: [
+      { title: 'Marx vs. Ayn Rand', prompt: 'Should society prioritize the collective or the individual?' },
+      { title: 'Hobbes vs. Foucault', prompt: 'Does power create order or is it a tool for oppression?' },
+      { title: 'Plato vs. John Stuart Mill', prompt: 'Should the wise rule or should all be free?' },
+      { title: 'Arendt vs. Schmitt', prompt: 'Is politics built on dialogue or on power?' },
+    ],
+  },
+  {
+    category: 'Meaning & Existence',
+    debates: [
+      { title: 'Schopenhauer vs. Camus', prompt: 'Is life worth living in a meaningless world?' },
+      { title: 'Heidegger vs. de Beauvoir', prompt: 'What does it mean to live an authentic life?' },
+      { title: 'Kierkegaard vs. Dawkins', prompt: 'Is faith irrational or essential?' },
+      { title: 'Spinoza vs. Pascal', prompt: 'Is God reason or mystery?' },
+    ],
+  },
+  {
+    category: 'Aesthetics & Art',
+    debates: [
+      { title: 'Plato vs. Oscar Wilde', prompt: 'Is art dangerous or liberating?' },
+      { title: 'Sontag vs. Scruton', prompt: 'Should art provoke or preserve beauty?' },
+    ],
+  },
+  {
+    category: 'Meta-Philosophy',
+    debates: [{ title: 'Wittgenstein vs. Hegel', prompt: 'Is philosophy about clarity or dialectical depth?' }],
+  },
+];
+
+export const journalPrompts = [
+  "What does it mean to live a 'good life' in the 21st century?",
+  'Is true freedom possible, or are we always constrained by our circumstances?',
+  'Reflect on a time you acted out of duty versus a time you acted based on consequences. What was the difference?',
+  'How does technology shape our perception of reality?',
+  "Describe a personal 'veil of ignorance' moment where not knowing your future position changed your perspective on fairness.",
+  "If 'existence precedes essence,' what essence are you currently creating for yourself?",
+  'Consider a modern problem through the lens of a historical philosopher. What would they say?',
+];

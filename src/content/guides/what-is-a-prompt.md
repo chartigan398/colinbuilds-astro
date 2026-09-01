@@ -3,6 +3,7 @@ title: "What Is a Prompt?"
 description: "The words you type to an AI — and why clearer words get a clearer answer."
 guide_no: "04"
 pubDate: 2026-08-30
+updatedDate: 2026-09-01
 ---
 
 <p class="guide-meta"><span>Beginner</span><span>4-minute read</span><span>No coding needed</span></p>
@@ -90,6 +91,20 @@ To make a prompt clearer:
 - Say how it should look, such as a list
 
 <div class="guide-key"><strong>The AI can only use the words you give it.</strong></div>
+
+## Try this
+
+This is a small task. It is not a real chat.
+
+Take this vague prompt: **“Help with my email.”**
+
+Make it clearer. Say what you want, who it is for, and how long it should be.
+
+One made-up clearer version:
+
+**“Rewrite this email in five short sentences for a manager. Keep it polite. Do not add new facts.”**
+
+Yours can be different. The point is the same: the AI can only use the words you give it.
 
 ## What to remember
 

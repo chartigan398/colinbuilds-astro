@@ -42,7 +42,24 @@
         const camera = new THREE.PerspectiveCamera(65, opts.width / opts.height, 1, 6000);
         camera.position.z = opts.cameraDistance != null ? opts.cameraDistance : opts.zoomDistance;
 
-        const renderer = new THREE.WebGLRenderer({ antialias: false, powerPreference: 'high-performance' });
+        function showNoWebGl() {
+            const note = document.createElement('p');
+            note.setAttribute('role', 'status');
+            note.style.cssText = 'max-width:32rem;margin:2rem auto;padding:1.25rem;border:1px solid #22d3ee;border-radius:0.75rem;color:#fff;font:16px/1.5 sans-serif;text-align:center';
+            note.textContent = 'Nebula X needs 3D graphics in this browser. This computer or phone cannot run it. You can still download a copy from the Builds page.';
+            container.appendChild(note);
+        }
+
+        let renderer;
+        try {
+            const probe = document.createElement('canvas');
+            const gl = probe.getContext('webgl') || probe.getContext('experimental-webgl');
+            if (!gl) throw new Error('no-webgl');
+            renderer = new THREE.WebGLRenderer({ antialias: false, powerPreference: 'high-performance' });
+        } catch (err) {
+            showNoWebGl();
+            throw err;
+        }
         renderer.setSize(opts.width, opts.height);
         renderer.setPixelRatio(Math.min(global.devicePixelRatio || 1, 2));
 

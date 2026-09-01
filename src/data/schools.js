@@ -11,7 +11,7 @@ export const schoolCategories = [
         name: 'Platonism',
         era: 'c. 400 BCE',
         region: 'Greece',
-        summary: "Belief in a higher realm of perfect 'Forms', of which the physical world is merely a shadow.",
+        summary: "The real world is a shadow of perfect ideas, like a perfect circle.",
         lesson: [
           'Plato, a student of Socrates, believed our senses could deceive us.',
           "He argued that true reality exists not in physical objects, but in their perfect, eternal 'Forms'—like the idea of 'perfect justice' or a 'perfect circle'.",
@@ -23,7 +23,7 @@ export const schoolCategories = [
         name: 'Aristotelianism',
         era: 'c. 350 BCE',
         region: 'Greece',
-        summary: "Focuses on logic, empirical observation, and understanding the 'telos' or purpose of things.",
+        summary: "Watch the world. Use reason. Ask what a thing is for.",
         lesson: [
           "Aristotle, Plato's student, brought philosophy back to Earth.",
           'He believed knowledge comes from observing the world (empiricism) and using logic to understand it.',
@@ -35,7 +35,7 @@ export const schoolCategories = [
         name: 'Stoicism',
         era: 'c. 300 BCE - 180 CE',
         region: 'Greece & Rome',
-        summary: 'An ancient guide to resilience, focusing on virtue, self-control, and the dichotomy of control.',
+        summary: 'Stay steady. You do not control what happens. You do control how you answer.',
         lesson: [
           "Stoicism's core idea is simple: we don't control what happens to us, but we always control how we respond.",
           'Stoics call this the "Dichotomy of Control." Focus only on what is up to you, and you\'ll find peace.',
@@ -47,7 +47,7 @@ export const schoolCategories = [
         name: 'Epicureanism',
         era: 'c. 300 BCE',
         region: 'Greece',
-        summary: 'Advocates for seeking modest, sustainable pleasure in the form of tranquility and freedom from fear.',
+        summary: 'A calm life. Simple pleasures. Less fear.',
         lesson: [
           'Often misunderstood as hedonism, Epicureanism is about attaining a peaceful life.',
           "Epicurus taught that we should minimize pain and maximize 'ataraxia'—a state of serene calmness.",
@@ -59,7 +59,7 @@ export const schoolCategories = [
         name: 'Cynicism',
         era: 'c. 400 BCE',
         region: 'Greece',
-        summary: 'A rejection of conventional desires for wealth or fame, advocating a simple life in accordance with nature.',
+        summary: 'A simple life. Drop the chase for money and fame.',
         lesson: [
           'The Cynics, like Diogenes, believed the purpose of life was to live in virtue, in agreement with nature.',
           'This meant rejecting social conventions they saw as artificial, like wealth or reputation.',
@@ -71,7 +71,7 @@ export const schoolCategories = [
         name: 'Skepticism',
         era: 'c. 300 BCE',
         region: 'Greece',
-        summary: 'Questions the possibility of certainty in knowledge, advocating for suspension of judgment.',
+        summary: 'We may never be sure. Hold back from claiming certainty.',
         lesson: [
           'Skepticism, founded by Pyrrho, questions whether we can ever know anything for sure.',
           "Since our senses can be fooled, Skeptics proposed 'epoché'—the suspension of judgment.",
@@ -88,7 +88,7 @@ export const schoolCategories = [
         name: 'Confucianism',
         era: 'c. 500 BCE',
         region: 'China',
-        summary: 'An ethical and philosophical system emphasizing social harmony, filial piety, and moral character.',
+        summary: 'Live well with others. Care for family. Build character.',
         lesson: [
           'Confucianism is less a religion and more a guide to social and ethical conduct.',
           'It stresses the importance of relationships and the duties within them, such as those between parent and child, or ruler and subject.',
@@ -100,7 +100,7 @@ export const schoolCategories = [
         name: 'Daoism (Taoism)',
         era: 'c. 400 BCE',
         region: 'China',
-        summary: 'Focuses on living in harmony with the Tao, the natural, ordering principle of the universe.',
+        summary: 'Follow the natural way. Do not force things.',
         lesson: [
           "Daoism advocates for 'wu wei'—effortless action, or going with the flow of the universe.",
           'The Tao Te Ching teaches that we should be like water: gentle and yielding, yet powerful enough to overcome all obstacles.',
@@ -112,7 +112,7 @@ export const schoolCategories = [
         name: 'Buddhism',
         era: 'c. 500 BCE',
         region: 'India / East Asia',
-        summary: 'A path of spiritual development to achieve enlightenment by understanding the nature of suffering.',
+        summary: 'Understand suffering. Practise a path out of it.',
         lesson: [
           'Founded by Siddhartha Gautama, Buddhism is centered on the Four Noble Truths.',
           'The first truth is that life is suffering. The second is that suffering is caused by craving and attachment.',
@@ -124,7 +124,7 @@ export const schoolCategories = [
         name: 'Legalism',
         era: 'c. 300 BCE',
         region: 'China',
-        summary: 'A political philosophy arguing that a strong state is achieved through strict laws and harsh punishments.',
+        summary: 'A strong state needs strict laws and hard punishments.',
         lesson: [
           "In stark contrast to Confucianism's focus on morality, Legalism was a pragmatic approach to statecraft.",
           'Legalists believed human nature was inherently selfish and that people only responded to rewards and punishments.',
@@ -141,7 +141,7 @@ export const schoolCategories = [
         name: 'Scholasticism',
         era: 'c. 1100 - 1700 CE',
         region: 'Europe',
-        summary: 'The dominant medieval method of learning, which aimed to reconcile Christian theology with classical philosophy.',
+        summary: 'Medieval schoolwork that tried to join Christian faith with older Greek thought.',
         lesson: [
           'Scholasticism was the primary method of thought in medieval universities.',
           'Its goal was to harmonize the teachings of Christianity with the logical rigor of ancient philosophers, especially Aristotle.',
@@ -153,7 +153,7 @@ export const schoolCategories = [
         name: 'Islamic Golden Age',
         era: 'c. 800 - 1200 CE',
         region: 'Middle East / N. Africa',
-        summary: 'A period of intense philosophical and scientific advancement, preserving and building upon Greek thought.',
+        summary: 'A long period of science and thought that kept Greek work alive and built on it.',
         lesson: [
           'While Europe was in the Dark Ages, the Islamic world was a hub of intellectual activity.',
           'Philosophers like Avicenna and Averroes translated and commented on the works of Plato and Aristotle, preserving them for history.',
@@ -170,7 +170,7 @@ export const schoolCategories = [
         name: 'Rationalism',
         era: '17th Century',
         region: 'Europe',
-        summary: 'Asserts that reason is the chief source and test of knowledge, rather than sensory experience.',
+        summary: 'Knowledge comes from thinking, not only from the senses.',
         lesson: [
           'Rationalists like René Descartes believed that pure reason was the ultimate path to truth.',
           "Descartes famously started from a point of radical doubt, concluding he could be certain of only one thing: 'I think, therefore I am' (Cogito, ergo sum).",
@@ -182,7 +182,7 @@ export const schoolCategories = [
         name: 'Empiricism',
         era: '17th-18th Century',
         region: 'Britain',
-        summary: 'Contends that knowledge comes only or primarily from sensory experience and evidence.',
+        summary: 'Knowledge comes from what we see, hear and test.',
         lesson: [
           'In opposition to Rationalism, Empiricists like John Locke argued that all knowledge is derived from experience.',
           "Locke proposed that the mind at birth is a 'tabula rasa' or a blank slate, with no innate ideas.",
@@ -194,7 +194,7 @@ export const schoolCategories = [
         name: 'Idealism',
         era: '18th-19th Century',
         region: 'Germany',
-        summary: 'Maintains that reality as we can know it is fundamentally mental or otherwise immaterial.',
+        summary: 'What we can know is in the mind, not only in objects.',
         lesson: [
           'Idealism posits that our reality is shaped by our minds.',
           'Immanuel Kant synthesized Rationalism and Empiricism, arguing that our mind actively structures our experience of the world.',
@@ -211,7 +211,7 @@ export const schoolCategories = [
         name: 'Utilitarianism',
         era: '19th Century',
         region: 'Britain',
-        summary: 'An ethical theory that states the best action is the one that maximizes utility, or the greatest happiness for the greatest number.',
+        summary: 'The right act is the one that leads to the most happiness for the most people.',
         lesson: [
           'Utilitarianism is a form of consequentialism—the morality of an action is judged by its outcome.',
           "Founded by Jeremy Bentham, it proposes a 'hedonistic calculus' to determine which action will produce the most pleasure and least pain overall.",
@@ -223,7 +223,7 @@ export const schoolCategories = [
         name: 'Marxism',
         era: '19th Century',
         region: 'Germany / Britain',
-        summary: 'A political and economic theory that analyzes history through the lens of class struggle.',
+        summary: 'History as a fight between classes. Change the system, not only the story.',
         lesson: [
           'Karl Marx argued that history is driven by the conflict between economic classes: the bourgeoisie (owners) and the proletariat (workers).',
           "He believed that capitalism was inherently exploitative and would inevitably lead to a worker's revolution.",
@@ -235,7 +235,7 @@ export const schoolCategories = [
         name: 'Existentialism',
         era: '19th - 20th Century',
         region: 'Europe',
-        summary: 'Emphasizes individual freedom, responsibility, and the search for meaning in a meaningless world.',
+        summary: 'You are free. You are responsible. Meaning is something you make.',
         lesson: [
           'Existentialism explores individual freedom and the search for meaning in a world without inherent purpose.',
           'Its slogan is "existence precedes essence." This means you are not born with a purpose; you must create your own.',
@@ -252,7 +252,7 @@ export const schoolCategories = [
         name: 'Analytic Philosophy',
         era: 'Early 20th Century - Present',
         region: 'UK, USA',
-        summary: 'Emphasizes clarity and logical rigor, often through the analysis of language to solve philosophical problems.',
+        summary: 'Be clear. Watch how words work. That is how many puzzles get solved.',
         lesson: [
           'Analytic philosophy arose as a reaction against what its founders saw as vague and overly speculative philosophy.',
           'Its primary tool is logic. The goal is to solve problems by carefully analyzing the language we use to state them.',
@@ -264,7 +264,7 @@ export const schoolCategories = [
         name: 'Phenomenology',
         era: 'Early 20th Century',
         region: 'Germany / France',
-        summary: 'The study of structures of consciousness as experienced from the first-person point of view.',
+        summary: 'Study experience from the inside: what it is like to see, feel and notice.',
         lesson: [
           "Phenomenology is a return 'to the things themselves'. It sets aside assumptions about the external world.",
           'Instead, it focuses on describing conscious experience exactly as it is, without scientific or metaphysical theories.',
@@ -276,7 +276,7 @@ export const schoolCategories = [
         name: 'Post-Structuralism',
         era: 'Mid-20th Century',
         region: 'France',
-        summary: 'Critiques the idea of objective structures and universal truths, emphasizing the instability of meaning.',
+        summary: 'Big systems and “one true meaning” do not hold still. Words shift.',
         lesson: [
           'Post-structuralism challenges the idea that language points to a stable reality.',
           "Thinkers like Michel Foucault argued that knowledge and power are intertwined; what we consider 'truth' is often a product of social and historical forces.",
@@ -288,7 +288,7 @@ export const schoolCategories = [
         name: 'Feminist Philosophy',
         era: '18th Century - Present',
         region: 'Global',
-        summary: 'Examines concepts of gender, power, and justice through a critical lens, often challenging traditional philosophy.',
+        summary: 'Ask who has power. Ask how gender and justice were written.',
         lesson: [
           "Feminist philosophy critiques traditional philosophy for its historical exclusion of women's voices.",
           'It explores how concepts like reason and justice have often been defined in implicitly masculine ways.',
@@ -300,7 +300,7 @@ export const schoolCategories = [
         name: 'Critical Theory',
         era: '20th Century',
         region: 'Germany / USA',
-        summary: 'A social philosophy that critiques and seeks to change society, not just understand it.',
+        summary: 'Do not only describe society. Try to change it.',
         lesson: [
           'Originating with the Frankfurt School, Critical Theory combines philosophy, social science, and psychoanalysis.',
           'It goes beyond just describing society to critique the underlying power structures and ideologies that cause oppression.',
@@ -317,7 +317,7 @@ export const schoolCategories = [
         name: 'Humanism',
         era: 'Renaissance - Present',
         region: 'Global',
-        summary: 'Emphasizes the value of human beings and relies on reason and ethics to solve problems.',
+        summary: 'People matter. Use reason and care to solve problems.',
         lesson: [
           'Humanism is a worldview that places central importance on human agency, reason, and flourishing.',
           'It proposes that we can live ethical and fulfilling lives without religious or supernatural beliefs.',
@@ -329,7 +329,7 @@ export const schoolCategories = [
         name: 'Nihilism',
         era: '19th Century - Present',
         region: 'Europe',
-        summary: 'The rejection of all religious and moral principles, often in the belief that life is meaningless.',
+        summary: 'No given meaning. No given moral law from outside us.',
         lesson: [
           'Nihilism is the belief that life lacks objective meaning, purpose, or intrinsic value.',
           "Friedrich Nietzsche famously declared 'God is dead,' arguing that the decline of religion would lead to a crisis of nihilism in the West.",
@@ -341,7 +341,7 @@ export const schoolCategories = [
         name: 'Absurdism',
         era: '20th Century',
         region: 'France',
-        summary: 'The belief that a search for meaning is inherently in conflict with the actual lack of meaning, but that one should embrace this conflict.',
+        summary: 'We want meaning. The world does not hand it over. Live anyway.',
         lesson: [
           "Developed by Albert Camus, Absurdism identifies a fundamental conflict: our human need for meaning and the 'unreasonable silence' of the universe.",
           'Camus rejected both religious faith and nihilistic despair as evasions of this truth.',

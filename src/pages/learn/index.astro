@@ -1,0 +1,50 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import PhiloCard from '../../components/PhiloCard.astro';
+
+const paths = [
+  {
+    href: '/guides/',
+    title: 'Start with AI',
+    description: 'Four short guides. What AI is, how it learns, and what a prompt is.',
+    cta: 'Start with Guide 01 →',
+  },
+  {
+    href: '/philosophia/',
+    title: 'Learn philosophy',
+    description: 'Short lessons on ways of thinking. Start with a school, then try a puzzle.',
+    cta: 'Open philosophy →',
+  },
+  {
+    href: '/games/',
+    title: 'Practise with games',
+    description: 'Memory, maths, spelling, typing and reactions. Play after you read.',
+    cta: 'Open games →',
+  },
+];
+---
+
+<BaseLayout
+  title="Learn | ColinBuilds"
+  description="Pick a path: start with AI, learn philosophy, or practise with games."
+>
+  <div class="mx-auto max-w-6xl px-6 py-12 pb-20">
+    <p class="text-sm text-neutral-500">
+      <a href="/" class="transition hover:text-cyan-400">Home</a>
+      <span> · Learn</span>
+    </p>
+    <h1 class="mt-3 text-3xl font-bold tracking-tight text-brand-cyan sm:text-4xl">Learn</h1>
+    <p class="mt-3 max-w-2xl text-neutral-400">
+      Free lessons for beginners. Pick one path. You do not need to do everything at once.
+    </p>
+    <ul class="mt-10 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
+      {
+        paths.map((item) => (
+          <li>
+            <PhiloCard href={item.href} title={item.title} description={item.description} cta={item.cta} />
+          </li>
+        ))
+      }
+    </ul>
+  </div>
+</BaseLayout>

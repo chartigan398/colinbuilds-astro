@@ -3,6 +3,7 @@ import '../styles/global.css';
 import GameScene from '../components/GameScene.astro';
 import Brand from '../components/Brand.astro';
 import ThemeToggle from '../components/ThemeToggle.astro';
+import SiteNav from '../components/SiteNav.astro';
 import { SITE_TITLE, SITE_DESCRIPTION } from '../data/site.js';
 
 interface Props {
@@ -10,6 +11,7 @@ interface Props {
   description?: string;
   noIndex?: boolean;
   hideFooter?: boolean;
+  jsonLd?: Record<string, unknown> | Record<string, unknown>[];
 }
 
 const {
@@ -17,22 +19,40 @@ const {
   description = SITE_DESCRIPTION,
   noIndex = false,
   hideFooter = false,
+  jsonLd,
 } = Astro.props;
 const canonicalURL = new URL(Astro.url.pathname, Astro.site);
 const path = Astro.url.pathname;
+const isHome = path === '/';
 const isCompareSection =
   path === '/compare/' || path.startsWith('/compare/') || path.startsWith('/models/');
 const isGuidesSection = path === '/guides/' || path.startsWith('/guides/');
 const showScene = !hideFooter && !isCompareSection && !isGuidesSection;
+const ogImage = new URL('/og.png', Astro.site);
 
-const jsonLd = {
-  '@context': 'https://schema.org',
-  '@type': 'WebSite',
-  name: 'ColinBuilds',
-  alternateName: SITE_TITLE,
-  url: 'https://colinbuilds.com/',
-  description: SITE_DESCRIPTION,
-};
+const defaultJsonLd = isHome
+  ? {
+      '@context': 'https://schema.org',
+      '@type': 'WebSite',
+      name: 'ColinBuilds',
+      alternateName: SITE_TITLE,
+      url: 'https://colinbuilds.com/',
+      description: SITE_DESCRIPTION,
+    }
+  : {
+      '@context': 'https://schema.org',
+      '@type': 'WebPage',
+      name: title,
+      url: canonicalURL.href,
+      description,
+      isPartOf: {
+        '@type': 'WebSite',
+        name: 'ColinBuilds',
+        url: 'https://colinbuilds.com/',
+      },
+    };
+
+const jsonLdBlocks = jsonLd ? (Array.isArray(jsonLd) ? jsonLd : [jsonLd]) : [defaultJsonLd];
 ---
 
 <!doctype html>
@@ -55,38 +75,31 @@ const jsonLd = {
     {noIndex && <meta name="robots" content="noindex, nofollow" />}
     <meta name="application-name" content="ColinBuilds" />
     <meta name="theme-color" content="#000000" />
-    <meta property="og:site_name" content={SITE_TITLE} />
+    <meta property="og:site_name" content="ColinBuilds" />
     <meta property="og:title" content={title} />
     <meta property="og:description" content={description} />
-    <meta property="og:type" content="website" />
+    <meta property="og:type" content={isHome ? 'website' : 'article'} />
     <meta property="og:url" content={canonicalURL} />
-    <meta name="twitter:card" content="summary" />
+    <meta property="og:image" content={ogImage} />
+    <meta name="twitter:card" content="summary_large_image" />
     <meta name="twitter:title" content={title} />
     <meta name="twitter:description" content={description} />
+    <meta name="twitter:image" content={ogImage} />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <link rel="manifest" href="/site.webmanifest" />
     <link rel="canonical" href={canonicalURL} />
     <title>{title}</title>
-    <script type="application/ld+json" set:html={JSON.stringify(jsonLd)} />
+    {jsonLdBlocks.map((block) => <script type="application/ld+json" set:html={JSON.stringify(block)} />)}
     <script defer src="/_vercel/insights/script.js"></script>
   </head>
   <body class:list={['bg-black text-white antialiased', hideFooter ? 'flex h-dvh flex-col overflow-hidden' : 'min-h-screen', showScene && 'has-scene']}>
     <header class:list={['site-header border-b border-neutral-800 bg-black/95 backdrop-blur', hideFooter && 'shrink-0']}>
       <div class="mx-auto flex max-w-[90rem] items-center justify-between gap-x-4 px-6 py-4">
-        <a href="/" class="shrink-0 text-base font-semibold tracking-tight">
+        <a href="/" class="shrink-0 text-base font-semibold tracking-tight" aria-label="ColinBuilds home">
           <Brand />
         </a>
-        <div class="flex items-center gap-1">
-          <a
-            href="/compare/"
-            class="inline-flex h-9 w-9 items-center justify-center rounded-lg text-neutral-300 transition hover:text-cyan-300 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-cyan-400"
-            aria-label="API Pricing"
-          >
-            <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" aria-hidden="true">
-              <circle cx="11" cy="11" r="7"></circle>
-              <path stroke-linecap="round" d="m20 20-3-3"></path>
-            </svg>
-          </a>
+        <div class="flex min-w-0 items-center gap-3">
+          <SiteNav />
           <ThemeToggle />
         </div>
       </div>
@@ -98,7 +111,7 @@ const jsonLd = {
     {
       !hideFooter && (
         <footer class="site-footer border-t border-neutral-800 py-8 text-center text-sm text-neutral-500">
-          <Brand /> · A place to learn. Read or play.
+          <Brand /> · Free lessons, guides and games for beginners.
         </footer>
       )
     }

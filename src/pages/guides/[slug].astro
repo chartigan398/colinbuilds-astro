@@ -1,41 +1,152 @@
 ---
+import '../../styles/philosophia.css';
 import BaseLayout from '../../layouts/BaseLayout.astro';
+import GuideCheck from '../../components/GuideCheck.astro';
 import { getCollection, render } from 'astro:content';
+import { guideChecks } from '../../data/guide-checks.js';
 
 export async function getStaticPaths() {
-  const guides = (await getCollection('guides')).filter((entry) => entry.data.draft !== true);
+  const guides = (await getCollection('guides'))
+    .filter((entry) => entry.data.draft !== true)
+    .sort((a, b) => a.data.guide_no.localeCompare(b.data.guide_no));
 
-  return guides.map((guide) => ({
+  return guides.map((guide, index) => ({
     params: { slug: guide.slug },
-    props: { guide },
+    props: {
+      guide,
+      previous: index > 0 ? guides[index - 1] : null,
+      next: index < guides.length - 1 ? guides[index + 1] : null,
+    },
   }));
 }
 
-const { guide } = Astro.props;
+const { guide, previous, next } = Astro.props;
 const { Content } = await render(guide);
 const published = guide.data.pubDate.toLocaleDateString('en-GB', {
   day: 'numeric',
   month: 'long',
   year: 'numeric',
 });
+const updated = guide.data.updatedDate
+  ? guide.data.updatedDate.toLocaleDateString('en-GB', {
+      day: 'numeric',
+      month: 'long',
+      year: 'numeric',
+    })
+  : null;
 const guideNo = guide.data.guide_no;
 const isGuideSeries = guide.slug !== 'a-beginners-history-of-ai';
+const checks = guideChecks[guideNo] ?? [];
+const related =
+  guideNo === '01'
+    ? [{ href: '/guides/what-are-ai-machine-learning-and-generative-ai/', label: 'Next: what the words mean' }]
+    : guideNo === '02'
+      ? [
+          { href: '/guides/how-machine-learning-actually-learns/', label: 'Next: how it learns' },
+          { href: '/philosophia/', label: 'More lessons: philosophy' },
+        ]
+      : guideNo === '03'
+        ? [
+            { href: '/guides/what-is-a-prompt/', label: 'Next: what is a prompt' },
+            { href: '/games/math-sprint/', label: 'Practise: Math Sprint' },
+          ]
+        : [
+            { href: '/games/typing-speed/', label: 'Practise: Typing Speed' },
+            { href: '/philosophia/', label: 'More lessons: philosophy' },
+          ];
+
+const articleJsonLd = {
+  '@context': 'https://schema.org',
+  '@type': ['Article', 'LearningResource'],
+  headline: guide.data.title,
+  description: guide.data.description,
+  datePublished: guide.data.pubDate.toISOString(),
+  dateModified: (guide.data.updatedDate ?? guide.data.pubDate).toISOString(),
+  educationalLevel: 'beginner',
+  isAccessibleForFree: true,
+  url: new URL(`/guides/${guide.slug}/`, Astro.site).href,
+  author: { '@type': 'Organization', name: 'ColinBuilds' },
+  publisher: { '@type': 'Organization', name: 'ColinBuilds', url: 'https://colinbuilds.com/' },
+};
 ---
 
-<BaseLayout title={`${guide.data.title} | ColinBuilds`} description={guide.data.description}>
+<BaseLayout
+  title={`${guide.data.title} | ColinBuilds`}
+  description={guide.data.description}
+  jsonLd={articleJsonLd}
+>
   <article class:list={['mx-auto max-w-3xl px-6 py-12 pb-20', isGuideSeries && 'guide-02']}>
     <p class="text-sm text-neutral-500">
       <a href="/" class="transition hover:text-cyan-400">Home</a>
+      <span> · </span>
+      <a href="/learn/" class="transition hover:text-cyan-400">Learn</a>
       <span> · </span>
       <a href="/guides/" class="transition hover:text-cyan-400">Guides</a>
     </p>
     <p class="mt-3 text-sm font-semibold tracking-widest text-cyan-400">Guide {guideNo}</p>
     <h1 class="mt-2 text-3xl font-bold tracking-tight text-cyan-400 sm:text-4xl">{guide.data.title}</h1>
-    <p class="mt-3 text-sm text-neutral-500">{published}</p>
+    <p class="mt-3 text-sm text-neutral-500">
+      Published {published}
+      {updated && updated !== published ? ` · Updated ${updated}` : ''}
+    </p>
     <p class:list={['mt-4', isGuideSeries ? 'text-cyan-400' : 'text-neutral-400']}>{guide.data.description}</p>
+    {
+      guideNo === '01' && (
+        <nav class="guide-toc mt-8 rounded-xl border border-neutral-800 p-5" aria-label="Contents">
+          <p class="text-sm font-semibold tracking-widest text-cyan-400">Contents</p>
+          <ol id="guide-toc-list" class="mt-3 grid gap-2 text-sm text-neutral-400"></ol>
+        </nav>
+      )
+    }
     <div class="guide-prose mt-10">
       <Content />
     </div>
+    {checks.length > 0 && <div class="mt-12"><GuideCheck questions={checks} /></div>}
+    <nav class="mt-12 flex flex-wrap items-center justify-between gap-3" aria-label="Guide series">
+      {
+        previous ? (
+          <a
+            href={`/guides/${previous.slug}/`}
+            class="inline-flex items-center rounded-lg border border-neutral-600 bg-neutral-950 px-3 py-2 text-sm font-medium text-white transition hover:border-cyan-400 hover:text-cyan-300 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-cyan-400"
+          >
+            Previous: Guide {previous.data.guide_no}
+          </a>
+        ) : (
+          <span></span>
+        )
+      }
+      {
+        next ? (
+          <a
+            href={`/guides/${next.slug}/`}
+            class="inline-flex items-center rounded-lg border border-cyan-400 bg-cyan-400 px-3 py-2 text-sm font-medium text-black transition hover:bg-cyan-300 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-cyan-400"
+            data-mark-done={guide.slug}
+          >
+            Next: Guide {next.data.guide_no}
+          </a>
+        ) : (
+          <a
+            href="/learn/"
+            class="inline-flex items-center rounded-lg border border-cyan-400 bg-cyan-400 px-3 py-2 text-sm font-medium text-black transition hover:bg-cyan-300 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-cyan-400"
+            data-mark-done={guide.slug}
+          >
+            More lessons
+          </a>
+        )
+      }
+    </nav>
+    <p class="mt-8 text-sm text-neutral-500">Also:</p>
+    <ul class="mt-2 grid gap-2 text-sm">
+      {
+        related.map((item) => (
+          <li>
+            <a href={item.href} class="text-cyan-400 transition hover:text-cyan-300">
+              {item.label}
+            </a>
+          </li>
+        ))
+      }
+    </ul>
   </article>
 </BaseLayout>
 
@@ -43,6 +154,38 @@ const isGuideSeries = guide.slug !== 'a-beginners-history-of-ai';
   document.querySelectorAll<HTMLImageElement>('.guide-prose img').forEach((img, index) => {
     img.decoding = 'async';
     if (index > 0) img.loading = 'lazy';
+  });
+
+  const tocList = document.getElementById('guide-toc-list');
+  if (tocList) {
+    document.querySelectorAll<HTMLHeadingElement>('.guide-prose h2').forEach((heading) => {
+      if (!heading.id) {
+        heading.id = heading.textContent
+          .toLowerCase()
+          .replace(/[^a-z0-9]+/g, '-')
+          .replace(/^-|-$/g, '');
+      }
+      const item = document.createElement('li');
+      const link = document.createElement('a');
+      link.href = `#${heading.id}`;
+      link.textContent = heading.textContent;
+      link.className = 'transition hover:text-cyan-400';
+      item.appendChild(link);
+      tocList.appendChild(item);
+    });
+  }
+
+  const doneKey = 'cb-guides-done';
+  document.querySelectorAll<HTMLAnchorElement>('[data-mark-done]').forEach((link) => {
+    link.addEventListener('click', () => {
+      const slug = link.getAttribute('data-mark-done');
+      if (!slug) return;
+      try {
+        const done = JSON.parse(localStorage.getItem(doneKey) || '[]');
+        if (!done.includes(slug)) done.push(slug);
+        localStorage.setItem(doneKey, JSON.stringify(done));
+      } catch (e) {}
+    });
   });
 </script>
 

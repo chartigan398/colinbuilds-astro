@@ -1,0 +1,30 @@
+---
+interface Props {
+  href?: string;
+  title: string;
+  description: string;
+  cta?: string;
+  soon?: boolean;
+}
+
+const { href, title, description, cta = 'Begin →', soon = false } = Astro.props;
+---
+
+{
+  href ? (
+    <a
+      href={href}
+      class="group game-listing-card flex h-full flex-col rounded-xl border border-neutral-800 bg-neutral-950/80 p-5 transition hover:border-cyan-400 focus-visible:border-cyan-400 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-cyan-400"
+    >
+      <h2 class="text-lg font-semibold tracking-tight text-brand-cyan">{title}</h2>
+      <p class="mt-2 flex-1 text-sm leading-relaxed text-neutral-400">{description}</p>
+      <span class="mt-5 text-sm text-cyan-400 group-hover:text-cyan-300">{soon ? 'Coming soon →' : cta}</span>
+    </a>
+  ) : (
+    <div class="flex h-full flex-col rounded-xl border border-neutral-800 bg-neutral-950/80 p-5">
+      <h2 class="text-lg font-semibold tracking-tight text-white">{title}</h2>
+      <p class="mt-2 flex-1 text-sm leading-relaxed text-neutral-400">{description}</p>
+      <span class="mt-5 text-sm text-neutral-500">Coming soon</span>
+    </div>
+  )
+}

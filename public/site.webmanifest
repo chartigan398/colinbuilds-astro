@@ -1,7 +1,7 @@
 {
-  "name": "ColinBuilds — Learn, Read & Play",
+  "name": "ColinBuilds — Free lessons for beginners",
   "short_name": "ColinBuilds",
-  "description": "Free beginner-friendly guides, interactive lessons and educational games. Learn useful skills, understand AI and play while you learn.",
+  "description": "Free lessons, guides and games for beginners. Learn AI and philosophy, then practise with games.",
   "start_url": "/",
   "scope": "/",
   "display": "standalone",

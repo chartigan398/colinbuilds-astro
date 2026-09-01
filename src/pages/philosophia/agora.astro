@@ -1,0 +1,39 @@
+---
+import '../../styles/philosophia.css';
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import { philosophers } from '../../data/coming.js';
+---
+
+<BaseLayout
+  title="The Agora | ColinBuilds"
+  description="Meet the great minds of history. Talk and call are coming soon."
+>
+  <div class="mx-auto max-w-6xl px-6 py-12 pb-20">
+    <p class="text-sm text-neutral-500">
+      <a href="/" class="transition hover:text-cyan-400">Home</a>
+      <span> · </span>
+      <a href="/philosophia/" class="transition hover:text-cyan-400">Philosophia</a>
+      <span> · Agora</span>
+    </p>
+    <h1 class="mt-3 text-3xl font-bold tracking-tight text-brand-cyan sm:text-4xl">The Agora</h1>
+    <p class="mt-3 max-w-2xl text-neutral-400">
+      Meet the great minds of history. Talk and call stay coming soon until there is something that can talk back.
+    </p>
+
+    <div class="philo-soon">
+      <p class="text-sm text-neutral-400">Coming soon: text chat and live voice with each philosopher.</p>
+    </div>
+
+    <ul class="mt-8 grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
+      {
+        philosophers.map((person) => (
+          <li class="rounded-xl border border-neutral-800 bg-neutral-950/80 p-5">
+            <h2 class="text-lg font-semibold tracking-tight text-white">{person.name}</h2>
+            <p class="mt-1 text-sm text-neutral-400">{person.tagline}</p>
+            <p class="mt-4 text-sm text-neutral-500">Coming soon</p>
+          </li>
+        ))
+      }
+    </ul>
+  </div>
+</BaseLayout>
