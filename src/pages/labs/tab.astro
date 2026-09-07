@@ -322,16 +322,39 @@ import Brand from '../../components/Brand.astro';
     if (aside) aside.innerHTML = resultsMarkup();
   }
 
+  function shareSummary(item) {
+    const sharers = item.shareIds
+      .map((id) => state.people.findIndex((p) => p.id === id))
+      .filter((index) => index >= 0)
+      .map((index) => displayName(state.people[index], index));
+    return sharers.length ? `Shared by ${sharers.join(', ')}.` : 'Everyone shares this.';
+  }
+
+  function paintShareChip(button, on) {
+    const name = button.dataset.name || button.textContent.replace(/^✓\s*/, '');
+    button.className = `${on ? btnOnClass : btnClass} px-2 py-1 text-xs`;
+    button.setAttribute('aria-pressed', on ? 'true' : 'false');
+    button.textContent = on ? `✓ ${name}` : name;
+  }
+
+  function paintItemShareSummary(itemId) {
+    const item = state.items.find((entry) => entry.id === itemId);
+    const line = document.querySelector(`[data-share-summary="${CSS.escape(itemId)}"]`);
+    if (item && line) line.textContent = shareSummary(item);
+  }
+
   function syncNameLabels() {
     state.people.forEach((person, index) => {
       const name = displayName(person, index);
-      document.querySelectorAll(`button[data-person="${person.id}"]`).forEach((btn) => {
-        btn.textContent = name;
-        btn.setAttribute('aria-label', name);
+      document.querySelectorAll(`button[data-person="${CSS.escape(person.id)}"]`).forEach((btn) => {
+        const on = btn.getAttribute('aria-pressed') === 'true';
+        btn.dataset.name = name;
+        paintShareChip(btn, on);
       });
       const option = document.querySelector(`#payer option[value="${CSS.escape(person.id)}"]`);
       if (option) option.textContent = name;
     });
+    state.items.forEach((item) => paintItemShareSummary(item.id));
   }
 
   function render() {
@@ -355,7 +378,8 @@ import Brand from '../../components/Brand.astro';
         const chips = state.people
           .map((person, personIndex) => {
             const on = item.shareIds.includes(person.id);
-            return `<button type="button" class="${on ? btnOnClass : btnClass} px-2 py-1 text-xs" data-action="toggle-share" data-item="${item.id}" data-person="${person.id}" aria-pressed="${on}">${escapeHtml(displayName(person, personIndex))}</button>`;
+            const label = displayName(person, personIndex);
+            return `<button type="button" class="${on ? btnOnClass : btnClass} px-2 py-1 text-xs" data-action="toggle-share" data-item="${item.id}" data-person="${person.id}" data-name="${escapeHtml(label)}" aria-pressed="${on}">${on ? '✓ ' : ''}${escapeHtml(label)}</button>`;
           })
           .join('');
         return `<li class="rounded-xl border border-neutral-800 bg-neutral-950 p-4">
@@ -373,6 +397,7 @@ import Brand from '../../components/Brand.astro';
             </div>
           </div>
           <p class="mt-3 text-xs text-neutral-500">Tick who shares this. Leave blank to split among everyone.</p>
+          <p class="mt-1 text-xs text-cyan-300" data-share-summary="${item.id}">${escapeHtml(shareSummary(item))}</p>
           <div class="mt-2 flex flex-wrap gap-2">${chips}</div>
         </li>`;
       })
@@ -488,7 +513,7 @@ import Brand from '../../components/Brand.astro';
     }, 2500);
   }
 
-  document.getElementById('fair-tab')?.addEventListener('click', (event) => {
+  function onClick(event) {
     const target = event.target;
     if (!(target instanceof HTMLElement)) return;
     const button = target.closest('button[data-action]');
@@ -550,7 +575,10 @@ import Brand from '../../components/Brand.astro';
           shareIds: on ? item.shareIds.filter((id) => id !== personId) : [...item.shareIds, personId],
         };
       });
-      setState({ items });
+      setState({ items }, false);
+      const item = items.find((entry) => entry.id === itemId);
+      paintShareChip(button, Boolean(item?.shareIds.includes(personId)));
+      paintItemShareSummary(itemId);
       return;
     }
     if (action === 'tip') {
@@ -577,9 +605,9 @@ import Brand from '../../components/Brand.astro';
       copyNote = '';
       render();
     }
-  });
+  }
 
-  document.getElementById('fair-tab')?.addEventListener('input', (event) => {
+  function onInput(event) {
     const target = event.target;
     if (!(target instanceof HTMLInputElement) && !(target instanceof HTMLSelectElement)) return;
     const action = target.dataset.action;
@@ -613,16 +641,22 @@ import Brand from '../../components/Brand.astro';
       const items = state.items.map((item) => (item.id === target.dataset.id ? { ...item, amount: target.value } : item));
       setState({ items }, false);
     }
-  });
+  }
 
-  document.getElementById('fair-tab')?.addEventListener('change', (event) => {
+  function onChange(event) {
     const target = event.target;
     if (!(target instanceof HTMLSelectElement)) return;
     if (target.dataset.action === 'payer') {
       copyNote = '';
       setState({ payerId: target.value });
     }
-  });
+  }
 
+  const root = document.getElementById('fair-tab');
+  if (root) {
+    root.onclick = onClick;
+    root.oninput = onInput;
+    root.onchange = onChange;
+  }
   render();
 </script>
