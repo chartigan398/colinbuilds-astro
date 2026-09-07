@@ -1,0 +1,631 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import Brand from '../../components/Brand.astro';
+---
+
+<BaseLayout
+  title="Fair Tab (preview) | ColinBuilds.com"
+  description="Split a bill in the browser. Named people, even or itemised split, tip, and who owes whom. Nothing is sent anywhere."
+  noIndex={true}
+>
+  <div class="border-b border-amber-500/30 bg-amber-500/10 px-6 py-3 text-center text-sm text-amber-100">
+    Labs preview — not indexed, not linked from the public directory. Chief approval required before launch.
+  </div>
+
+  <section class="mx-auto max-w-6xl px-6 py-10 pb-24 sm:py-14">
+    <p class="mb-3 text-sm font-medium tracking-wide">
+      <Brand />
+      <span class="text-neutral-500"> · Labs preview</span>
+    </p>
+    <h1 class="text-4xl font-bold tracking-tight text-white sm:text-5xl">Fair Tab</h1>
+    <p class="mt-4 max-w-2xl text-lg text-neutral-400">
+      Split a meal, a taxi, or a shop. Tip, extras, even split or by item. Copy a summary for the group chat. Nothing you type
+      leaves this browser.
+    </p>
+
+    <div id="fair-tab" class="mt-10"></div>
+  </section>
+</BaseLayout>
+
+<script>
+  const STORAGE_KEY = 'cb-fair-tab';
+  const TIP_PRESETS = [0, 10, 12.5, 15, 20];
+  const CURRENCIES = ['GBP', 'USD', 'EUR'];
+
+  const btnClass =
+    'inline-flex items-center justify-center rounded-lg border border-neutral-600 bg-neutral-950 px-3 py-2 text-sm font-medium text-white transition hover:border-cyan-400 hover:text-cyan-300 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-cyan-400';
+  const btnOnClass =
+    'inline-flex items-center justify-center rounded-lg border border-cyan-400 bg-neutral-950 px-3 py-2 text-sm font-medium text-cyan-300 transition focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-cyan-400';
+  const inputClass =
+    'w-full rounded-lg border border-neutral-800 bg-black px-3 py-2.5 text-sm font-semibold text-white outline-none focus:border-cyan-400';
+  const moneyInputClass = `${inputClass} tabular-nums`;
+
+  let uid = 1;
+  function nextId(prefix) {
+    uid += 1;
+    return `${prefix}${uid}`;
+  }
+
+  function defaultState() {
+    const a = 'p1';
+    const b = 'p2';
+    uid = 2;
+    return {
+      currency: 'GBP',
+      people: [
+        { id: a, name: 'Alex' },
+        { id: b, name: 'Sam' },
+      ],
+      mode: 'even',
+      subtotal: '',
+      extra: '',
+      tipPercent: 12.5,
+      payerId: a,
+      items: [{ id: 'i1', name: '', amount: '', shareIds: [] }],
+    };
+  }
+
+  function bumpUid(state) {
+    const ids = [
+      ...state.people.map((p) => p.id),
+      ...state.items.map((item) => item.id),
+    ];
+    let max = 0;
+    for (const id of ids) {
+      const n = Number.parseInt(String(id).replace(/^[a-z]+/i, ''), 10);
+      if (Number.isFinite(n) && n > max) max = n;
+    }
+    uid = Math.max(uid, max, 1);
+  }
+
+  function loadState() {
+    try {
+      const raw = localStorage.getItem(STORAGE_KEY);
+      if (!raw) return defaultState();
+      const data = JSON.parse(raw);
+      const base = defaultState();
+      const people = Array.isArray(data.people)
+        ? data.people
+            .filter((p) => p && typeof p.id === 'string')
+            .map((p) => ({ id: p.id, name: typeof p.name === 'string' ? p.name : '' }))
+        : base.people;
+      const items = Array.isArray(data.items)
+        ? data.items
+            .filter((item) => item && typeof item.id === 'string')
+            .map((item) => ({
+              id: item.id,
+              name: typeof item.name === 'string' ? item.name : '',
+              amount: typeof item.amount === 'string' || typeof item.amount === 'number' ? String(item.amount) : '',
+              shareIds: Array.isArray(item.shareIds) ? item.shareIds.filter((id) => typeof id === 'string') : [],
+            }))
+        : base.items;
+      const state = {
+        currency: CURRENCIES.includes(data.currency) ? data.currency : 'GBP',
+        people: people.length ? people : base.people,
+        mode: data.mode === 'items' ? 'items' : 'even',
+        subtotal: typeof data.subtotal === 'string' || typeof data.subtotal === 'number' ? String(data.subtotal) : '',
+        extra: typeof data.extra === 'string' || typeof data.extra === 'number' ? String(data.extra) : '',
+        tipPercent: Number.isFinite(Number(data.tipPercent)) ? Number(data.tipPercent) : 12.5,
+        payerId: typeof data.payerId === 'string' ? data.payerId : people[0]?.id || base.payerId,
+        items: items.length ? items : [{ id: nextId('i'), name: '', amount: '', shareIds: [] }],
+      };
+      if (!state.people.some((p) => p.id === state.payerId)) state.payerId = state.people[0].id;
+      bumpUid(state);
+      return state;
+    } catch {
+      return defaultState();
+    }
+  }
+
+  function saveState(state) {
+    try {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+    } catch {
+      /* private preview: ignore quota / blocked storage */
+    }
+  }
+
+  function parseMoney(value) {
+    if (value === '' || value == null) return 0;
+    const n = Number.parseFloat(String(value).replace(',', '.'));
+    if (!Number.isFinite(n) || n < 0) return 0;
+    return n;
+  }
+
+  function toCents(value) {
+    return Math.round(parseMoney(value) * 100);
+  }
+
+  function formatMoney(cents, currency) {
+    return new Intl.NumberFormat('en-GB', {
+      style: 'currency',
+      currency,
+      currencyDisplay: 'narrowSymbol',
+    }).format(cents / 100);
+  }
+
+  function displayName(person, index) {
+    const name = person.name.trim();
+    return name || `Person ${index + 1}`;
+  }
+
+  function allocateEven(totalCents, people, payerId) {
+    const shares = Object.fromEntries(people.map((p) => [p.id, 0]));
+    if (!people.length || totalCents <= 0) return shares;
+    const n = people.length;
+    const base = Math.floor(totalCents / n);
+    const rem = totalCents - base * n;
+    for (const person of people) shares[person.id] = base;
+    const payer = people.find((p) => p.id === payerId) || people[0];
+    shares[payer.id] += rem;
+    return shares;
+  }
+
+  function addCents(target, source) {
+    for (const id of Object.keys(source)) {
+      target[id] = (target[id] || 0) + source[id];
+    }
+  }
+
+  function itemSharers(item, people) {
+    const picked = people.filter((p) => item.shareIds.includes(p.id));
+    return picked.length ? picked : people;
+  }
+
+  function splitItem(amountCents, sharers, payerId) {
+    return allocateEven(amountCents, sharers, payerId);
+  }
+
+  function allocateProportional(amountCents, weights, people, payerId) {
+    const shares = Object.fromEntries(people.map((p) => [p.id, 0]));
+    if (amountCents <= 0 || !people.length) return shares;
+    const totalWeight = people.reduce((sum, p) => sum + (weights[p.id] || 0), 0);
+    if (totalWeight <= 0) return allocateEven(amountCents, people, payerId);
+    let used = 0;
+    for (const person of people) {
+      const part = Math.floor((amountCents * (weights[person.id] || 0)) / totalWeight);
+      shares[person.id] = part;
+      used += part;
+    }
+    const rem = amountCents - used;
+    const payer = people.find((p) => p.id === payerId) || people[0];
+    shares[payer.id] += rem;
+    return shares;
+  }
+
+  function compute(state) {
+    const people = state.people;
+    const extraCents = toCents(state.extra);
+    const tipPercent = Math.max(0, Number(state.tipPercent) || 0);
+    const itemSubtotalCents = state.items.reduce((sum, item) => sum + toCents(item.amount), 0);
+    const subtotalCents = state.mode === 'items' ? itemSubtotalCents : toCents(state.subtotal);
+    const tipCents = Math.round((subtotalCents * tipPercent) / 100);
+    const grandCents = subtotalCents + extraCents + tipCents;
+
+    const itemShares = Object.fromEntries(people.map((p) => [p.id, 0]));
+    if (state.mode === 'items') {
+      for (const item of state.items) {
+        const amount = toCents(item.amount);
+        if (amount <= 0) continue;
+        const sharers = itemSharers(item, people);
+        addCents(itemShares, splitItem(amount, sharers, state.payerId));
+      }
+    }
+
+    const baseShares =
+      state.mode === 'even' ? allocateEven(subtotalCents, people, state.payerId) : itemShares;
+    const extraShares = allocateProportional(extraCents, baseShares, people, state.payerId);
+    const tipShares = allocateProportional(tipCents, baseShares, people, state.payerId);
+
+    const shares = Object.fromEntries(people.map((p) => [p.id, 0]));
+    addCents(shares, baseShares);
+    addCents(shares, extraShares);
+    addCents(shares, tipShares);
+
+    const payer = people.find((p) => p.id === state.payerId) || people[0];
+    const rows = people.map((person, index) => {
+      const share = shares[person.id] || 0;
+      const isPayer = payer && person.id === payer.id;
+      const owes = isPayer ? 0 : share;
+      return {
+        id: person.id,
+        name: displayName(person, index),
+        share,
+        isPayer,
+        owes,
+      };
+    });
+
+    return {
+      subtotalCents,
+      extraCents,
+      tipCents,
+      tipPercent,
+      grandCents,
+      payer,
+      payerName: payer ? displayName(payer, people.indexOf(payer)) : '',
+      rows,
+    };
+  }
+
+  function escapeHtml(value) {
+    return String(value)
+      .replaceAll('&', '&amp;')
+      .replaceAll('<', '&lt;')
+      .replaceAll('>', '&gt;')
+      .replaceAll('"', '&quot;');
+  }
+
+  function summaryText(state, result) {
+    const money = (cents) => formatMoney(cents, state.currency);
+    const lines = ['Fair Tab'];
+    const bits = [`${money(result.grandCents)} total`];
+    if (result.tipPercent) bits.push(`${result.tipPercent}% tip`);
+    if (result.extraCents) bits.push(`${money(result.extraCents)} extra`);
+    if (result.payerName) bits.push(`paid by ${result.payerName}`);
+    lines.push(bits.join(' · '));
+    lines.push('');
+    for (const row of result.rows) {
+      if (row.isPayer) lines.push(`${row.name}  ${money(row.share)}  paid`);
+      else if (row.owes > 0) lines.push(`${row.name}  ${money(row.share)}  owes ${result.payerName} ${money(row.owes)}`);
+      else lines.push(`${row.name}  ${money(row.share)}`);
+    }
+    lines.push('');
+    lines.push('Split in the browser. Nothing sent anywhere.');
+    return lines.join('\n');
+  }
+
+  let state = loadState();
+  let copyNote = '';
+
+  function rememberFocus() {
+    const active = document.activeElement;
+    if (!(active instanceof HTMLInputElement) && !(active instanceof HTMLSelectElement)) {
+      return { id: null, start: null, end: null };
+    }
+    return {
+      id: active.id,
+      start: active.selectionStart,
+      end: active.selectionEnd,
+    };
+  }
+
+  function restoreFocus(focus) {
+    if (!focus.id) return;
+    const el = document.getElementById(focus.id);
+    if (!(el instanceof HTMLInputElement) && !(el instanceof HTMLSelectElement)) return;
+    el.focus();
+    if (el instanceof HTMLInputElement && focus.start != null && focus.end != null) {
+      try {
+        el.setSelectionRange(focus.start, focus.end);
+      } catch {
+        /* some input types do not support ranges */
+      }
+    }
+  }
+
+  function render() {
+    const root = document.getElementById('fair-tab');
+    if (!root) return;
+    const focus = rememberFocus();
+    const result = compute(state);
+    const money = (cents) => formatMoney(cents, state.currency);
+    const tipIsPreset = TIP_PRESETS.includes(state.tipPercent);
+
+    const peopleList = state.people
+      .map((person, index) => {
+        const canRemove = state.people.length > 1;
+        return `<li class="flex items-center gap-2">
+          <label class="sr-only" for="person-name-${person.id}">Name ${index + 1}</label>
+          <input id="person-name-${person.id}" data-action="rename" data-id="${person.id}" class="${inputClass}" type="text" maxlength="40" autocomplete="off" value="${escapeHtml(person.name)}" placeholder="Person ${index + 1}" />
+          <button type="button" class="${btnClass} shrink-0 px-2" data-action="remove-person" data-id="${person.id}" ${canRemove ? '' : 'disabled'} aria-label="Remove ${escapeHtml(displayName(person, index))}">Remove</button>
+        </li>`;
+      })
+      .join('');
+
+    const itemRows = state.items
+      .map((item, index) => {
+        const chips = state.people
+          .map((person, personIndex) => {
+            const on = item.shareIds.includes(person.id);
+            return `<button type="button" class="${on ? btnOnClass : btnClass} px-2 py-1 text-xs" data-action="toggle-share" data-item="${item.id}" data-person="${person.id}" aria-pressed="${on}">${escapeHtml(displayName(person, personIndex))}</button>`;
+          })
+          .join('');
+        return `<li class="rounded-xl border border-neutral-800 bg-neutral-950 p-4">
+          <div class="grid gap-3 sm:grid-cols-[1fr_8rem_auto]">
+            <label class="block text-xs font-medium uppercase tracking-wide text-neutral-500" for="item-name-${item.id}">
+              Item ${index + 1}
+              <input id="item-name-${item.id}" data-action="item-name" data-id="${item.id}" class="${inputClass} mt-1.5 font-medium" type="text" maxlength="60" autocomplete="off" value="${escapeHtml(item.name)}" placeholder="Pizza, taxi, wine…" />
+            </label>
+            <label class="block text-xs font-medium uppercase tracking-wide text-neutral-500" for="item-amount-${item.id}">
+              Amount
+              <input id="item-amount-${item.id}" data-action="item-amount" data-id="${item.id}" class="${moneyInputClass} mt-1.5" type="number" min="0" step="0.01" inputmode="decimal" value="${escapeHtml(item.amount)}" placeholder="0.00" />
+            </label>
+            <div class="flex items-end">
+              <button type="button" class="${btnClass}" data-action="remove-item" data-id="${item.id}" aria-label="Remove item ${index + 1}">Remove</button>
+            </div>
+          </div>
+          <p class="mt-3 text-xs text-neutral-500">Tick who shares this. Leave blank to split among everyone.</p>
+          <div class="mt-2 flex flex-wrap gap-2">${chips}</div>
+        </li>`;
+      })
+      .join('');
+
+    const resultRows = result.rows
+      .map((row) => {
+        const note = row.isPayer
+          ? 'paid the bill'
+          : row.owes > 0
+            ? `owes ${result.payerName} ${money(row.owes)}`
+            : 'nothing to pay';
+        return `<li class="flex flex-col gap-1 rounded-xl border border-neutral-800 bg-black/40 px-4 py-3 sm:flex-row sm:items-center sm:justify-between">
+          <span class="font-semibold text-white">${escapeHtml(row.name)}</span>
+          <span class="tabular-nums text-cyan-300">${money(row.share)}</span>
+          <span class="text-sm text-neutral-400">${escapeHtml(note)}</span>
+        </li>`;
+      })
+      .join('');
+
+    root.innerHTML = `
+      <div class="grid gap-8 lg:grid-cols-[minmax(0,1.2fr)_minmax(18rem,0.8fr)]">
+        <div class="space-y-8">
+          <fieldset>
+            <legend class="text-sm font-semibold tracking-widest text-cyan-400">Currency</legend>
+            <div class="mt-3 flex flex-wrap gap-2">
+              ${CURRENCIES.map((code) => {
+                const on = state.currency === code;
+                const label = code === 'GBP' ? '£ Pound' : code === 'USD' ? '$ Dollar' : '€ Euro';
+                return `<button type="button" class="${on ? btnOnClass : btnClass}" data-action="currency" data-code="${code}" aria-pressed="${on}">${label}</button>`;
+              }).join('')}
+            </div>
+          </fieldset>
+
+          <fieldset>
+            <legend class="text-sm font-semibold tracking-widest text-cyan-400">People</legend>
+            <ul class="mt-3 space-y-2">${peopleList}</ul>
+            <button type="button" class="${btnClass} mt-3" data-action="add-person">Add person</button>
+          </fieldset>
+
+          <fieldset>
+            <legend class="text-sm font-semibold tracking-widest text-cyan-400">Split</legend>
+            <div class="mt-3 flex flex-wrap gap-2">
+              <button type="button" class="${state.mode === 'even' ? btnOnClass : btnClass}" data-action="mode" data-mode="even" aria-pressed="${state.mode === 'even'}">Even split</button>
+              <button type="button" class="${state.mode === 'items' ? btnOnClass : btnClass}" data-action="mode" data-mode="items" aria-pressed="${state.mode === 'items'}">By item</button>
+            </div>
+          </fieldset>
+
+          ${
+            state.mode === 'even'
+              ? `<label class="block text-xs font-medium uppercase tracking-wide text-neutral-500" for="subtotal">
+                  Subtotal
+                  <input id="subtotal" data-action="subtotal" class="${moneyInputClass} mt-1.5 max-w-xs" type="number" min="0" step="0.01" inputmode="decimal" value="${escapeHtml(state.subtotal)}" placeholder="0.00" />
+                </label>`
+              : `<div>
+                  <h2 class="text-sm font-semibold tracking-widest text-cyan-400">Items</h2>
+                  <ul class="mt-3 space-y-3">${itemRows}</ul>
+                  <button type="button" class="${btnClass} mt-3" data-action="add-item">Add item</button>
+                </div>`
+          }
+
+          <fieldset>
+            <legend class="text-sm font-semibold tracking-widest text-cyan-400">Tip</legend>
+            <p class="mt-1 text-xs text-neutral-500">Tip is on the subtotal.</p>
+            <div class="mt-3 flex flex-wrap gap-2">
+              ${TIP_PRESETS.map((n) => {
+                const on = state.tipPercent === n;
+                const label = n === 0 ? '0%' : `${n}%`;
+                return `<button type="button" class="${on ? btnOnClass : btnClass}" data-action="tip" data-tip="${n}" aria-pressed="${on}">${label}</button>`;
+              }).join('')}
+              <button type="button" class="${tipIsPreset ? btnClass : btnOnClass}" data-action="tip-custom" aria-pressed="${!tipIsPreset}">Custom</button>
+            </div>
+            ${
+              tipIsPreset
+                ? ''
+                : `<label class="mt-3 block max-w-xs text-xs font-medium uppercase tracking-wide text-neutral-500" for="tip-custom">
+                    Custom tip %
+                    <input id="tip-custom" data-action="tip-custom-value" class="${moneyInputClass} mt-1.5" type="number" min="0" step="0.1" inputmode="decimal" value="${escapeHtml(String(state.tipPercent))}" />
+                  </label>`
+            }
+          </fieldset>
+
+          <label class="block max-w-xs text-xs font-medium uppercase tracking-wide text-neutral-500" for="extra">
+            Extra (tax or service)
+            <input id="extra" data-action="extra" class="${moneyInputClass} mt-1.5" type="number" min="0" step="0.01" inputmode="decimal" value="${escapeHtml(state.extra)}" placeholder="0.00" />
+          </label>
+
+          <label class="block max-w-xs text-xs font-medium uppercase tracking-wide text-neutral-500" for="payer">
+            Who paid
+            <select id="payer" data-action="payer" class="${inputClass} mt-1.5">
+              ${state.people
+                .map(
+                  (person, index) =>
+                    `<option value="${escapeHtml(person.id)}" ${person.id === state.payerId ? 'selected' : ''}>${escapeHtml(displayName(person, index))}</option>`,
+                )
+                .join('')}
+            </select>
+          </label>
+        </div>
+
+        <aside class="lg:sticky lg:top-6 h-fit rounded-xl border border-neutral-800 bg-neutral-950 p-5" aria-live="polite">
+          <h2 class="text-sm font-semibold tracking-widest text-cyan-400">Who owes what</h2>
+          ${
+            result.grandCents > 0
+              ? `<p class="mt-3 text-3xl font-bold tabular-nums tracking-tight text-white">${money(result.grandCents)}</p>
+                 <p class="mt-1 text-sm text-neutral-400">
+                   ${money(result.subtotalCents)} subtotal
+                   ${result.tipCents ? ` · ${money(result.tipCents)} tip` : ''}
+                   ${result.extraCents ? ` · ${money(result.extraCents)} extra` : ''}
+                 </p>
+                 <ul class="mt-5 space-y-2">${resultRows}</ul>`
+              : `<p class="mt-3 text-sm text-neutral-400">Add a bill or items to see who owes what.</p>`
+          }
+          <div class="mt-5 flex flex-wrap gap-2">
+            <button type="button" class="${btnClass}" data-action="copy" ${result.grandCents > 0 ? '' : 'disabled'}>Copy summary</button>
+            <button type="button" class="${btnClass}" data-action="reset">Reset</button>
+          </div>
+          ${copyNote ? `<p class="mt-3 text-sm text-cyan-300">${escapeHtml(copyNote)}</p>` : ''}
+        </aside>
+      </div>
+    `;
+
+    restoreFocus(focus);
+  }
+
+  function setState(patch) {
+    state = { ...state, ...patch };
+    saveState(state);
+    render();
+  }
+
+  async function copySummary() {
+    const text = summaryText(state, compute(state));
+    try {
+      await navigator.clipboard.writeText(text);
+      copyNote = 'Copied.';
+    } catch {
+      copyNote = 'Copy failed. Select the totals and copy them yourself.';
+    }
+    render();
+    window.setTimeout(() => {
+      copyNote = '';
+      render();
+    }, 2000);
+  }
+
+  document.getElementById('fair-tab')?.addEventListener('click', (event) => {
+    const target = event.target;
+    if (!(target instanceof HTMLElement)) return;
+    const button = target.closest('button[data-action]');
+    if (!(button instanceof HTMLButtonElement) || button.disabled) return;
+    const action = button.dataset.action;
+    copyNote = '';
+
+    if (action === 'currency') {
+      setState({ currency: button.dataset.code });
+      return;
+    }
+    if (action === 'add-person') {
+      const id = nextId('p');
+      const people = [...state.people, { id, name: '' }];
+      setState({ people });
+      document.getElementById(`person-name-${id}`)?.focus();
+      return;
+    }
+    if (action === 'remove-person') {
+      if (state.people.length <= 1) return;
+      const id = button.dataset.id;
+      const people = state.people.filter((p) => p.id !== id);
+      const items = state.items.map((item) => ({
+        ...item,
+        shareIds: item.shareIds.filter((shareId) => shareId !== id),
+      }));
+      const payerId = state.payerId === id ? people[0].id : state.payerId;
+      setState({ people, items, payerId });
+      return;
+    }
+    if (action === 'mode') {
+      const mode = button.dataset.mode === 'items' ? 'items' : 'even';
+      const items =
+        mode === 'items' && !state.items.length
+          ? [{ id: nextId('i'), name: '', amount: '', shareIds: [] }]
+          : state.items;
+      setState({ mode, items });
+      return;
+    }
+    if (action === 'add-item') {
+      const id = nextId('i');
+      setState({ items: [...state.items, { id, name: '', amount: '', shareIds: [] }] });
+      document.getElementById(`item-name-${id}`)?.focus();
+      return;
+    }
+    if (action === 'remove-item') {
+      const items = state.items.filter((item) => item.id !== button.dataset.id);
+      setState({ items });
+      return;
+    }
+    if (action === 'toggle-share') {
+      const itemId = button.dataset.item;
+      const personId = button.dataset.person;
+      const items = state.items.map((item) => {
+        if (item.id !== itemId) return item;
+        const on = item.shareIds.includes(personId);
+        return {
+          ...item,
+          shareIds: on ? item.shareIds.filter((id) => id !== personId) : [...item.shareIds, personId],
+        };
+      });
+      setState({ items });
+      return;
+    }
+    if (action === 'tip') {
+      setState({ tipPercent: Number(button.dataset.tip) });
+      return;
+    }
+    if (action === 'tip-custom') {
+      const next = TIP_PRESETS.includes(state.tipPercent) ? 18 : state.tipPercent;
+      setState({ tipPercent: next });
+      document.getElementById('tip-custom')?.focus();
+      return;
+    }
+    if (action === 'copy') {
+      void copySummary();
+      return;
+    }
+    if (action === 'reset') {
+      try {
+        localStorage.removeItem(STORAGE_KEY);
+      } catch {
+        /* ignore */
+      }
+      state = defaultState();
+      copyNote = '';
+      render();
+    }
+  });
+
+  document.getElementById('fair-tab')?.addEventListener('input', (event) => {
+    const target = event.target;
+    if (!(target instanceof HTMLInputElement) && !(target instanceof HTMLSelectElement)) return;
+    const action = target.dataset.action;
+    copyNote = '';
+
+    if (action === 'rename') {
+      const people = state.people.map((p) => (p.id === target.dataset.id ? { ...p, name: target.value } : p));
+      setState({ people });
+      return;
+    }
+    if (action === 'subtotal') {
+      setState({ subtotal: target.value });
+      return;
+    }
+    if (action === 'extra') {
+      setState({ extra: target.value });
+      return;
+    }
+    if (action === 'tip-custom-value') {
+      const n = Number.parseFloat(target.value);
+      setState({ tipPercent: Number.isFinite(n) && n >= 0 ? n : 0 });
+      return;
+    }
+    if (action === 'item-name') {
+      const items = state.items.map((item) => (item.id === target.dataset.id ? { ...item, name: target.value } : item));
+      setState({ items });
+      return;
+    }
+    if (action === 'item-amount') {
+      const items = state.items.map((item) => (item.id === target.dataset.id ? { ...item, amount: target.value } : item));
+      setState({ items });
+    }
+  });
+
+  document.getElementById('fair-tab')?.addEventListener('change', (event) => {
+    const target = event.target;
+    if (!(target instanceof HTMLSelectElement)) return;
+    if (target.dataset.action === 'payer') {
+      copyNote = '';
+      setState({ payerId: target.value });
+    }
+  });
+
+  render();
+</script>
