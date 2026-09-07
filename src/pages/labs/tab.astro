@@ -277,39 +277,66 @@ import Brand from '../../components/Brand.astro';
 
   let state = loadState();
   let copyNote = '';
+  let copyTimer = 0;
 
-  function rememberFocus() {
-    const active = document.activeElement;
-    if (!(active instanceof HTMLInputElement) && !(active instanceof HTMLSelectElement)) {
-      return { id: null, start: null, end: null };
-    }
-    return {
-      id: active.id,
-      start: active.selectionStart,
-      end: active.selectionEnd,
-    };
+  function resultsMarkup() {
+    const result = compute(state);
+    const money = (cents) => formatMoney(cents, state.currency);
+    const resultRows = result.rows
+      .map((row) => {
+        const note = row.isPayer
+          ? 'paid the bill'
+          : row.owes > 0
+            ? `owes ${result.payerName} ${money(row.owes)}`
+            : 'nothing to pay';
+        return `<li class="flex flex-col gap-1 rounded-xl border border-neutral-800 bg-black/40 px-4 py-3 sm:flex-row sm:items-center sm:justify-between">
+          <span class="font-semibold text-white">${escapeHtml(row.name)}</span>
+          <span class="tabular-nums text-cyan-300">${money(row.share)}</span>
+          <span class="text-sm text-neutral-400">${escapeHtml(note)}</span>
+        </li>`;
+      })
+      .join('');
+    const body =
+      result.grandCents > 0
+        ? `<p class="mt-3 text-3xl font-bold tabular-nums tracking-tight text-white">${money(result.grandCents)}</p>
+           <p class="mt-1 text-sm text-neutral-400">
+             ${money(result.subtotalCents)} subtotal
+             ${result.tipCents ? ` · ${money(result.tipCents)} tip` : ''}
+             ${result.extraCents ? ` · ${money(result.extraCents)} extra` : ''}
+           </p>
+           <ul class="mt-5 space-y-2">${resultRows}</ul>`
+        : `<p class="mt-3 text-sm text-neutral-400">Add a bill or items to see who owes what.</p>`;
+    return `
+      <h2 class="text-sm font-semibold tracking-widest text-cyan-400">Who owes what</h2>
+      ${body}
+      <div class="mt-5 flex flex-wrap gap-2">
+        <button type="button" class="${btnClass}" data-action="copy" ${result.grandCents > 0 ? '' : 'disabled'}>Copy summary</button>
+        <button type="button" class="${btnClass}" data-action="reset">Reset</button>
+      </div>
+      ${copyNote ? `<p id="fair-tab-copy-note" class="mt-3 text-sm text-cyan-300">${escapeHtml(copyNote)}</p>` : ''}
+    `;
   }
 
-  function restoreFocus(focus) {
-    if (!focus.id) return;
-    const el = document.getElementById(focus.id);
-    if (!(el instanceof HTMLInputElement) && !(el instanceof HTMLSelectElement)) return;
-    el.focus();
-    if (el instanceof HTMLInputElement && focus.start != null && focus.end != null) {
-      try {
-        el.setSelectionRange(focus.start, focus.end);
-      } catch {
-        /* some input types do not support ranges */
-      }
-    }
+  function paintResults() {
+    const aside = document.getElementById('fair-tab-results');
+    if (aside) aside.innerHTML = resultsMarkup();
+  }
+
+  function syncNameLabels() {
+    state.people.forEach((person, index) => {
+      const name = displayName(person, index);
+      document.querySelectorAll(`button[data-person="${person.id}"]`).forEach((btn) => {
+        btn.textContent = name;
+        btn.setAttribute('aria-label', name);
+      });
+      const option = document.querySelector(`#payer option[value="${CSS.escape(person.id)}"]`);
+      if (option) option.textContent = name;
+    });
   }
 
   function render() {
     const root = document.getElementById('fair-tab');
     if (!root) return;
-    const focus = rememberFocus();
-    const result = compute(state);
-    const money = (cents) => formatMoney(cents, state.currency);
     const tipIsPreset = TIP_PRESETS.includes(state.tipPercent);
 
     const peopleList = state.people
@@ -339,7 +366,7 @@ import Brand from '../../components/Brand.astro';
             </label>
             <label class="block text-xs font-medium uppercase tracking-wide text-neutral-500" for="item-amount-${item.id}">
               Amount
-              <input id="item-amount-${item.id}" data-action="item-amount" data-id="${item.id}" class="${moneyInputClass} mt-1.5" type="number" min="0" step="0.01" inputmode="decimal" value="${escapeHtml(item.amount)}" placeholder="0.00" />
+              <input id="item-amount-${item.id}" data-action="item-amount" data-id="${item.id}" class="${moneyInputClass} mt-1.5" type="text" inputmode="decimal" autocomplete="off" value="${escapeHtml(item.amount)}" placeholder="0.00" />
             </label>
             <div class="flex items-end">
               <button type="button" class="${btnClass}" data-action="remove-item" data-id="${item.id}" aria-label="Remove item ${index + 1}">Remove</button>
@@ -347,21 +374,6 @@ import Brand from '../../components/Brand.astro';
           </div>
           <p class="mt-3 text-xs text-neutral-500">Tick who shares this. Leave blank to split among everyone.</p>
           <div class="mt-2 flex flex-wrap gap-2">${chips}</div>
-        </li>`;
-      })
-      .join('');
-
-    const resultRows = result.rows
-      .map((row) => {
-        const note = row.isPayer
-          ? 'paid the bill'
-          : row.owes > 0
-            ? `owes ${result.payerName} ${money(row.owes)}`
-            : 'nothing to pay';
-        return `<li class="flex flex-col gap-1 rounded-xl border border-neutral-800 bg-black/40 px-4 py-3 sm:flex-row sm:items-center sm:justify-between">
-          <span class="font-semibold text-white">${escapeHtml(row.name)}</span>
-          <span class="tabular-nums text-cyan-300">${money(row.share)}</span>
-          <span class="text-sm text-neutral-400">${escapeHtml(note)}</span>
         </li>`;
       })
       .join('');
@@ -398,7 +410,7 @@ import Brand from '../../components/Brand.astro';
             state.mode === 'even'
               ? `<label class="block text-xs font-medium uppercase tracking-wide text-neutral-500" for="subtotal">
                   Subtotal
-                  <input id="subtotal" data-action="subtotal" class="${moneyInputClass} mt-1.5 max-w-xs" type="number" min="0" step="0.01" inputmode="decimal" value="${escapeHtml(state.subtotal)}" placeholder="0.00" />
+                  <input id="subtotal" data-action="subtotal" class="${moneyInputClass} mt-1.5 max-w-xs" type="text" inputmode="decimal" autocomplete="off" value="${escapeHtml(state.subtotal)}" placeholder="0.00" />
                 </label>`
               : `<div>
                   <h2 class="text-sm font-semibold tracking-widest text-cyan-400">Items</h2>
@@ -423,14 +435,14 @@ import Brand from '../../components/Brand.astro';
                 ? ''
                 : `<label class="mt-3 block max-w-xs text-xs font-medium uppercase tracking-wide text-neutral-500" for="tip-custom">
                     Custom tip %
-                    <input id="tip-custom" data-action="tip-custom-value" class="${moneyInputClass} mt-1.5" type="number" min="0" step="0.1" inputmode="decimal" value="${escapeHtml(String(state.tipPercent))}" />
+                    <input id="tip-custom" data-action="tip-custom-value" class="${moneyInputClass} mt-1.5" type="text" inputmode="decimal" autocomplete="off" value="${escapeHtml(String(state.tipPercent))}" />
                   </label>`
             }
           </fieldset>
 
           <label class="block max-w-xs text-xs font-medium uppercase tracking-wide text-neutral-500" for="extra">
             Extra (tax or service)
-            <input id="extra" data-action="extra" class="${moneyInputClass} mt-1.5" type="number" min="0" step="0.01" inputmode="decimal" value="${escapeHtml(state.extra)}" placeholder="0.00" />
+            <input id="extra" data-action="extra" class="${moneyInputClass} mt-1.5" type="text" inputmode="decimal" autocomplete="off" value="${escapeHtml(state.extra)}" placeholder="0.00" />
           </label>
 
           <label class="block max-w-xs text-xs font-medium uppercase tracking-wide text-neutral-500" for="payer">
@@ -446,50 +458,34 @@ import Brand from '../../components/Brand.astro';
           </label>
         </div>
 
-        <aside class="lg:sticky lg:top-6 h-fit rounded-xl border border-neutral-800 bg-neutral-950 p-5" aria-live="polite">
-          <h2 class="text-sm font-semibold tracking-widest text-cyan-400">Who owes what</h2>
-          ${
-            result.grandCents > 0
-              ? `<p class="mt-3 text-3xl font-bold tabular-nums tracking-tight text-white">${money(result.grandCents)}</p>
-                 <p class="mt-1 text-sm text-neutral-400">
-                   ${money(result.subtotalCents)} subtotal
-                   ${result.tipCents ? ` · ${money(result.tipCents)} tip` : ''}
-                   ${result.extraCents ? ` · ${money(result.extraCents)} extra` : ''}
-                 </p>
-                 <ul class="mt-5 space-y-2">${resultRows}</ul>`
-              : `<p class="mt-3 text-sm text-neutral-400">Add a bill or items to see who owes what.</p>`
-          }
-          <div class="mt-5 flex flex-wrap gap-2">
-            <button type="button" class="${btnClass}" data-action="copy" ${result.grandCents > 0 ? '' : 'disabled'}>Copy summary</button>
-            <button type="button" class="${btnClass}" data-action="reset">Reset</button>
-          </div>
-          ${copyNote ? `<p class="mt-3 text-sm text-cyan-300">${escapeHtml(copyNote)}</p>` : ''}
+        <aside id="fair-tab-results" class="lg:sticky lg:top-6 h-fit rounded-xl border border-neutral-800 bg-neutral-950 p-5" aria-live="polite">
+          ${resultsMarkup()}
         </aside>
       </div>
     `;
-
-    restoreFocus(focus);
   }
 
-  function setState(patch) {
+  function setState(patch, rerender = true) {
     state = { ...state, ...patch };
     saveState(state);
-    render();
+    if (rerender) render();
+    else paintResults();
   }
 
   async function copySummary() {
     const text = summaryText(state, compute(state));
     try {
       await navigator.clipboard.writeText(text);
-      copyNote = 'Copied.';
+      copyNote = 'Copied to the clipboard.';
     } catch {
       copyNote = 'Copy failed. Select the totals and copy them yourself.';
     }
-    render();
-    window.setTimeout(() => {
+    paintResults();
+    window.clearTimeout(copyTimer);
+    copyTimer = window.setTimeout(() => {
       copyNote = '';
-      render();
-    }, 2000);
+      paintResults();
+    }, 2500);
   }
 
   document.getElementById('fair-tab')?.addEventListener('click', (event) => {
@@ -591,30 +587,31 @@ import Brand from '../../components/Brand.astro';
 
     if (action === 'rename') {
       const people = state.people.map((p) => (p.id === target.dataset.id ? { ...p, name: target.value } : p));
-      setState({ people });
+      setState({ people }, false);
+      syncNameLabels();
       return;
     }
     if (action === 'subtotal') {
-      setState({ subtotal: target.value });
+      setState({ subtotal: target.value }, false);
       return;
     }
     if (action === 'extra') {
-      setState({ extra: target.value });
+      setState({ extra: target.value }, false);
       return;
     }
     if (action === 'tip-custom-value') {
-      const n = Number.parseFloat(target.value);
-      setState({ tipPercent: Number.isFinite(n) && n >= 0 ? n : 0 });
+      const n = Number.parseFloat(target.value.replace(',', '.'));
+      setState({ tipPercent: Number.isFinite(n) && n >= 0 ? n : 0 }, false);
       return;
     }
     if (action === 'item-name') {
       const items = state.items.map((item) => (item.id === target.dataset.id ? { ...item, name: target.value } : item));
-      setState({ items });
+      setState({ items }, false);
       return;
     }
     if (action === 'item-amount') {
       const items = state.items.map((item) => (item.id === target.dataset.id ? { ...item, amount: target.value } : item));
-      setState({ items });
+      setState({ items }, false);
     }
   });
 
