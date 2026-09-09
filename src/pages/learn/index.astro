@@ -1,17 +1,50 @@
 ---
 import BaseLayout from '../../layouts/BaseLayout.astro';
-import '../../styles/learning.css';
+import PhiloCard from '../../components/PhiloCard.astro';
+
+const paths = [
+  {
+    href: '/guides/',
+    title: 'Start with AI',
+    description: 'Four short guides. What AI is, how it learns, and what a prompt is.',
+    cta: 'Start with Guide 01 →',
+  },
+  {
+    href: '/philosophia/',
+    title: 'Learn philosophy',
+    description: 'Short lessons on ways of thinking. Start with a school, then try a puzzle.',
+    cta: 'Open philosophy →',
+  },
+  {
+    href: '/games/',
+    title: 'Practise with games',
+    description: 'Memory, maths, spelling, typing and reactions. Play after you read.',
+    cta: 'Open games →',
+  },
+];
 ---
-<BaseLayout title="Learn | ColinBuilds" description="Practise everyday AI skills, explore philosophy, and follow a clear learning path.">
-  <div class="learning">
-    <header class="course-intro"><p class="eyebrow">Learn / Practise / Use it</p><h1>Learn something you can use.</h1><p>Meet an idea. Put it to the test. Leave with a question worth asking.</p></header>
-    <section class="course-feature" aria-labelledby="socrates-lesson"><div><p class="eyebrow">Playable philosophy · 01</p><h2 id="socrates-lesson">How sure<br />are you?</h2><p>You have an answer. Socrates has a question. Make a claim about courage, test it against a difficult case, and build a better rule.</p><p class="fine-print">8–12 minutes · No account needed · An imagined conversation in Athens</p></div><a class="learn-button" href="/lessons/socrates/">Meet Socrates →</a></section>
-    <a class="learn-back" href="/learn/practical-ai/">Explore the AI course preview →</a>
-    <div class="course-links">
-      <article><h3>Read a guide</h3><p>Background reading on AI, how it learns, and prompts.</p><a href="/guides/">Browse the guides →</a></article>
-      <article><h3>Explore philosophy</h3><p>Ideas, schools of thought, and questions to think through.</p><a href="/philosophia/">Explore philosophy →</a></article>
-      <article><h3>Take a break</h3><p>Memory, word, and number games when you want a change of pace.</p><a href="/games/">Play a game →</a></article>
-    </div>
-    <a href="/learn/practical-ai/updates/">Course updates and a quick practice question →</a>
+
+<BaseLayout
+  title="Learn | ColinBuilds"
+  description="Pick a path: start with AI, learn philosophy, or practise with games."
+>
+  <div class="mx-auto max-w-6xl px-6 py-12 pb-20">
+    <p class="text-sm text-neutral-500">
+      <a href="/" class="transition hover:text-cyan-400">Home</a>
+      <span> · Learn</span>
+    </p>
+    <h1 class="mt-3 text-3xl font-bold tracking-tight text-brand-cyan sm:text-4xl">Learn</h1>
+    <p class="mt-3 max-w-2xl text-neutral-400">
+      Free lessons for beginners. Pick one path. You do not need to do everything at once.
+    </p>
+    <ul class="mt-10 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
+      {
+        paths.map((item) => (
+          <li>
+            <PhiloCard href={item.href} title={item.title} description={item.description} cta={item.cta} />
+          </li>
+        ))
+      }
+    </ul>
   </div>
 </BaseLayout>

@@ -1,6 +1,7 @@
 import type { APIRoute } from 'astro';
 import { getCollection } from 'astro:content';
 import { games } from '../data/games.js';
+import { topicPages } from '../data/topics.js';
 import { allSchools } from '../data/schools.js';
 import { experiments } from '../data/experiments.js';
 import { paradoxes } from '../data/paradoxes.js';
@@ -27,9 +28,7 @@ export const GET: APIRoute = async () => {
     '/builds/nebula-x/',
     '/guides/',
     '/learn/',
-    '/learn/practical-ai/',
-    '/learn/practical-ai/a-useful-answer/',
-    '/learn/practical-ai/updates/',
+    ...topicPages.map((topic) => topic.href),
     '/games/',
     '/philosophia/',
     '/philosophia/schools/',

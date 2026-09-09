@@ -1,0 +1,25 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import { topicPages, getTopic } from '../../data/topics.js';
+
+export function getStaticPaths() {
+  return topicPages.map((topic) => ({ params: { slug: topic.id } }));
+}
+
+const topic = getTopic(Astro.params.slug);
+if (!topic) {
+  throw new Error(`Unknown topic: ${Astro.params.slug}`);
+}
+---
+
+<BaseLayout title={`${topic.label} | ColinBuilds`} description={topic.blurb}>
+  <div class="page">
+    <p class="crumbs">
+      <a href="/">Home</a>
+      <span> · {topic.label}</span>
+    </p>
+    <h1 class="mt-4 text-4xl text-white sm:text-5xl">{topic.label}</h1>
+    <p class="lede">{topic.blurb}</p>
+    <p class="mt-8 text-neutral-500">Nothing in this section yet.</p>
+  </div>
+</BaseLayout>

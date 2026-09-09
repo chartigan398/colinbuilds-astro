@@ -1,0 +1,21 @@
+---
+import { topics } from '../data/topics.js';
+
+const path = Astro.url.pathname;
+
+function isCurrent(href) {
+  return path === href || path.startsWith(href);
+}
+---
+
+<div class="site-topics" aria-label="New sections">
+  <div class="site-topics-scroll">
+    {
+      topics.map((topic) => (
+        <a href={topic.href} aria-current={isCurrent(topic.href) ? 'page' : undefined}>
+          {topic.label}
+        </a>
+      ))
+    }
+  </div>
+</div>

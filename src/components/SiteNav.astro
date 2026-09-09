@@ -1,9 +1,10 @@
 ---
 import { navItems } from '../data/site.js';
+import { topics } from '../data/topics.js';
 
 const path = Astro.url.pathname;
 
-function isCurrent(href: string) {
+function isCurrent(href) {
   if (href === '/') return path === '/';
   return path === href || path.startsWith(href);
 }
@@ -12,17 +13,31 @@ function isCurrent(href: string) {
 <nav class="site-nav" aria-label="Main">
   <details class="site-nav-mobile">
     <summary class="site-nav-summary">Menu</summary>
-    <ul class="site-nav-list">
-      {
-        navItems.map((item) => (
-          <li>
-            <a href={item.href} aria-current={isCurrent(item.href) ? 'page' : undefined}>
-              {item.label}
-            </a>
-          </li>
-        ))
-      }
-    </ul>
+    <div class="site-nav-drop">
+      <ul class="site-nav-list">
+        {
+          navItems.map((item) => (
+            <li>
+              <a href={item.href} aria-current={isCurrent(item.href) ? 'page' : undefined}>
+                {item.label}
+              </a>
+            </li>
+          ))
+        }
+      </ul>
+      <p class="site-nav-label">New sections</p>
+      <ul class="site-nav-list">
+        {
+          topics.map((topic) => (
+            <li>
+              <a href={topic.href} aria-current={isCurrent(topic.href) ? 'page' : undefined}>
+                {topic.label}
+              </a>
+            </li>
+          ))
+        }
+      </ul>
+    </div>
   </details>
   <ul class="site-nav-list site-nav-desktop">
     {
@@ -35,4 +50,16 @@ function isCurrent(href: string) {
       ))
     }
   </ul>
+  <details class="site-nav-more">
+    <summary>More</summary>
+    <div class="site-nav-pop">
+      {
+        topics.map((topic) => (
+          <a href={topic.href} aria-current={isCurrent(topic.href) ? 'page' : undefined}>
+            {topic.label}
+          </a>
+        ))
+      }
+    </div>
+  </details>
 </nav>

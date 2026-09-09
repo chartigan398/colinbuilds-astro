@@ -4,6 +4,7 @@ import GameScene from '../components/GameScene.astro';
 import Brand from '../components/Brand.astro';
 import ThemeToggle from '../components/ThemeToggle.astro';
 import SiteNav from '../components/SiteNav.astro';
+import TopicStrip from '../components/TopicStrip.astro';
 import { SITE_TITLE, SITE_DESCRIPTION } from '../data/site.js';
 
 interface Props {
@@ -24,10 +25,7 @@ const {
 const canonicalURL = new URL(Astro.url.pathname, Astro.site);
 const path = Astro.url.pathname;
 const isHome = path === '/';
-const isCompareSection =
-  path === '/compare/' || path.startsWith('/compare/') || path.startsWith('/models/');
-const isGuidesSection = path === '/guides/' || path.startsWith('/guides/');
-const showScene = !hideFooter && !isCompareSection && !isGuidesSection && !path.startsWith('/learn/');
+const showScene = isHome;
 const ogImage = new URL('/og.png', Astro.site);
 
 const defaultJsonLd = isHome
@@ -74,7 +72,7 @@ const jsonLdBlocks = jsonLd ? (Array.isArray(jsonLd) ? jsonLd : [jsonLd]) : [def
     <meta name="description" content={description} />
     {noIndex && <meta name="robots" content="noindex, nofollow" />}
     <meta name="application-name" content="ColinBuilds" />
-    <meta name="theme-color" content="#0e0d0b" />
+    <meta name="theme-color" content="#000000" />
     <meta property="og:site_name" content="ColinBuilds" />
     <meta property="og:title" content={title} />
     <meta property="og:description" content={description} />
@@ -88,26 +86,23 @@ const jsonLdBlocks = jsonLd ? (Array.isArray(jsonLd) ? jsonLd : [jsonLd]) : [def
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <link rel="manifest" href="/site.webmanifest" />
     <link rel="canonical" href={canonicalURL} />
-    <link rel="preconnect" href="https://fonts.googleapis.com" />
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link
-      href="https://fonts.googleapis.com/css2?family=Figtree:ital,wght@0,400;0,500;0,600;0,700;1,400&family=Fraunces:ital,opsz,wght@0,9..144,500;0,9..144,600;0,9..144,700;1,9..144,500&display=swap"
-      rel="stylesheet"
-    />
     <title>{title}</title>
     {jsonLdBlocks.map((block) => <script type="application/ld+json" set:html={JSON.stringify(block)} />)}
     <script defer src="/_vercel/insights/script.js"></script>
   </head>
-  <body class:list={['antialiased', hideFooter ? 'flex h-dvh flex-col overflow-hidden' : 'min-h-screen', showScene && 'has-scene']}>
-    <header class:list={['site-header border-b', hideFooter && 'shrink-0']}>
-      <div class="mx-auto flex max-w-[90rem] items-center justify-between gap-x-6 px-6 py-4">
-        <a href="/" class="shrink-0 text-base font-semibold tracking-tight" aria-label="ColinBuilds home">
-          <Brand />
-        </a>
-        <div class="flex min-w-0 items-center gap-5">
-          <SiteNav />
-          <ThemeToggle />
+  <body class:list={['bg-black text-white antialiased', hideFooter ? 'flex h-dvh flex-col overflow-hidden' : 'min-h-screen', showScene && 'has-scene']}>
+    <header class:list={['site-header border-b border-neutral-800 bg-black/95 backdrop-blur', hideFooter && 'shrink-0']}>
+      <div class="site-header-inner">
+        <div class="site-header-row">
+          <a href="/" class="shrink-0 text-base font-semibold tracking-tight" aria-label="ColinBuilds home">
+            <Brand />
+          </a>
+          <div class="flex min-w-0 items-center gap-3">
+            <SiteNav />
+            <ThemeToggle />
+          </div>
         </div>
+        <TopicStrip />
       </div>
     </header>
     <main class:list={[hideFooter && 'flex min-h-0 flex-1 flex-col']}>
@@ -116,12 +111,8 @@ const jsonLdBlocks = jsonLd ? (Array.isArray(jsonLd) ? jsonLd : [jsonLd]) : [def
     </main>
     {
       !hideFooter && (
-        <footer class="site-footer border-t">
-          <div class="site-footer-inner">
-            <p>
-              <Brand /> · Free lessons, guides and games for beginners.
-            </p>
-          </div>
+        <footer class="site-footer border-t border-neutral-800 py-8 text-center text-sm text-neutral-500">
+          <Brand /> · Free lessons, guides and games for beginners.
         </footer>
       )
     }
