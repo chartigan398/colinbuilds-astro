@@ -1,0 +1,10 @@
+---
+import BaseLayout from '../../../layouts/BaseLayout.astro';
+import { learningUpdates } from '../../../data/learning-updates.js';
+import '../../../styles/learning.css';
+---
+<BaseLayout title="Practical AI course updates | ColinBuilds" description="What changed in the course, who it helps, and one short exercise.">
+  <div class="learning"><a class="learn-back" href="/learn/practical-ai/">← Course map</a><header class="course-intro"><p class="eyebrow">AI for everyday life</p><h1>Keep the useful bits current.</h1><p>Changes to the course, with a small exercise to help you use them.</p></header>
+    {learningUpdates.map(update => <article class="update-article" id={update.id}><p class="eyebrow"><time datetime={update.date}>{update.date}</time> / Course update</p><h2>{update.title}</h2><h3>What changed</h3><p>{update.changed}</p><h3>Who it helps</h3><p>{update.audience}</p><a href={update.lesson}>Open the lesson →</a><h3>Try it</h3><p>{update.exercise}</p><details><summary>Compare with an example</summary><p>{update.example}</p></details><h3>Quick recall</h3><p>{update.recall}</p><details><summary>Check your answer</summary><p>{update.recallAnswer}</p></details><details class="lesson-sources"><summary>Sources</summary><ul>{update.sources.map(source => <li><a href={source.url}>{source.title}</a></li>)}</ul></details></article>)}
+  </div>
+</BaseLayout>

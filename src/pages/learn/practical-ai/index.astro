@@ -1,0 +1,20 @@
+---
+import BaseLayout from '../../../layouts/BaseLayout.astro';
+import { course } from '../../../data/practical-ai.js';
+import '../../../styles/learning.css';
+---
+<BaseLayout title="AI for everyday life | ColinBuilds" description={course.description}>
+  <div class="learning">
+    <a href="/learn/" class="learn-back">← All learning</a>
+    <header class="course-intro"><p class="eyebrow">Practical AI / For complete beginners</p><h1>{course.title}</h1><p>{course.description}</p></header>
+    <div class="course-feature"><div><p class="eyebrow">One lesson ready to try</p><h2>Make your next request clearer.</h2><p>Spot invented details, build a better request, and try a new brief yourself. About 10–15 minutes. No account needed.</p><p class="fine-print">This practice preview comes from module two. The rest of the course is in development.</p></div><a class="learn-button" href={`/learn/practical-ai/${course.pilot}/`}>Try the lesson →</a></div>
+    <p class="learn-notice">The full path will contain six modules and twelve lessons. Only the preview lesson is available today. Your progress stays in this browser on this device.</p>
+    <h2>The learning path</h2>
+    <ol class="course-map">{course.modules.map((module, index) => <li class="course-module" id={`module-${index + 1}`}>
+      <span class="module-number" aria-hidden="true">{String(index + 1).padStart(2, '0')}</span><div><h2><span class="sr-only">Module {index + 1}: </span>{module.title}</h2><p>{module.outcome}</p><ol>{module.lessons.map(lesson => <li class="course-lesson">
+        {lesson.status === 'ready' ? <a href={`/learn/practical-ai/${lesson.slug}/`}>{lesson.title} →</a> : <span>{lesson.title}</span>}<span>{lesson.status === 'ready' ? 'Ready to try' : 'In development'}</span>
+      </li>)}</ol></div>
+    </li>)}</ol>
+    <div class="next-lesson"><p class="eyebrow">Keep learning</p><h3>Small updates, tied to what you learn</h3><p>Course updates explain what changed, why it matters, and one thing to practise.</p><a href="/learn/practical-ai/updates/">Read the course updates →</a></div>
+  </div>
+</BaseLayout>

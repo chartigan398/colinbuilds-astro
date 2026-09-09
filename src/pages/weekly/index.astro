@@ -7,34 +7,29 @@ const editions = (await getCollection('weekly'))
   .sort((a, b) => b.data.pubDate.valueOf() - a.data.pubDate.valueOf());
 ---
 
-<BaseLayout
-  title="AI Weekly | ColinBuilds"
-  description="A weekly roundup of AI news."
->
-  <div class="mx-auto max-w-6xl px-6 py-12 pb-20">
-    <p class="text-sm text-neutral-500">
-      <a href="/" class="transition hover:text-cyan-400">Home</a>
+<BaseLayout title="AI Weekly | ColinBuilds" description="A weekly roundup of AI news.">
+  <div class="page">
+    <p class="crumbs">
+      <a href="/">Home</a>
       <span> · AI Weekly</span>
     </p>
-    <h1 class="mt-3 text-3xl font-bold tracking-tight text-brand-cyan sm:text-4xl">AI Weekly</h1>
+    <h1 class="mt-4 text-4xl text-white sm:text-5xl">AI Weekly</h1>
+    <p class="lede">A roundup of AI news. Written for people who already follow this field.</p>
 
     {
       editions.length === 0 ? (
-        <p class="mt-10 text-sm text-neutral-500">No editions yet.</p>
+        <p class="mt-10 text-sm" style="color: var(--cb-muted)">No editions yet.</p>
       ) : (
-        <ul class="mt-10 grid grid-cols-1 gap-4 sm:grid-cols-2">
+        <ul class="row-list">
           {editions.map((edition) => (
             <li>
-              <a
-                href={`/weekly/${edition.slug}/`}
-                class="group game-listing-card flex h-full flex-col rounded-xl border border-neutral-800 bg-neutral-950/80 p-5 transition hover:border-sky-300 focus-visible:border-sky-300 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-cyan-400"
-              >
-                <p class="text-xs font-semibold tracking-widest text-cyan-400">
-                  Edition {edition.data.edition}
-                </p>
-                <h2 class="mt-2 text-lg font-semibold tracking-tight text-white">{edition.data.title}</h2>
-                <p class="mt-2 flex-1 text-sm leading-relaxed text-neutral-400">{edition.data.description}</p>
-                <span class="mt-5 text-sm text-sky-300 group-hover:text-sky-200">Read →</span>
+              <a href={`/weekly/${edition.slug}/`} class="row-link">
+                <div>
+                  <p class="row-kicker">Edition {edition.data.edition}</p>
+                  <h2 class="row-title">{edition.data.title}</h2>
+                  <p class="row-desc">{edition.data.description}</p>
+                </div>
+                <span class="row-cta">Read →</span>
               </a>
             </li>
           ))}

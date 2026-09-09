@@ -17,15 +17,15 @@ const { Content } = await render(edition);
 
 <BaseLayout title={`${edition.data.title} | ColinBuilds`} description={edition.data.description}>
   <article class="mx-auto max-w-3xl px-6 py-12 pb-20">
-    <p class="text-sm text-neutral-500">
-      <a href="/" class="transition hover:text-cyan-400">Home</a>
+    <p class="crumbs">
+      <a href="/">Home</a>
       <span> · </span>
-      <a href="/weekly/" class="transition hover:text-cyan-400">AI Weekly</a>
+      <a href="/weekly/">AI Weekly</a>
     </p>
-    <p class="mt-3 text-sm font-semibold tracking-widest text-cyan-400">
+    <p class="mt-3 kicker">
       Edition {edition.data.edition} · {edition.data.week}
     </p>
-    <h1 class="mt-2 text-3xl font-bold tracking-tight text-cyan-400 sm:text-4xl">{edition.data.title}</h1>
+    <h1 class="mt-2 text-4xl tracking-tight text-white sm:text-5xl">{edition.data.title}</h1>
     <p class="mt-4 text-neutral-400">{edition.data.description}</p>
     <div class="weekly-prose mt-10">
       <Content />

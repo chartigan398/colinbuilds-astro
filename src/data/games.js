@@ -31,7 +31,7 @@ export const games = [
   {
     slug: 'geometry-runner',
     title: 'Geometry Runner',
-    description: 'Four different levels. Rings and diamonds are five points each.',
+    description: 'Jump, then fly. Four courses. Rings and diamonds are five points each.',
     skill: 'Reactions',
     mark: 'runner',
     live: true,

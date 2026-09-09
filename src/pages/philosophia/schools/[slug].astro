@@ -22,14 +22,16 @@ if (!school) {
   description={school.summary}
 >
   <div class="mx-auto max-w-3xl px-6 py-12 pb-20">
-    <p class="text-sm text-neutral-500">
-      <a href="/" class="transition hover:text-cyan-400">Home</a>
+    <p class="crumbs">
+      <a href="/">Home</a>
       <span> · </span>
-      <a href="/philosophia/" class="transition hover:text-cyan-400">Philosophia</a>
+      <a href="/learn/">Learn</a>
       <span> · </span>
-      <a href="/philosophia/schools/" class="transition hover:text-cyan-400">Schools</a>
+      <a href="/philosophia/">Philosophy</a>
+      <span> · </span>
+      <a href="/philosophia/schools/">Schools</a>
     </p>
-    <h1 class="mt-3 text-3xl font-bold tracking-tight text-brand-cyan sm:text-4xl">{school.name}</h1>
+    <h1 class="mt-3 text-4xl tracking-tight text-white sm:text-5xl">{school.name}</h1>
     <p class="mt-2 text-sm text-neutral-500">
       {school.region} · {school.era}
     </p>

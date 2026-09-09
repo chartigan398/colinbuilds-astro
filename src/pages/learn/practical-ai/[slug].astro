@@ -1,0 +1,10 @@
+---
+import BaseLayout from '../../../layouts/BaseLayout.astro';
+import PracticeLesson from '../../../components/PracticeLesson.astro';
+import { pilotLesson } from '../../../data/practical-ai.js';
+export function getStaticPaths() { return [{ params: { slug: pilotLesson.id }, props: { lesson: pilotLesson } }]; }
+const { lesson } = Astro.props;
+---
+<BaseLayout title={`${lesson.title} | ColinBuilds`} description={lesson.outcome}>
+  <PracticeLesson lesson={lesson} />
+</BaseLayout>

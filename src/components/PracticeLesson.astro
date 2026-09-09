@@ -1,0 +1,94 @@
+---
+import '../styles/learning.css';
+const { lesson } = Astro.props;
+---
+<div class="learning lesson-shell" data-lesson>
+  <a class="learn-skip" href="#activity-title-0">Skip to the activity</a>
+  <header class="lesson-heading">
+    <a class="learn-back" href="/learn/practical-ai/">← Course map</a>
+    <p class="eyebrow">AI for everyday life <span> / </span> Practice preview</p>
+    <h1>{lesson.title}</h1>
+    <p class="lesson-meta">Module {lesson.module} · Lesson {lesson.lesson} <span> / </span> About {lesson.minutes} minutes</p>
+  </header>
+  <div class="lesson-grid">
+    <aside class="lesson-sidebar" aria-label="Lesson outline">
+      <p class="eyebrow">Your practice</p>
+      <ol class="step-list">{lesson.steps.map((step, i) => (
+        <li data-outline={i}><span class="step-number">{String(i + 1).padStart(2, '0')}</span><span>{step.label}</span><span data-step-marker aria-hidden="true"></span></li>
+      ))}</ol>
+      <div class="sidebar-note"><strong>One useful habit</strong><p>Give the facts.<br />Keep the gaps visible.<br />Check the answer.</p></div>
+    </aside>
+    <div class="activity-column">
+      <div class="lesson-progress" data-enhanced hidden>
+        <span data-position>Step 1 of {lesson.steps.length}</span><span data-completion>Practice in progress</span>
+        <progress aria-label="Position in this lesson" max={lesson.steps.length} value="1"></progress>
+      </div>
+      <noscript><p class="learn-notice">JavaScript is off. You can read all the examples below. Turn it on to try the activities, get feedback, and save progress.</p></noscript>
+      {lesson.steps.map((step, index) => (
+        <section class="activity" data-step={index} data-step-id={step.id} aria-labelledby={`activity-title-${index}`}>
+          <p class="eyebrow">{String(index + 1).padStart(2, '0')} / {step.label}</p>
+          <h2 id={`activity-title-${index}`} tabindex="-1">{step.title}</h2>
+          <p class="activity-intro">{step.text}</p>
+          {step.reference && <details class="lesson-explanation"><summary>Check the organiser’s notes</summary><p>{step.reference}</p></details>}
+          {step.blocks && <div class:list={['example-grid', step.type === 'compare' && 'compare-grid']}>
+            {step.blocks.map((block, bi) => <div class:list={['example', step.type === 'compare' && bi === 1 && 'example-flawed']}>
+              <p class="example-label">{block.label}</p>
+              <p>{block.text.split(/(\[[^\]]+\])/g).map(part => part.startsWith('[') && part.endsWith(']') ? <mark>{part}</mark> : part)}</p>
+            </div>)}
+          </div>}
+          {(step.type === 'compare' || step.type === 'decision') && <form data-choice-form>
+            <fieldset><legend>{step.prompt}</legend><div class="choice-stack">
+              {step.options.map(option => <label class="choice"><input type="radio" name={step.id} value={option.id} /><span>{option.text}</span></label>)}
+            </div></fieldset>
+            <button class="learn-button" type="submit">Check my choice</button>
+          </form>}
+          {step.type === 'builder' && <form data-builder-form>
+            <div class="builder-grid">{step.groups.map(group => <fieldset><legend>{group.label}</legend><div class="choice-stack">
+              {group.options.map(option => <label class="choice"><input type="radio" name={`${step.id}:${group.id}`} value={option.id} /><span>{option.text}</span></label>)}
+            </div><p class="group-feedback" data-group-feedback={group.id}></p></fieldset>)}</div>
+            <button class="learn-button" type="submit">Check my request</button>
+            <div class="example built-request" data-builder-result hidden><p class="example-label">Your improved request</p><p>{step.result}</p></div>
+          </form>}
+          {step.changes && <ul class="change-list">{step.changes.map(change => <li><strong>{change.title}</strong><p>{change.text}</p></li>)}</ul>}
+          {step.type === 'independent' && <div>
+            <label class="writing-label" for={`draft-${step.id}`}>{step.prompt}</label>
+            <textarea id={`draft-${step.id}`} rows="7" maxlength="6000" data-draft aria-describedby="draft-privacy" placeholder="Write the missing details and your request here…"></textarea>
+            <p class="fine-print" id="draft-privacy">Use the fictional brief. Your answer stays in this browser; it is not sent to an AI service.</p>
+            <button type="button" class="learn-button" data-review>Compare with an example</button>
+            <div data-model hidden>
+              <div class="example"><p class="example-label">One possible answer · not an automatic grade</p><p>{step.model}</p></div>
+              <fieldset class="self-review"><legend>Review your own work</legend><p>Tick what your answer covers. You can edit it and compare again. These checks are for you; they do not award a score.</p>
+                {step.criteria.map((criterion, i) => <label class="choice"><input type="checkbox" data-criterion={i} /><span>{criterion}</span></label>)}
+              </fieldset>
+            </div>
+            <noscript><details><summary>Read the model answer</summary><p>{step.model}</p></details></noscript>
+          </div>}
+          {step.takeaway && <p class="takeaway">{step.takeaway}</p>}
+          {step.explanation && <details class="lesson-explanation"><summary>A little more explanation</summary><p>{step.explanation}</p></details>}
+          {step.type === 'finish' && <div>
+            <label class="writing-label" for="request-checklist">Keep this checklist</label>
+            <textarea id="request-checklist" readonly rows="8">{step.checklist}</textarea>
+            <button class="learn-button" type="button" data-copy>Copy checklist</button>
+            <p class="fine-print" data-copy-status role="status"></p>
+            <div class="next-lesson"><p class="eyebrow">Next lesson · in development</p><h3>{lesson.next.title}</h3><p>You have reached the end of this practice preview. The next lesson is not available yet.</p><a href={lesson.next.href}>See where it fits in the course →</a></div>
+            <button class="learn-button secondary" type="button" data-finish>Mark practice as worked through</button>
+            <p class="fine-print">This records participation, not a test result or a certificate.</p>
+          </div>}
+          <p class="activity-feedback" role="status" aria-live="polite" data-feedback></p>
+        </section>
+      ))}
+      <nav class="lesson-controls" aria-label="Move through the lesson" data-enhanced hidden>
+        <button class="learn-button secondary" type="button" data-prev>← Back</button>
+        <p data-next-help></p>
+        <button class="learn-button" type="button" data-next>Continue →</button>
+      </nav>
+      <p class="storage-note" data-storage role="status">Progress is saved in this browser on this device. Clearing browser data removes it. It does not sync between devices.</p>
+      <details class="lesson-sources"><summary>Sources and lesson review</summary><p>Reviewed <time datetime={lesson.reviewed}>{lesson.reviewed}</time>. All event details are fictional. The prepared answers are authored teaching examples.</p><ul>{lesson.sources.map(source => <li><a href={source.url}>{source.title}</a></li>)}</ul></details>
+    </div>
+  </div>
+</div>
+<script type="application/json" id="practice-lesson-data" set:html={JSON.stringify(lesson).replace(/</g, '\\u003c')} />
+<script>
+  import { initPracticeLesson } from '../scripts/practice-lesson.js';
+  initPracticeLesson();
+</script>

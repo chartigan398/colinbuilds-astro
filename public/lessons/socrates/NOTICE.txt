@@ -1,0 +1,43 @@
+ColinBuilds: Socrates — How sure are you?
+
+Upstream: The Evolution of Trust by Nicky Case
+https://github.com/ncase/trust
+Commit: 6ec45d73befdb922bd40654dd1c1c903a953562f
+Retrieved: 9 September 2026
+Upstream core code: CC0 1.0 Universal; see LICENSE-CC0.txt.
+
+Unmodified: vendor/Slideshow.js, vendor/TextBox.js, vendor/helpers.js.
+Adapted: vendor/Button.js uses native buttons and spans, keyboard activation,
+unique classes rather than duplicate IDs, and no audio dependencies.
+The game-specific trust simulations are not used. ColinBuilds provides new
+Socrates scenes, dialogue, SVG illustrations, styles, rule experiments and progress.
+No upstream audio or fonts are redistributed in this adaptation.
+
+vendor/minpubsub.src.js: MinPubSub
+Copyright (c) 2011 Daniel Lamb <daniellmb.com>
+MIT License
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+THE SOFTWARE.
+
+Teaching sources (reviewed 9 September 2026):
+Plato, Laches: https://classics.mit.edu/Plato/laches.html
+Plato, Apology: https://classics.mit.edu/Plato/apology.html
+All lesson dialogue is newly authored fiction, not a historical quotation.
+The courage classifier is a toy model of the learner's selected conditions.
+It does not establish the correct definition of courage or grade philosophy.
