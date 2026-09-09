@@ -62,26 +62,27 @@ const accents = {
 ---
 
 <BaseLayout title="ColinBuilds — Free lessons for beginners" description={SITE_DESCRIPTION}>
-  <div class="relative mx-auto max-w-6xl px-6 py-12 pb-20">
-    <section aria-labelledby="home-hero-title">
+  <section class="home-splash" aria-labelledby="home-hero-title">
+    <div class="home-splash-copy">
       <h1 id="home-hero-title" class="max-w-3xl text-4xl font-bold tracking-tight text-white sm:text-5xl">
         Welcome to <Brand />
       </h1>
-      <p class="mt-4 max-w-xl text-lg text-neutral-400">
-        Free lessons, guides and games for beginners.
-      </p>
-      <p class="mt-3 max-w-xl text-neutral-400">
-        A free learning hub. Start with AI, try a philosophy lesson, or practise with a game.
-      </p>
+      <p class="mt-4 max-w-xl text-lg text-neutral-400">Poke the flock. Then start learning.</p>
       <a
         href="/learn/"
         class="mt-8 inline-flex items-center rounded-lg border border-cyan-400 bg-cyan-400 px-5 py-2.5 text-sm font-medium text-black transition hover:bg-cyan-300 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-cyan-400"
       >
         Start learning
       </a>
-    </section>
+    </div>
+    <a class="home-splash-more" href="#start-here">
+      <span class="home-splash-more-mark" aria-hidden="true"></span>
+      See what is here
+    </a>
+  </section>
 
-    <section class="mt-16" aria-labelledby="start-here-title">
+  <div class="home-words relative mx-auto max-w-6xl px-6 pb-20">
+    <section class="pt-16" aria-labelledby="start-here-title" id="start-here">
       <h2 id="start-here-title" class="text-sm font-semibold tracking-widest text-cyan-400">Start here</h2>
       <ul class="mt-4 grid grid-cols-1 gap-4 sm:grid-cols-3">
         {
