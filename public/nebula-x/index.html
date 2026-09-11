@@ -94,6 +94,7 @@
             <li><kbd>P</kbd> Palette: spectrum → reactor → sleep</li>
             <li><kbd>M</kbd> Mode: focus ↔ sleep</li>
             <li><kbd>N</kbd> Narrative scenes</li>
+            <li><kbd>V</kbd> Vision layer — particles form faces &amp; images</li>
             <li><kbd>D</kbd> Debug telemetry</li>
             <li><kbd>H</kbd> Hide HUD</li>
             <li><kbd>R</kbd> Record / stop</li>
@@ -102,7 +103,7 @@
         <p class="hint">Particle tier &amp; beast profile require reload when changed.</p>
     </div>
     <div id="controls">
-        Nebula X v6 · Mouse = warp / gravity · ? = help · F fullscreen · C clock · A audio · P palette · M mode · N narrative · D debug · H HUD · R record
+        Nebula X v6 · Mouse = warp / gravity · ? = help · F fullscreen · C clock · A audio · P palette · M mode · N narrative · V vision · D debug · H HUD · R record
     </div>
 
     <div id="clock" style="display: none;"></div>
@@ -185,6 +186,28 @@
             </div>
             <div id="narrative-hint" style="font-size:8px;opacity:0.45;margin-top:5px;"><strong>N</strong> toggles long-form scenes (≥30s crossfades).</div>
         </div>
+        <div id="vision-panel" style="margin-top:10px;padding:8px;border-radius:6px;border:1px solid #3a2a12;font-size:10px;line-height:1.35;">
+            <div style="font-size:9px;opacity:0.55;text-transform:uppercase;letter-spacing:0.06em;">Vision layer</div>
+            <strong id="vision-title" style="letter-spacing:0.06em;color:#fc8;">Invisible</strong>
+            <div id="vision-sub" style="opacity:0.75;margin-top:3px;font-size:9px;">Particles form the picture. The picture is never drawn.</div>
+            <label>Form</label>
+            <select id="visionMode">
+                <option value="auto">Auto cycle</option>
+                <option value="face">Face</option>
+                <option value="eye">Eye</option>
+                <option value="rose">Rose</option>
+                <option value="bird">Bird</option>
+                <option value="galaxy">Galaxy</option>
+                <option value="heart">Heart</option>
+                <option value="off">Off</option>
+            </select>
+            <button type="button" id="btnVisionImage" style="width:100%;margin-top:8px;">Your image</button>
+            <input type="file" id="visionFile" accept="image/*" style="display:none">
+            <div style="height:5px;background:#111;border-radius:3px;overflow:hidden;margin-top:6px;border:1px solid #333;">
+                <div id="vision-bar" style="height:100%;width:0%;background:linear-gradient(90deg,#fa0,#f44);"></div>
+            </div>
+            <div style="font-size:8px;opacity:0.45;margin-top:5px;"><strong>V</strong> toggles this layer.</div>
+        </div>
     </div>
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
@@ -196,6 +219,7 @@
     <script src="js/render-core.js"></script>
     <script src="js/simulation-core.js"></script>
     <script src="js/gpu-points-material.js"></script>
+    <script src="js/vision-layer.js"></script>
     <script>
         const STORAGE_CLOCK = 'nebula-x-clock-visible';
         const STORAGE_HUD = 'nebula-x-hud-visible';
@@ -204,6 +228,8 @@
         const STORAGE_PALETTE_LOCK_IDX = 'nebula-x-palette-lock-idx';
         const STORAGE_GPU_PARTICLES = 'nebula-x-gpu-particles';
         const STORAGE_PARTICLE_TIER = 'nebula-x-particle-tier';
+        const STORAGE_VISION = 'nebula-x-vision-enabled';
+        const STORAGE_VISION_MODE = 'nebula-x-vision-mode';
         const TIER_COUNTS = { lite: 40000, standard: 100000, beast: 200000 };
 
         function getParticleCountFromTier() {
@@ -214,7 +240,7 @@
         let scene, camera, renderer, points, pointsGlow, geometry, pointsMaterial, glowMaterial;
         const fogColorCurrent = new THREE.Color(0x000000);
         const fogTargetScratch = new THREE.Color();
-        let positions, cloudPos, ringPos, spherePos, colors, sizes, phases;
+        let positions, cloudPos, ringPos, spherePos, imagePos, colors, sizes, phases;
         let particleCount = getParticleCountFromTier();
 
         let time = 0;
@@ -248,10 +274,22 @@
         let micStream = null;
         let audioFileObjectUrl = null;
         let paletteMode = 'spectrum'; // 'spectrum' | 'reactor' | 'sleep'
-        try {
-            const q = new URLSearchParams(location.search).get('palette');
-            if (q === 'reactor' || q === 'sleep' || q === 'spectrum') paletteMode = q;
-        } catch (_) {}
+            try {
+                const q = new URLSearchParams(location.search).get('palette');
+                if (q === 'reactor' || q === 'sleep' || q === 'spectrum') paletteMode = q;
+            } catch (_) {}
+            try {
+                const vq = new URLSearchParams(location.search).get('vision');
+                if (vq === '0' || vq === 'off') localStorage.setItem(STORAGE_VISION, 'false');
+                if (vq === '1' || vq === 'on' || vq === 'auto') {
+                    localStorage.setItem(STORAGE_VISION, 'true');
+                    if (vq === 'auto') localStorage.setItem(STORAGE_VISION_MODE, 'auto');
+                }
+                if (vq === 'face' || vq === 'eye' || vq === 'rose' || vq === 'bird' || vq === 'galaxy' || vq === 'heart') {
+                    localStorage.setItem(STORAGE_VISION, 'true');
+                    localStorage.setItem(STORAGE_VISION_MODE, vq);
+                }
+            } catch (_) {}
         let experienceMode = 'focus'; // 'focus' | 'sleep'
         /** Fixed cadence: equal time per segment (blueprint: long-form arcs, no random dwell). */
         const PALETTE_SEGMENT_SEC = 20;
@@ -314,6 +352,8 @@
         let healthTracker = null;
         /** Blueprint §2: GPU vertex shader path (opt-in; CPU is default — more reliable). */
         let gpuParticleMode = false;
+        let visionLayer = null;
+        let imageBlend = 0;
 
         const audioFeatures = {
             rms: 0,
@@ -639,10 +679,22 @@
             cloudPos = rc.cloudPos;
             ringPos = rc.ringPos;
             spherePos = rc.spherePos;
+            imagePos = rc.imagePos;
             colors = rc.colors;
             sizes = rc.sizes;
             phases = rc.phases;
             fogColorCurrent.copy(rc.initialFogColor);
+
+            if (window.NebulaX && NebulaX.VisionLayer) {
+                visionLayer = NebulaX.VisionLayer.create(particleCount, imagePos);
+                const storedOn = localStorage.getItem(STORAGE_VISION);
+                const storedMode = localStorage.getItem(STORAGE_VISION_MODE) || 'auto';
+                const startOn = storedOn !== 'false';
+                if (!startOn) visionLayer.setMode('off');
+                else visionLayer.setMode(storedMode === 'off' ? 'auto' : storedMode);
+                const visSel = document.getElementById('visionMode');
+                if (visSel) visSel.value = startOn ? (storedMode === 'off' ? 'auto' : storedMode) : 'off';
+            }
 
             if (window.NebulaX && NebulaX.StabilityMonitor) {
                 NebulaX.StabilityMonitor.init(renderer, renderer.domElement);
@@ -718,6 +770,18 @@
                     setRecordStatus(narrativeEnabled ? 'Narrative: ON' : 'Narrative: OFF');
                     syncNarrativeUI();
                 }
+                if (e.key === 'v' || e.key === 'V') {
+                    if (!visionLayer) return;
+                    const nextOn = !visionLayer.isEnabled();
+                    visionLayer.setMode(nextOn ? (document.getElementById('visionMode') || {}).value || 'auto' : 'off');
+                    if (nextOn && visionLayer.getMode() === 'off') visionLayer.setMode('auto');
+                    localStorage.setItem(STORAGE_VISION, String(visionLayer.isEnabled()));
+                    const visSel = document.getElementById('visionMode');
+                    if (visSel && !nextOn) visSel.value = 'off';
+                    if (visSel && nextOn && visSel.value === 'off') visSel.value = 'auto';
+                    setRecordStatus(visionLayer.isEnabled() ? 'Vision layer: ON' : 'Vision layer: OFF');
+                    syncVisionUI();
+                }
                 if (e.key === 'r' || e.key === 'R') {
                     if (recorder && recorder.state === 'recording') stopRecording();
                     else startRecording();
@@ -755,6 +819,38 @@
             document.getElementById('btnRecord').addEventListener('click', startRecording);
             document.getElementById('btnStopRecord').addEventListener('click', stopRecording);
             document.getElementById('creatorPack').addEventListener('change', applyCreatorPack);
+            const visSel = document.getElementById('visionMode');
+            if (visSel) {
+                visSel.addEventListener('change', (e) => {
+                    const v = e.target.value;
+                    localStorage.setItem(STORAGE_VISION_MODE, v);
+                    localStorage.setItem(STORAGE_VISION, v === 'off' ? 'false' : 'true');
+                    if (visionLayer) visionLayer.setMode(v);
+                    setRecordStatus(v === 'off' ? 'Vision layer: OFF' : `Vision: ${v}`);
+                    syncVisionUI();
+                });
+            }
+            const btnVis = document.getElementById('btnVisionImage');
+            const visFile = document.getElementById('visionFile');
+            if (btnVis && visFile) {
+                btnVis.addEventListener('click', () => visFile.click());
+                visFile.addEventListener('change', (e) => {
+                    const file = e.target.files && e.target.files[0];
+                    if (!file || !visionLayer) return;
+                    const url = URL.createObjectURL(file);
+                    const img = new Image();
+                    img.onload = () => {
+                        visionLayer.loadImage(img);
+                        localStorage.setItem(STORAGE_VISION, 'true');
+                        localStorage.setItem(STORAGE_VISION_MODE, 'photo');
+                        if (visSel) visSel.value = 'auto';
+                        setRecordStatus('Vision: your image');
+                        syncVisionUI();
+                        URL.revokeObjectURL(url);
+                    };
+                    img.src = url;
+                });
+            }
             const elTier = document.getElementById('particleTier');
             if (elTier) {
                 elTier.value = localStorage.getItem(STORAGE_PARTICLE_TIER) || 'standard';
@@ -782,6 +878,7 @@
 
             syncModeUI();
             syncNarrativeUI();
+            syncVisionUI();
             syncSlidersFromParams();
 
             const helpEl = document.getElementById('help-overlay');
@@ -837,6 +934,14 @@
             if (hint) hint.innerHTML = narrativeEnabled
                 ? '<strong>N</strong> toggles long-form scenes (≥30s crossfades).'
                 : '<strong>Narrative OFF</strong> — press <strong>N</strong> to enable.';
+        }
+
+        function syncVisionUI() {
+            const on = visionLayer ? visionLayer.isEnabled() : false;
+            const panel = document.getElementById('vision-panel');
+            if (panel) panel.style.opacity = on ? '1' : '0.45';
+            const title = document.getElementById('vision-title');
+            if (title) title.textContent = on ? (visionLayer.getLabel() || 'Forming') : 'Off';
         }
 
         function toggleHUD() {
@@ -1397,6 +1502,25 @@
 
             const colorWavePhase = flowTime * 0.9 * params.colorSpeed + colorWaveOffset;
 
+            if (visionLayer) {
+                const visOut = visionLayer.update({
+                    dt: realDt,
+                    time: visualWallTime,
+                    mouse: targetMouse,
+                    audioFeatures
+                });
+                imageBlend = visOut.blend;
+                if (geometry && geometry.attributes && geometry.attributes.imagePos) {
+                    geometry.attributes.imagePos.needsUpdate = true;
+                }
+                const visTitle = document.getElementById('vision-title');
+                if (visTitle) visTitle.textContent = visionLayer.isEnabled() ? visOut.label : 'Off';
+                const visBar = document.getElementById('vision-bar');
+                if (visBar) visBar.style.width = `${Math.min(100, imageBlend * 100)}%`;
+            } else {
+                imageBlend = 0;
+            }
+
             const elNarrTitle = document.getElementById('narrative-title');
             const elNarrSub = document.getElementById('narrative-sub');
             const elNarrBar = document.getElementById('narrative-bar');
@@ -1443,6 +1567,8 @@
                 sizes,
                 morphFactor1,
                 morphFactor2,
+                imagePos,
+                imageBlend,
                 paletteHueShifted,
                 paletteWhiteBlend,
                 paletteMode,
@@ -1503,6 +1629,7 @@ tabHidden: ${document.hidden}
 palette: ${paletteMode}  arc×${PALETTE_ARC_MULT}  seg~${((PALETTE_SEGMENT_SEC * PALETTE_ARC_MULT) / Math.max(0.25, params.colorSpeed)).toFixed(0)}s
 mode: ${experienceMode}
 gpuParticles: ${gpuParticleMode ? 'vertex shader' : 'CPU'}
+vision: ${visionLayer && visionLayer.isEnabled() ? visionLayer.getLabel() : 'off'}  blend:${imageBlend.toFixed(2)}
 narrative: ${narrativeEnabled ? 'ON' : 'OFF'}  scene: ${narrativeEnabled ? nu.name : '-'}
 
 §1.2 TELEMETRY (audio→visual drivers — envelopes only)
