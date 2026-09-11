@@ -248,6 +248,10 @@
         let micStream = null;
         let audioFileObjectUrl = null;
         let paletteMode = 'spectrum'; // 'spectrum' | 'reactor' | 'sleep'
+        try {
+            const q = new URLSearchParams(location.search).get('palette');
+            if (q === 'reactor' || q === 'sleep' || q === 'spectrum') paletteMode = q;
+        } catch (_) {}
         let experienceMode = 'focus'; // 'focus' | 'sleep'
         /** Fixed cadence: equal time per segment (blueprint: long-form arcs, no random dwell). */
         const PALETTE_SEGMENT_SEC = 20;
