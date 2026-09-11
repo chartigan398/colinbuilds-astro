@@ -68,6 +68,7 @@
         const cloudPos = new Float32Array(particleCount * 3);
         const ringPos = new Float32Array(particleCount * 3);
         const spherePos = new Float32Array(particleCount * 3);
+        const imagePos = new Float32Array(particleCount * 3);
         const colors = new Float32Array(particleCount * 3);
         const sizes = new Float32Array(particleCount);
         const phases = new Float32Array(particleCount);
@@ -94,6 +95,10 @@
             spherePos[i3 + 1] = rS * Math.sin(phiS) * Math.sin(thetaS);
             spherePos[i3 + 2] = rS * Math.cos(phiS);
 
+            imagePos[i3] = cloudPos[i3];
+            imagePos[i3 + 1] = cloudPos[i3 + 1];
+            imagePos[i3 + 2] = cloudPos[i3 + 2];
+
             positions[i3] = cloudPos[i3];
             positions[i3 + 1] = cloudPos[i3 + 1];
             positions[i3 + 2] = cloudPos[i3 + 2];
@@ -113,6 +118,7 @@
         geometry.setAttribute('cloudPos', new THREE.BufferAttribute(cloudPos, 3));
         geometry.setAttribute('ringPos', new THREE.BufferAttribute(ringPos, 3));
         geometry.setAttribute('spherePos', new THREE.BufferAttribute(spherePos, 3));
+        geometry.setAttribute('imagePos', new THREE.BufferAttribute(imagePos, 3));
         geometry.setAttribute('phase', new THREE.BufferAttribute(phases, 1));
 
         const starTex = createStarTexture(THREE);
@@ -162,6 +168,7 @@
             cloudPos,
             ringPos,
             spherePos,
+            imagePos,
             colors,
             sizes,
             phases,

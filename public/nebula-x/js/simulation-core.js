@@ -41,6 +41,8 @@
             sizes,
             morphFactor1,
             morphFactor2,
+            imagePos,
+            imageBlend,
             paletteHueShifted,
             paletteWhiteBlend,
             paletteMode,
@@ -70,13 +72,21 @@
             const targetY = THREE.MathUtils.lerp(cloudPos[i3 + 1], ringPos[i3 + 1], morphFactor1);
             const targetZ = THREE.MathUtils.lerp(cloudPos[i3 + 2], ringPos[i3 + 2], morphFactor1);
 
-            const finalX = THREE.MathUtils.lerp(targetX, spherePos[i3], morphFactor2);
-            const finalY = THREE.MathUtils.lerp(targetY, spherePos[i3 + 1], morphFactor2);
-            const finalZ = THREE.MathUtils.lerp(targetZ, spherePos[i3 + 2], morphFactor2);
+            let finalX = THREE.MathUtils.lerp(targetX, spherePos[i3], morphFactor2);
+            let finalY = THREE.MathUtils.lerp(targetY, spherePos[i3 + 1], morphFactor2);
+            let finalZ = THREE.MathUtils.lerp(targetZ, spherePos[i3 + 2], morphFactor2);
+
+            const ib = imageBlend != null ? imageBlend : 0;
+            if (imagePos && ib > 0.001) {
+                finalX = THREE.MathUtils.lerp(finalX, imagePos[i3], ib);
+                finalY = THREE.MathUtils.lerp(finalY, imagePos[i3 + 1], ib);
+                finalZ = THREE.MathUtils.lerp(finalZ, imagePos[i3 + 2], ib);
+            }
 
             let fx = finalX;
             let fy = finalY;
             let fz = finalZ;
+            const visionKeep = 1 - ib * 0.82;
 
             const cursorX = mouse.x;
             const cursorY = -mouse.y;
@@ -90,7 +100,7 @@
              * Magnetic well (readable pull): ~1/dist falloff, strong gain — old 1/r² was invisible at scale.
              */
             const magnetGain =
-                gravityBaseStrength * 3200 * params.gravityStrength * (0.45 + magnetDrive * 2.2);
+                gravityBaseStrength * 3200 * params.gravityStrength * (0.45 + magnetDrive * 2.2) * (0.35 + 0.65 * visionKeep);
             const falloff = 1 / (dist + 280);
             fx += (dx / (dist + 1e-6)) * magnetGain * falloff;
             fy += (dy / (dist + 1e-6)) * magnetGain * falloff;
@@ -115,8 +125,8 @@
             const nBlend = (n * (0.72 + 0.28 * nAux)) * vVar * flatBoost;
             const flowDirX = Math.cos(flowTime * 0.06 + cameraPhaseOffset * 0.3) + mouse.x / 450;
             const flowDirZ = Math.sin(flowTime * 0.08 + cameraPhaseOffset * 0.2) + mouse.y / 450;
-            let fvx = flowDirX * nBlend * 9 * flowBase;
-            let fvz = flowDirZ * nBlend * 9 * flowBase;
+            let fvx = flowDirX * nBlend * 9 * flowBase * visionKeep;
+            let fvz = flowDirZ * nBlend * 9 * flowBase * visionKeep;
             const flowMag = Math.sqrt(fvx * fvx + fvz * fvz);
             const flowCap = 38 * mode.flowScale;
             if (flowMag > flowCap && flowMag > 0) {
@@ -135,7 +145,8 @@
                 /** Perceptual spread → looser coherence (guide: expansion of cloud). */
                 const cap =
                     mode.maxStrayFromTarget *
-                    (1 + (audioFeatures.spread != null ? audioFeatures.spread : 0) * 0.62 * ve);
+                    (1 + (audioFeatures.spread != null ? audioFeatures.spread : 0) * 0.62 * ve) *
+                    (0.22 + 0.78 * visionKeep);
                 if (ol > cap && ol > 0) {
                     const sc = cap / ol;
                     fx = finalX + ox * sc;

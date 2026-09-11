@@ -10,6 +10,7 @@
         'attribute vec3 cloudPos;',
         'attribute vec3 ringPos;',
         'attribute vec3 spherePos;',
+        'attribute vec3 imagePos;',
         'attribute float phase;',
         'attribute float size;',
         '',
@@ -58,6 +59,7 @@
         'uniform float uPaletteReactor;',
         'uniform float uPointSize;',
         'uniform float uSizeScale;',
+        'uniform float uImageBlend;',
         '',
         'varying vec3 vColor;',
         'varying float vOpacity;',
@@ -83,7 +85,9 @@
         '',
         'void main() {',
         '  vec3 target = mix(cloudPos, ringPos, uMorph1);',
-        '  vec3 finalP = mix(target, spherePos, uMorph2);',
+        '  vec3 morphP = mix(target, spherePos, uMorph2);',
+        '  vec3 finalP = mix(morphP, imagePos, uImageBlend);',
+        '  float visionKeep = 1.0 - uImageBlend * 0.82;',
         '  float fx = finalP.x;',
         '  float fy = finalP.y;',
         '  float fz = finalP.z;',
@@ -95,7 +99,7 @@
         '  float r2 = dx*dx + dy*dy + dz*dz + 400.0;',
         '  float dist = sqrt(r2);',
         '  float magnetDrive = min1(1.0, uReformMagnet * 0.95 + uOnset * 0.55);',
-        '  float magnetGain = uGravityBase * 3200.0 * uGravityStrength * (0.45 + magnetDrive * 2.2);',
+        '  float magnetGain = uGravityBase * 3200.0 * uGravityStrength * (0.45 + magnetDrive * 2.2) * (0.35 + 0.65 * visionKeep);',
         '  float falloff = 1.0 / (dist + 280.0);',
         '  fx += (dx / (dist + 1e-6)) * magnetGain * falloff;',
         '  fy += (dy / (dist + 1e-6)) * magnetGain * falloff;',
@@ -112,8 +116,8 @@
         '  float nBlend = (n * (0.72 + 0.28 * nAux)) * uVelocityVariance;',
         '  float flowDirX = cos(uFlowTime * 0.06 + uCameraPhaseOffset * 0.3) + uMouseX / 450.0;',
         '  float flowDirZ = sin(uFlowTime * 0.08 + uCameraPhaseOffset * 0.2) + uMouseY / 450.0;',
-        '  float fvx = flowDirX * nBlend * 9.0 * flowBase;',
-        '  float fvz = flowDirZ * nBlend * 9.0 * flowBase;',
+        '  float fvx = flowDirX * nBlend * 9.0 * flowBase * visionKeep;',
+        '  float fvz = flowDirZ * nBlend * 9.0 * flowBase * visionKeep;',
         '  float flowMag = sqrt(fvx*fvx + fvz*fvz);',
         '  float flowCap = 38.0 * uFlowScale;',
         '  if (flowMag > flowCap && flowMag > 0.0) {',
@@ -127,8 +131,8 @@
         '  float oy = fy - finalP.y;',
         '  float oz = fz - finalP.z;',
         '  float ol = sqrt(ox*ox + oy*oy + oz*oz);',
-        '  if (ol > uMaxStray && ol > 0.0) {',
-        '    float sc2 = uMaxStray / ol;',
+        '  if (ol > uMaxStray * (0.22 + 0.78 * visionKeep) && ol > 0.0) {',
+        '    float sc2 = (uMaxStray * (0.22 + 0.78 * visionKeep)) / ol;',
         '    fx = finalP.x + ox * sc2;',
         '    fy = finalP.y + oy * sc2;',
         '    fz = finalP.z + oz * sc2;',
@@ -254,7 +258,8 @@
                         uPaletteWhite: { value: 0 },
                         uPaletteReactor: { value: 0 },
                         uPointSize: { value: 4.5 },
-                        uSizeScale: { value: 400.0 }
+                        uSizeScale: { value: 400.0 },
+                        uImageBlend: { value: 0 }
                     }
                 ]),
                 vertexShader: VERT,
@@ -330,6 +335,7 @@
         u.uPaletteWhite.value = ctx.paletteWhiteBlend;
         u.uPaletteReactor.value = ctx.paletteMode === 'reactor' ? 1 : 0;
         u.uPointSize.value = ctx.particleSizeSmoothed;
+        u.uImageBlend.value = ctx.imageBlend != null ? ctx.imageBlend : 0;
     }
 
     function disposeGpuMaterial(material) {

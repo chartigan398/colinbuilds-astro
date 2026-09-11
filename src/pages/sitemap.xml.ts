@@ -25,6 +25,7 @@ export const GET: APIRoute = async () => {
     '/',
     '/compare/',
     '/builds/nebula-x/',
+    '/stardust/',
     '/guides/',
     '/learn/',
     '/games/',
