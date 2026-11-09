@@ -1,53 +1,30 @@
-export type TriggerKind = 'onset' | 'energy' | 'section' | 'band-low' | 'band-high';
+export type Atmosphere = 'abyss' | 'ember' | 'ghost' | 'none';
 
-export type BlendMode =
-  | 'source-over'
-  | 'multiply'
-  | 'screen'
-  | 'overlay'
-  | 'difference'
-  | 'lighter';
-
-export interface PackRule {
-  id: string;
-  /** What drives this layer */
-  trigger: TriggerKind;
-  /** Minimum signal strength 0–1 to fire */
-  threshold: number;
-  /** How long the flash/hold lasts in ms */
-  durationMs: number;
-  /** Visual treatment */
-  effect:
-    | 'strobe'
-    | 'invert'
-    | 'flash-image'
-    | 'zoom-pulse'
-    | 'shake'
-    | 'color-wash'
-    | 'hard-cut';
-  blend?: BlendMode;
-  color?: string;
-  /** Prefer user face assets when available */
-  useFaceAssets?: boolean;
-  /** Intensity multiplier relative to global intensity */
-  intensity?: number;
-}
-
+/** Pack = personality for the warp field, not a list of flash effects. */
 export interface AssetPack {
   id: string;
   name: string;
   description: string;
-  rules: PackRule[];
+  /** Overall domain-warp amplitude */
+  warpScale: number;
+  /** How hard onset shockwaves hit the surface */
+  shockwaveAmp: number;
+  /** Fine spectral filament / edge energy */
+  filamentAmp: number;
+  /** Swirl speed multiplier from mids */
+  swirl: number;
+  /** Whether secondary face textures can emerge through the field */
+  apparitions: boolean;
+  /** How strongly faces ghost through (0–1) when apparitions on */
+  apparitionStrength: number;
+  atmosphere: Atmosphere;
 }
 
 export interface ReactionMap {
   duration: number;
   sampleRate: number;
-  /** Times (seconds) of detected onsets */
   onsets: number[];
-  /** Energy envelope sampled ~30fps: { t, rms, low, mid, high } */
   frames: ReactionFrame[];
-  /** Approximate section boundaries (verse/chorus-ish) */
   sections: SectionMarker[];
   bpmEstimate: number;
 }
@@ -66,46 +43,40 @@ export interface SectionMarker {
   energy: number;
 }
 
-export type LayerEventKind =
-  | 'strobe'
-  | 'invert'
-  | 'flash-image'
-  | 'zoom-pulse'
-  | 'shake'
-  | 'color-wash'
-  | 'hard-cut';
+/** Discrete moments that briefly reshape the continuous field */
+export type FieldEventKind = 'shockwave' | 'apparition' | 'rift';
 
-export interface LayerEvent {
+export interface FieldEvent {
   id: string;
-  kind: LayerEventKind;
-  start: number;
-  end: number;
+  kind: FieldEventKind;
+  t: number;
   intensity: number;
-  color?: string;
-  blend?: BlendMode;
-  /** Index into face/image assets when kind is flash-image */
+  /** Apparition texture index */
   assetIndex?: number;
-  ruleId: string;
+  /** Shockwave origin in UV space */
+  origin?: { x: number; y: number };
 }
 
 export interface Timeline {
   duration: number;
-  events: LayerEvent[];
+  events: FieldEvent[];
   reaction: ReactionMap;
+  pack: AssetPack;
 }
 
-export type ColorGrade = 'none' | 'cold' | 'crushed';
-
 export interface GlobalKnobs {
+  /** How hard the music pushes the field */
   intensity: number;
-  cutRate: number;
-  packMix: number;
-  colorGrade: ColorGrade;
+  /** 0 = wild / torn, 1 = smooth / coherent */
+  coherence: number;
+  /** How much secondary assets (faces) can break through */
+  apparitionMix: number;
+  atmosphere: Atmosphere;
 }
 
 export const DEFAULT_KNOBS: GlobalKnobs = {
-  intensity: 0.75,
-  cutRate: 0.12,
-  packMix: 0.65,
-  colorGrade: 'crushed',
+  intensity: 0.72,
+  coherence: 0.45,
+  apparitionMix: 0.7,
+  atmosphere: 'abyss',
 };

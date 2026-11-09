@@ -300,11 +300,19 @@ export function sampleFrameAt(reaction: ReactionMap, t: number): ReactionFrame {
   if (!reaction.frames.length) {
     return { t, rms: 0, low: 0, mid: 0, high: 0 };
   }
-  const idx = Math.min(
-    reaction.frames.length - 1,
-    Math.max(0, Math.round(t * 30)),
-  );
-  return reaction.frames[idx]!;
+  const f = t * 30;
+  const i0 = Math.min(reaction.frames.length - 1, Math.max(0, Math.floor(f)));
+  const i1 = Math.min(reaction.frames.length - 1, i0 + 1);
+  const a = reaction.frames[i0]!;
+  const b = reaction.frames[i1]!;
+  const u = f - i0;
+  return {
+    t,
+    rms: a.rms + (b.rms - a.rms) * u,
+    low: a.low + (b.low - a.low) * u,
+    mid: a.mid + (b.mid - a.mid) * u,
+    high: a.high + (b.high - a.high) * u,
+  };
 }
 
 export function sectionAt(

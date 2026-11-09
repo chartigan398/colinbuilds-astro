@@ -1,22 +1,54 @@
 import { sampleFrameAt } from '../audio/analyze';
-import { activeEvents } from '../timeline/build';
-import type {
-  ColorGrade,
-  GlobalKnobs,
-  LayerEvent,
-  Timeline,
-} from '../packs/types';
+import { recentEvents } from '../timeline/build';
+import type { Atmosphere, GlobalKnobs, Timeline } from '../packs/types';
+import { FRAG, VERT } from './shaders';
 
 export interface CompositorAssets {
   baseArt: HTMLImageElement | null;
   faces: HTMLImageElement[];
 }
 
+function compile(gl: WebGL2RenderingContext, type: number, src: string) {
+  const sh = gl.createShader(type);
+  if (!sh) throw new Error('shader create failed');
+  gl.shaderSource(sh, src);
+  gl.compileShader(sh);
+  if (!gl.getShaderParameter(sh, gl.COMPILE_STATUS)) {
+    const log = gl.getShaderInfoLog(sh);
+    gl.deleteShader(sh);
+    throw new Error(`Shader compile: ${log}`);
+  }
+  return sh;
+}
+
+function atmosphereId(a: Atmosphere): number {
+  switch (a) {
+    case 'abyss':
+      return 1;
+    case 'ember':
+      return 2;
+    case 'ghost':
+      return 3;
+    default:
+      return 0;
+  }
+}
+
 export class Compositor {
   readonly canvas: HTMLCanvasElement;
-  readonly ctx: CanvasRenderingContext2D;
+  readonly gl: WebGL2RenderingContext;
   width: number;
   height: number;
+
+  private program: WebGLProgram;
+  private vao: WebGLVertexArrayObject;
+  private artTex: WebGLTexture;
+  private faceTex: WebGLTexture;
+  private blankTex: WebGLTexture;
+  private locs: Record<string, WebGLUniformLocation | null> = {};
+  private artFingerprint = '';
+  private faceFingerprint = '';
+  private activeFaceIndex = 0;
 
   constructor(canvas: HTMLCanvasElement, width = 1280, height = 720) {
     this.canvas = canvas;
@@ -24,9 +56,102 @@ export class Compositor {
     this.height = height;
     canvas.width = width;
     canvas.height = height;
-    const ctx = canvas.getContext('2d', { alpha: false });
-    if (!ctx) throw new Error('Canvas 2D not available');
-    this.ctx = ctx;
+
+    const gl = canvas.getContext('webgl2', {
+      alpha: false,
+      antialias: false,
+      preserveDrawingBuffer: true,
+      powerPreference: 'high-performance',
+    });
+    if (!gl) throw new Error('WebGL2 not available');
+    this.gl = gl;
+
+    const vs = compile(gl, gl.VERTEX_SHADER, VERT);
+    const fs = compile(gl, gl.FRAGMENT_SHADER, FRAG);
+    const prog = gl.createProgram();
+    if (!prog) throw new Error('program create failed');
+    gl.attachShader(prog, vs);
+    gl.attachShader(prog, fs);
+    gl.linkProgram(prog);
+    if (!gl.getProgramParameter(prog, gl.LINK_STATUS)) {
+      throw new Error(`Program link: ${gl.getProgramInfoLog(prog)}`);
+    }
+    this.program = prog;
+
+    const quad = new Float32Array([-1, -1, 1, -1, -1, 1, -1, 1, 1, -1, 1, 1]);
+    const buf = gl.createBuffer();
+    const vao = gl.createVertexArray();
+    if (!vao || !buf) throw new Error('vao/buffer failed');
+    this.vao = vao;
+    gl.bindVertexArray(vao);
+    gl.bindBuffer(gl.ARRAY_BUFFER, buf);
+    gl.bufferData(gl.ARRAY_BUFFER, quad, gl.STATIC_DRAW);
+    const loc = gl.getAttribLocation(prog, 'aPos');
+    gl.enableVertexAttribArray(loc);
+    gl.vertexAttribPointer(loc, 2, gl.FLOAT, false, 0, 0);
+
+    this.artTex = this.createTexture();
+    this.faceTex = this.createTexture();
+    this.blankTex = this.createTexture();
+    // 1x1 dark pixel
+    gl.bindTexture(gl.TEXTURE_2D, this.blankTex);
+    gl.texImage2D(
+      gl.TEXTURE_2D,
+      0,
+      gl.RGBA,
+      1,
+      1,
+      0,
+      gl.RGBA,
+      gl.UNSIGNED_BYTE,
+      new Uint8Array([10, 12, 18, 255]),
+    );
+
+    const names = [
+      'uArt',
+      'uFace',
+      'uHasArt',
+      'uHasFace',
+      'uTime',
+      'uRms',
+      'uLow',
+      'uMid',
+      'uHigh',
+      'uIntensity',
+      'uCoherence',
+      'uWarpScale',
+      'uFilament',
+      'uSwirl',
+      'uApparition',
+      'uFaceIndexBlend',
+      'uAtmosphere',
+      'uAspect',
+      'uShock0',
+      'uShock1',
+      'uShock2',
+      'uShock3',
+      'uRift',
+    ];
+    for (const n of names) this.locs[n] = gl.getUniformLocation(prog, n);
+  }
+
+  private createTexture(): WebGLTexture {
+    const { gl } = this;
+    const tex = gl.createTexture();
+    if (!tex) throw new Error('texture failed');
+    gl.bindTexture(gl.TEXTURE_2D, tex);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+    return tex;
+  }
+
+  private uploadImage(tex: WebGLTexture, img: HTMLImageElement) {
+    const { gl } = this;
+    gl.bindTexture(gl.TEXTURE_2D, tex);
+    gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, 1);
+    gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, img);
   }
 
   setSize(width: number, height: number) {
@@ -42,260 +167,141 @@ export class Compositor {
     assets: CompositorAssets,
     knobs: GlobalKnobs,
   ) {
-    const { ctx, width, height } = this;
+    const { gl } = this;
     const frame = sampleFrameAt(timeline.reaction, t);
-    const events = activeEvents(timeline, t);
+    const pack = timeline.pack;
 
-    let zoom = 1 + frame.rms * 0.04 * knobs.intensity;
-    let shakeX = 0;
-    let shakeY = 0;
-    let invert = false;
-    let hardCutFlash = 0;
+    // Sync textures
+    const artKey = assets.baseArt
+      ? `${assets.baseArt.src}:${assets.baseArt.width}`
+      : '';
+    if (artKey !== this.artFingerprint) {
+      this.artFingerprint = artKey;
+      if (assets.baseArt) this.uploadImage(this.artTex, assets.baseArt);
+    }
 
-    for (const e of events) {
-      const life = eventLife(e, t);
-      if (e.kind === 'zoom-pulse') {
-        zoom += e.intensity * 0.12 * life;
+    // Continuous apparition envelope from recent events + energy
+    const apps = recentEvents(timeline, t, 'apparition', 0.85);
+    let apparition = 0;
+    let faceIdx = this.activeFaceIndex;
+    for (const e of apps) {
+      const age = t - e.t;
+      // Smooth in/out envelope — rise fast, linger, dissolve
+      const env =
+        age < 0.12
+          ? age / 0.12
+          : age < 0.45
+            ? 1
+            : Math.max(0, 1 - (age - 0.45) / 0.4);
+      const v = e.intensity * env;
+      if (v > apparition) {
+        apparition = v;
+        if (e.assetIndex !== undefined) faceIdx = e.assetIndex;
       }
-      if (e.kind === 'shake') {
-        const amp = e.intensity * 14 * life;
-        shakeX += (Math.random() - 0.5) * amp;
-        shakeY += (Math.random() - 0.5) * amp;
+    }
+    // Also breathe faces in on sustained high energy when pack allows
+    if (pack.apparitions && assets.faces.length) {
+      apparition = Math.max(
+        apparition,
+        frame.rms * frame.mid * knobs.apparitionMix * pack.apparitionStrength * 0.55,
+      );
+    }
+    apparition = Math.min(1, apparition);
+
+    if (faceIdx !== this.activeFaceIndex || this.faceFingerprint === '') {
+      this.activeFaceIndex = faceIdx;
+      const face = assets.faces[faceIdx];
+      if (face) {
+        this.uploadImage(this.faceTex, face);
+        this.faceFingerprint = `${faceIdx}:${face.width}:${face.height}`;
       }
-      if (e.kind === 'invert') invert = true;
-      if (e.kind === 'hard-cut') hardCutFlash = Math.max(hardCutFlash, e.intensity * life);
+    } else if (assets.faces[faceIdx]) {
+      const face = assets.faces[faceIdx]!;
+      const fp = `${faceIdx}:${face.width}:${face.height}`;
+      if (fp !== this.faceFingerprint) {
+        this.uploadImage(this.faceTex, face);
+        this.faceFingerprint = fp;
+      }
     }
 
-    ctx.save();
-    ctx.fillStyle = '#050505';
-    ctx.fillRect(0, 0, width, height);
+    const shocks = recentEvents(timeline, t, 'shockwave', 1.4)
+      .sort((a, b) => b.t - a.t)
+      .slice(0, 4);
+    const shockVecs = [0, 1, 2, 3].map((i) => {
+      const e = shocks[i];
+      if (!e) return [0, 0, 0, 0] as const;
+      return [
+        e.origin?.x ?? 0.5,
+        e.origin?.y ?? 0.5,
+        t - e.t,
+        e.intensity * pack.shockwaveAmp,
+      ] as const;
+    });
 
-    ctx.translate(width / 2 + shakeX, height / 2 + shakeY);
-    ctx.scale(zoom, zoom);
-    ctx.translate(-width / 2, -height / 2);
+    const rifts = recentEvents(timeline, t, 'rift', 0.9);
+    const rift = rifts.sort((a, b) => b.t - a.t)[0];
+    const riftVec = rift
+      ? [
+          rift.origin?.x ?? 0.5,
+          rift.origin?.y ?? 0.5,
+          t - rift.t,
+          rift.intensity,
+        ]
+      : [0, 0, 0, 0];
 
-    // Base art
-    if (assets.baseArt) {
-      drawCover(ctx, assets.baseArt, width, height, frame.rms * knobs.intensity);
-    } else {
-      drawFallbackBackdrop(ctx, width, height, frame, t);
-    }
+    gl.viewport(0, 0, this.width, this.height);
+    gl.useProgram(this.program);
+    gl.bindVertexArray(this.vao);
 
-    if (invert) {
-      ctx.save();
-      ctx.globalCompositeOperation = 'difference';
-      ctx.fillStyle = '#ffffff';
-      ctx.fillRect(0, 0, width, height);
-      ctx.restore();
-    }
-
-    // Soft washes under the grade
-    for (const e of events) {
-      if (e.kind !== 'color-wash') continue;
-      drawWash(ctx, width, height, e, eventLife(e, t));
-    }
-
-    ctx.restore();
-
-    applyColorGrade(ctx, width, height, knobs.colorGrade, frame.rms);
-
-    // Subtle vignette (before punch effects so strobes/faces stay bright)
-    const grad = ctx.createRadialGradient(
-      width / 2,
-      height / 2,
-      height * 0.25,
-      width / 2,
-      height / 2,
-      height * 0.85,
+    gl.activeTexture(gl.TEXTURE0);
+    gl.bindTexture(
+      gl.TEXTURE_2D,
+      assets.baseArt ? this.artTex : this.blankTex,
     );
-    grad.addColorStop(0, 'rgba(0,0,0,0)');
-    grad.addColorStop(1, 'rgba(0,0,0,0.55)');
-    ctx.fillStyle = grad;
-    ctx.fillRect(0, 0, width, height);
+    gl.uniform1i(this.locs.uArt, 0);
 
-    // Punchy effects drawn last so grade/vignette cannot crush them
-    for (const e of events) {
-      const life = eventLife(e, t);
-      if (e.kind === 'strobe') drawStrobe(ctx, width, height, e, life);
-      if (e.kind === 'flash-image') {
-        drawFaceFlash(ctx, width, height, e, life, assets.faces, knobs.packMix);
-      }
-    }
+    gl.activeTexture(gl.TEXTURE1);
+    gl.bindTexture(
+      gl.TEXTURE_2D,
+      assets.faces.length ? this.faceTex : this.blankTex,
+    );
+    gl.uniform1i(this.locs.uFace, 1);
 
-    if (hardCutFlash > 0.05) {
-      ctx.save();
-      ctx.globalAlpha = hardCutFlash * 0.95;
-      ctx.fillStyle = '#fff';
-      ctx.fillRect(0, 0, width, height);
-      ctx.restore();
-    }
+    const u1 = (name: string, v: number) =>
+      gl.uniform1f(this.locs[name]!, v);
+    const u4 = (name: string, v: readonly number[]) =>
+      gl.uniform4f(this.locs[name]!, v[0]!, v[1]!, v[2]!, v[3]!);
+
+    u1('uHasArt', assets.baseArt ? 1 : 0);
+    u1('uHasFace', assets.faces.length ? 1 : 0);
+    u1('uTime', t);
+    u1('uRms', frame.rms);
+    u1('uLow', frame.low);
+    u1('uMid', frame.mid);
+    u1('uHigh', frame.high);
+    u1('uIntensity', knobs.intensity);
+    u1('uCoherence', knobs.coherence);
+    u1('uWarpScale', pack.warpScale);
+    u1('uFilament', pack.filamentAmp);
+    u1('uSwirl', pack.swirl);
+    u1('uApparition', apparition);
+    u1('uFaceIndexBlend', 1);
+    u1(
+      'uAtmosphere',
+      atmosphereId(
+        knobs.atmosphere === 'none' ? pack.atmosphere : knobs.atmosphere,
+      ),
+    );
+    u1('uAspect', this.width / this.height);
+
+    u4('uShock0', shockVecs[0]!);
+    u4('uShock1', shockVecs[1]!);
+    u4('uShock2', shockVecs[2]!);
+    u4('uShock3', shockVecs[3]!);
+    u4('uRift', riftVec);
+
+    gl.drawArrays(gl.TRIANGLES, 0, 6);
   }
-}
-
-function eventLife(e: LayerEvent, t: number): number {
-  const dur = Math.max(0.001, e.end - e.start);
-  const u = Math.min(1, Math.max(0, (t - e.start) / dur));
-  // Hold the attack a bit longer so flashes are visible, then decay
-  if (u < 0.18) return 1;
-  const decayU = (u - 0.18) / 0.82;
-  return Math.exp(-2.4 * decayU) * (1 - decayU * 0.1);
-}
-
-function drawCover(
-  ctx: CanvasRenderingContext2D,
-  img: HTMLImageElement,
-  width: number,
-  height: number,
-  pulse: number,
-) {
-  const scale = coverScale(img.width, img.height, width, height) * (1 + pulse * 0.03);
-  const w = img.width * scale;
-  const h = img.height * scale;
-  const x = (width - w) / 2;
-  const y = (height - h) / 2;
-  ctx.drawImage(img, x, y, w, h);
-
-  // Slight darken for readability of flashes
-  ctx.fillStyle = `rgba(0,0,0,${0.12 + pulse * 0.08})`;
-  ctx.fillRect(0, 0, width, height);
-}
-
-function coverScale(
-  iw: number,
-  ih: number,
-  cw: number,
-  ch: number,
-): number {
-  return Math.max(cw / iw, ch / ih);
-}
-
-function drawFallbackBackdrop(
-  ctx: CanvasRenderingContext2D,
-  width: number,
-  height: number,
-  frame: { rms: number; low: number; high: number },
-  t: number,
-) {
-  const g = ctx.createLinearGradient(0, 0, width, height);
-  g.addColorStop(0, `hsl(${210 + frame.low * 40}, 40%, ${8 + frame.rms * 10}%)`);
-  g.addColorStop(1, `hsl(${320 + frame.high * 30}, 45%, ${6 + frame.rms * 8}%)`);
-  ctx.fillStyle = g;
-  ctx.fillRect(0, 0, width, height);
-
-  ctx.strokeStyle = `rgba(255,255,255,${0.04 + frame.rms * 0.08})`;
-  ctx.lineWidth = 2;
-  for (let i = 0; i < 6; i++) {
-    const y = ((t * 40 + i * 90) % (height + 40)) - 20;
-    ctx.beginPath();
-    ctx.moveTo(0, y);
-    ctx.lineTo(width, y + Math.sin(t + i) * 20);
-    ctx.stroke();
-  }
-}
-
-function drawStrobe(
-  ctx: CanvasRenderingContext2D,
-  width: number,
-  height: number,
-  e: LayerEvent,
-  life: number,
-) {
-  ctx.save();
-  ctx.globalAlpha = Math.min(1, e.intensity * life);
-  ctx.globalCompositeOperation = e.blend ?? 'lighter';
-  ctx.fillStyle = e.color ?? '#ffffff';
-  ctx.fillRect(0, 0, width, height);
-  ctx.restore();
-}
-
-function drawWash(
-  ctx: CanvasRenderingContext2D,
-  width: number,
-  height: number,
-  e: LayerEvent,
-  life: number,
-) {
-  ctx.save();
-  ctx.globalAlpha = Math.min(0.85, e.intensity * life * 0.7);
-  ctx.globalCompositeOperation = e.blend ?? 'overlay';
-  const g = ctx.createRadialGradient(
-    width * 0.5,
-    height * 0.4,
-    20,
-    width * 0.5,
-    height * 0.5,
-    height * 0.7,
-  );
-  g.addColorStop(0, e.color ?? '#7dd3fc');
-  g.addColorStop(1, 'transparent');
-  ctx.fillStyle = g;
-  ctx.fillRect(0, 0, width, height);
-  ctx.restore();
-}
-
-function drawFaceFlash(
-  ctx: CanvasRenderingContext2D,
-  width: number,
-  height: number,
-  e: LayerEvent,
-  life: number,
-  faces: HTMLImageElement[],
-  packMix: number,
-) {
-  if (!faces.length) return;
-  const img = faces[e.assetIndex ?? 0] ?? faces[0]!;
-  ctx.save();
-
-  // Hard white hit held long enough to read on beat (life decays exponentially)
-  if (life > 0.2) {
-    ctx.globalAlpha = Math.min(1, 0.55 + e.intensity * life * 0.45);
-    ctx.globalCompositeOperation = 'source-over';
-    ctx.fillStyle = '#f7f7f7';
-    ctx.fillRect(0, 0, width, height);
-  }
-
-  ctx.globalAlpha = Math.min(1, e.intensity * Math.min(1, life * 1.4) * (0.8 + packMix * 0.2));
-  ctx.globalCompositeOperation = e.blend ?? 'source-over';
-
-  const scale =
-    coverScale(img.width, img.height, width, height) * (1.0 + (1 - life) * 0.08);
-  const w = img.width * scale;
-  const h = img.height * scale;
-  const x = (width - w) / 2;
-  const y = (height - h) / 2;
-  ctx.drawImage(img, x, y, w, h);
-  ctx.restore();
-}
-
-function applyColorGrade(
-  ctx: CanvasRenderingContext2D,
-  width: number,
-  height: number,
-  grade: ColorGrade,
-  rms: number,
-) {
-  if (grade === 'none') return;
-  ctx.save();
-  if (grade === 'cold') {
-    ctx.globalCompositeOperation = 'overlay';
-    ctx.globalAlpha = 0.25 + rms * 0.1;
-    ctx.fillStyle = '#38bdf8';
-    ctx.fillRect(0, 0, width, height);
-    ctx.globalCompositeOperation = 'multiply';
-    ctx.globalAlpha = 0.2;
-    ctx.fillStyle = '#0c4a6e';
-    ctx.fillRect(0, 0, width, height);
-  } else if (grade === 'crushed') {
-    ctx.globalCompositeOperation = 'soft-light';
-    ctx.globalAlpha = 0.35;
-    ctx.fillStyle = '#fecdd3';
-    ctx.fillRect(0, 0, width, height);
-    ctx.globalCompositeOperation = 'multiply';
-    ctx.globalAlpha = 0.18;
-    ctx.fillStyle = '#111';
-    ctx.fillRect(0, 0, width, height);
-  }
-  ctx.restore();
 }
 
 export function loadImageFromFile(file: File): Promise<HTMLImageElement> {

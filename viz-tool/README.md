@@ -1,6 +1,6 @@
-# Pulseframe — Reactive Music Video Generator
+# Pulseframe — audio-reactive warp field
 
-Drop-in browser tool for Suno tracks: upload audio + base art + an asset pack, auto-map visuals to the beat, preview, export WebM.
+Not a strobe visualizer. Your still art becomes a **living force field**: bass digs gravity wells, mids spin curl-noise flow, highs etch filaments, onsets send shockwaves. Secondary stills (faces, symbols) can phase through as apparitions.
 
 ## Quick start
 
@@ -10,26 +10,21 @@ npm install
 npm run dev
 ```
 
-Open the local Vite URL, then:
+1. Upload a Suno mp3/wav + cover art  
+2. (Optional) Upload apparition stills  
+3. Pick **Warp Field** or **Apparitions**  
+4. Generate → Play → tweak Intensity / Coherence / Apparition mix  
+5. Export WebM  
 
-1. Upload an mp3/wav from Suno  
-2. Upload cover / static art  
-3. (Optional) Upload face PNGs for **Face Pack**  
-4. Pick **Strobe Night** or **Face Pack**  
-5. Click **Generate** → Play → tweak knobs → **Export WebM**
+Or hit **Load demo**.
 
-## Packs
+## Fields
 
-- **Strobe Night** — kick strobes, inverted art, hard cuts, energy washes  
-- **Face Pack** — punches your face stills into drops/choruses  
-
-Rebuild the timeline after changing cut rate or switching packs so event density updates.
+- **Warp Field** — pure liquid reaction of your art  
+- **Apparitions** — secondary images dissolve in through the warp on energy peaks  
 
 ## Stack
 
-- Vite + TypeScript  
-- Web Audio API (offline analysis)  
-- Canvas 2D compositor  
-- MediaRecorder export (WebM; Chrome/Edge recommended)
+Vite + TypeScript · Web Audio analysis · WebGL2 fragment warp · MediaRecorder export  
 
-Everything runs locally in the browser — no backend.
+Everything runs locally in the browser.

@@ -11,9 +11,7 @@ function crc32(buf) {
   let c = ~0;
   for (let i = 0; i < buf.length; i++) {
     c ^= buf[i];
-    for (let k = 0; k < 8; k++) {
-      c = c & 1 ? (0xedb88320 ^ (c >>> 1)) : c >>> 1;
-    }
+    for (let k = 0; k < 8; k++) c = c & 1 ? (0xedb88320 ^ (c >>> 1)) : c >>> 1;
   }
   return ~c >>> 0;
 }
@@ -23,12 +21,10 @@ function chunk(type, data) {
   const len = Buffer.alloc(4);
   len.writeUInt32BE(data.length);
   const crcBuf = Buffer.alloc(4);
-  const crc = crc32(Buffer.concat([typeBuf, data]));
-  crcBuf.writeUInt32BE(crc);
+  crcBuf.writeUInt32BE(crc32(Buffer.concat([typeBuf, data])));
   return Buffer.concat([len, typeBuf, data, crcBuf]);
 }
 
-/** Solid / simple RGBA PNG writer */
 function writePng(path, width, height, paint) {
   const raw = Buffer.alloc((width * 4 + 1) * height);
   for (let y = 0; y < height; y++) {
@@ -47,41 +43,43 @@ function writePng(path, width, height, paint) {
   ihdr.writeUInt32BE(width, 0);
   ihdr.writeUInt32BE(height, 4);
   ihdr[8] = 8;
-  ihdr[9] = 6; // RGBA
-  const png = Buffer.concat([
-    Buffer.from([137, 80, 78, 71, 13, 10, 26, 10]),
-    chunk('IHDR', ihdr),
-    chunk('IDAT', deflateSync(raw)),
-    chunk('IEND', Buffer.alloc(0)),
-  ]);
-  writeFileSync(path, png);
+  ihdr[9] = 6;
+  writeFileSync(
+    path,
+    Buffer.concat([
+      Buffer.from([137, 80, 78, 71, 13, 10, 26, 10]),
+      chunk('IHDR', ihdr),
+      chunk('IDAT', deflateSync(raw)),
+      chunk('IEND', Buffer.alloc(0)),
+    ]),
+  );
 }
 
 function writeWav() {
   const sampleRate = 44100;
-  const duration = 4;
-  const bpm = 120;
+  const duration = 6;
+  const bpm = 100;
   const beatSec = 60 / bpm;
   const n = sampleRate * duration;
   const data = new Float32Array(n);
-
   for (let i = 0; i < n; i++) {
     const t = i / sampleRate;
     const beatPhase = t % beatSec;
     let sample = 0;
-    if (beatPhase < 0.08) {
-      const env = 1 - beatPhase / 0.08;
-      sample += Math.sin(2 * Math.PI * 55 * t) * env * 0.95;
-      sample += Math.sin(2 * Math.PI * 90 * t) * env * 0.35;
+    // Deep kick
+    if (beatPhase < 0.1) {
+      const env = Math.exp(-beatPhase * 28);
+      sample += Math.sin(2 * Math.PI * (48 + beatPhase * 40) * t) * env * 0.95;
     }
-    // Soft hat quieter so onsets prefer kicks
-    if (beatPhase > beatSec * 0.48 && beatPhase < beatSec * 0.48 + 0.02) {
-      sample += (Math.random() * 2 - 1) * 0.12;
+    // Soft pad swell in second half
+    if (t > 2.5) {
+      sample += Math.sin(2 * Math.PI * 110 * t) * 0.08 * ((t - 2.5) / 3.5);
+      sample += Math.sin(2 * Math.PI * 165 * t) * 0.05 * ((t - 2.5) / 3.5);
     }
-    if (t > 2) sample *= 1.35;
+    // Quiet texture
+    sample += (Math.random() * 2 - 1) * 0.02;
     data[i] = Math.max(-1, Math.min(1, sample));
   }
-
   const buffer = Buffer.alloc(44 + n * 2);
   buffer.write('RIFF', 0);
   buffer.writeUInt32LE(36 + n * 2, 4);
@@ -96,84 +94,72 @@ function writeWav() {
   buffer.writeUInt16LE(16, 34);
   buffer.write('data', 36);
   buffer.writeUInt32LE(n * 2, 40);
-  for (let i = 0; i < n; i++) {
-    buffer.writeInt16LE((data[i] * 32767) | 0, 44 + i * 2);
-  }
+  for (let i = 0; i < n; i++) buffer.writeInt16LE((data[i] * 32767) | 0, 44 + i * 2);
   writeFileSync(join(outDir, 'demo-beat.wav'), buffer);
 }
 
 writeWav();
 
-function inGlyph(x, y, cells, ox, oy, scale) {
-  const gx = Math.floor((x - ox) / scale);
-  const gy = Math.floor((y - oy) / scale);
-  if (gy < 0 || gy >= cells.length || gx < 0 || gx >= cells[0].length) return false;
-  return cells[gy][gx] === '#';
-}
-
-// Block letters P F for obvious album-art identity
-const glyphP = [
-  '######',
-  '#    #',
-  '#    #',
-  '######',
-  '#     ',
-  '#     ',
-  '#     ',
-];
-const glyphF = [
-  '######',
-  '#     ',
-  '#     ',
-  '####  ',
-  '#     ',
-  '#     ',
-  '#     ',
-];
-
-writePng(join(outDir, 'cover.png'), 720, 720, (x, y, w, h) => {
-  const u = x / w;
-  const v = y / h;
-  const ring = Math.abs(Math.hypot(x - w / 2, y - h / 2) - w * 0.28) < 10;
-  const dia = Math.abs(x - y) < 8 || Math.abs(x + y - w) < 8;
-  const letter =
-    inGlyph(x, y, glyphP, 150, 250, 18) || inGlyph(x, y, glyphF, 320, 250, 18);
-  if (letter) return [242, 239, 232, 255];
-  if (ring) return [232, 255, 71, 255];
-  if (dia) return [255, 92, 51, 220];
+// Atmospheric cover — nebula / oil-paint feel, not logo toy
+writePng(join(outDir, 'cover.png'), 960, 960, (x, y, w, h) => {
+  const u = x / w - 0.5;
+  const v = y / h - 0.5;
+  const r = Math.hypot(u * 1.2, v);
+  const angle = Math.atan2(v, u);
+  const swirl = Math.sin(angle * 3.0 + r * 10.0) * 0.5 + 0.5;
+  const vein = Math.sin((u * 8.0 + v * 3.0) * Math.PI + swirl * 4.0) * 0.5 + 0.5;
+  const glow = Math.exp(-r * 3.2);
+  const cr = Math.floor(18 + glow * 90 + vein * 40 + swirl * 30);
+  const cg = Math.floor(22 + glow * 40 + (1 - vein) * 55);
+  const cb = Math.floor(40 + glow * 120 + swirl * 80);
   return [
-    Math.floor(12 + u * 50),
-    Math.floor(10 + v * 18),
-    Math.floor(18 + (1 - u) * 40),
+    Math.min(255, cr),
+    Math.min(255, cg),
+    Math.min(255, cb),
     255,
   ];
 });
 
-writePng(join(outDir, 'face-a.png'), 512, 512, (x, y, w, h) => {
-  const cx = w / 2;
-  const cy = h * 0.48;
-  const face = Math.hypot(x - cx, y - cy) < w * 0.34;
-  const eyeL = Math.hypot(x - cx + 60, y - cy + 25) < 22;
-  const eyeR = Math.hypot(x - cx - 60, y - cy + 25) < 22;
+// Soft portrait-like apparition A (pale face silhouette)
+writePng(join(outDir, 'face-a.png'), 640, 640, (x, y, w, h) => {
+  const cx = w * 0.5;
+  const cy = h * 0.46;
+  const nx = (x - cx) / (w * 0.28);
+  const ny = (y - cy) / (h * 0.34);
+  const face = nx * nx + ny * ny * 1.15;
+  if (face > 1) return [0, 0, 0, 0];
+  const shade = Math.floor(220 - face * 80);
+  const eyeL = Math.hypot(x - cx + 55, y - cy + 20) < 14;
+  const eyeR = Math.hypot(x - cx - 55, y - cy + 20) < 14;
   const mouth =
-    y > cy + 45 &&
-    y < cy + 85 &&
-    Math.abs(x - cx) < 85 - (y - cy - 45) * 0.45;
-  if (eyeL || eyeR || mouth) return [10, 10, 10, 255];
-  if (face) return [255, 250, 240, 255];
-  return [0, 0, 0, 0];
+    y > cy + 55 &&
+    y < cy + 72 &&
+    Math.abs(x - cx) < 48 - (y - cy - 55) * 0.8;
+  if (eyeL || eyeR || mouth) return [24, 20, 28, 230];
+  const edge = smoothEdge(face);
+  return [shade, shade - 4, shade + 6, Math.floor(edge * 255)];
 });
 
-writePng(join(outDir, 'face-b.png'), 512, 512, (x, y, w, h) => {
-  const cx = w / 2;
+function smoothEdge(face) {
+  if (face < 0.75) return 1;
+  if (face > 1) return 0;
+  return 1 - (face - 0.75) / 0.25;
+}
+
+// Second apparition — colder mask
+writePng(join(outDir, 'face-b.png'), 640, 640, (x, y, w, h) => {
+  const cx = w * 0.5;
   const cy = h * 0.5;
-  const face = Math.hypot((x - cx) / 0.9, (y - cy) / 1.05) < w * 0.36;
-  const eyeL = x > cx - 95 && x < cx - 35 && y > cy - 55 && y < cy - 5;
-  const eyeR = x > cx + 35 && x < cx + 95 && y > cy - 55 && y < cy - 5;
-  const mouth = x > cx - 70 && x < cx + 70 && y > cy + 45 && y < cy + 75;
-  if (eyeL || eyeR || mouth) return [17, 17, 17, 255];
-  if (face) return [232, 255, 71, 255];
-  return [0, 0, 0, 0];
+  const nx = (x - cx) / (w * 0.3);
+  const ny = (y - cy) / (h * 0.36);
+  const face = Math.abs(nx) * 0.9 + Math.abs(ny) * 0.85;
+  if (face > 1) return [0, 0, 0, 0];
+  const eyeL = x > cx - 80 && x < cx - 35 && y > cy - 40 && y < cy - 8;
+  const eyeR = x > cx + 35 && x < cx + 80 && y > cy - 40 && y < cy - 8;
+  const mouth = x > cx - 40 && x < cx + 40 && y > cy + 50 && y < cy + 62;
+  if (eyeL || eyeR || mouth) return [8, 12, 20, 240];
+  const edge = face < 0.8 ? 1 : Math.max(0, 1 - (face - 0.8) / 0.2);
+  return [170, 210, 230, Math.floor(edge * 230)];
 });
 
 console.log('Fixtures written to public/fixtures');

@@ -5,10 +5,11 @@ import {
   exportVideo,
   type PlaybackController,
 } from '../export/record';
-import { ALL_PACKS } from '../packs/face-pack';
-import { strobeNightPack } from '../packs/strobe-night';
+import { ALL_PACKS } from '../packs/apparitions';
+import { warpFieldPack } from '../packs/warp-field';
 import type {
   AssetPack,
+  Atmosphere,
   GlobalKnobs,
   ReactionMap,
   Timeline,
@@ -30,7 +31,7 @@ export function mountApp(root: HTMLElement) {
     audioBuffer: null as AudioBuffer | null,
     reaction: null as ReactionMap | null,
     timeline: null as Timeline | null,
-    pack: strobeNightPack as AssetPack,
+    pack: warpFieldPack as AssetPack,
     knobs: { ...DEFAULT_KNOBS } as GlobalKnobs,
     assets: { baseArt: null, faces: [] } as CompositorAssets,
     playback: null as PlaybackController | null,
@@ -41,7 +42,7 @@ export function mountApp(root: HTMLElement) {
     <div class="app-shell">
       <header class="brand">
         <h1>PULSEFRAME</h1>
-        <p>Drop in a Suno track, your art, and an asset pack. Auto-compose a beat-locked music video — strobes, faces, cuts — then export.</p>
+        <p>Your still art becomes a living field. Music digs gravity wells, spins the flow, etches filaments, and lets secondary images phase through — reaction, not decoration.</p>
       </header>
 
       <div class="layout">
@@ -56,50 +57,52 @@ export function mountApp(root: HTMLElement) {
             <input id="art" type="file" accept="image/*" />
           </div>
           <div class="field">
-            <label for="faces">Face assets (optional, multi)</label>
+            <label for="faces">Apparition stills (optional)</label>
             <input id="faces" type="file" accept="image/*" multiple />
-            <div class="hint">Used by Face Pack. PNG with transparency works best.</div>
+            <div class="hint">Faces / symbols that emerge from the warp. PNG transparency helps.</div>
           </div>
 
-          <h2>Pack</h2>
+          <h2>Field</h2>
           <div class="pack-grid" id="packs"></div>
 
-          <h2 style="margin-top:1rem">Knobs</h2>
+          <h2 style="margin-top:1rem">Forces</h2>
           <div class="field knob-row">
-            <div class="top"><span>Intensity</span><span id="intensity-val">75%</span></div>
-            <input id="intensity" type="range" min="0" max="100" value="75" />
+            <div class="top"><span>Intensity</span><span id="intensity-val">72%</span></div>
+            <input id="intensity" type="range" min="0" max="100" value="72" />
           </div>
           <div class="field knob-row">
-            <div class="top"><span>Cut rate (min gap)</span><span id="cut-val">0.12s</span></div>
-            <input id="cutRate" type="range" min="4" max="40" value="12" />
+            <div class="top"><span>Coherence</span><span id="coh-val">45%</span></div>
+            <input id="coherence" type="range" min="0" max="100" value="45" />
+            <div class="hint">Low = torn / chaotic. High = smoother flow.</div>
           </div>
           <div class="field knob-row">
-            <div class="top"><span>Pack mix</span><span id="mix-val">65%</span></div>
-            <input id="packMix" type="range" min="0" max="100" value="65" />
+            <div class="top"><span>Apparition mix</span><span id="mix-val">70%</span></div>
+            <input id="apparitionMix" type="range" min="0" max="100" value="70" />
           </div>
           <div class="field">
-            <label for="grade">Color grade</label>
+            <label for="grade">Atmosphere</label>
             <select id="grade">
+              <option value="abyss" selected>Abyss</option>
+              <option value="ember">Ember</option>
+              <option value="ghost">Ghost</option>
               <option value="none">None</option>
-              <option value="cold">Cold</option>
-              <option value="crushed" selected>Crushed</option>
             </select>
           </div>
 
           <div class="actions">
             <button class="btn btn-primary" id="generate" type="button">Generate</button>
-            <button class="btn btn-secondary" id="rebuild" type="button" disabled>Rebuild timeline</button>
+            <button class="btn btn-secondary" id="rebuild" type="button" disabled>Rebuild field</button>
             <button class="btn btn-secondary" id="demo" type="button">Load demo</button>
           </div>
-          <div class="status" id="status">Upload audio to begin — or load the demo.</div>
+          <div class="status" id="status">Upload audio — or load the demo.</div>
         </aside>
 
         <section class="stage">
           <div class="panel viewport" id="viewport">
             <canvas id="stage" width="1280" height="720"></canvas>
             <div class="viewport-empty" id="empty">
-              <strong>NO SIGNAL</strong>
-              <span>Generate a reaction map to preview</span>
+              <strong>NO FIELD</strong>
+              <span>Generate a reaction map to enter the warp</span>
             </div>
           </div>
 
@@ -123,7 +126,7 @@ export function mountApp(root: HTMLElement) {
             <div class="meta-row" id="meta">
               <span>BPM <b>—</b></span>
               <span>Onsets <b>—</b></span>
-              <span>Sections <b>—</b></span>
+              <span>Shocks <b>—</b></span>
               <span>Events <b>—</b></span>
             </div>
             <div class="debug-bars">
@@ -178,8 +181,7 @@ export function mountApp(root: HTMLElement) {
     if (!state.reaction) return;
     const f = sampleFrameAt(state.reaction, t);
     const set = (id: string, v: number) => {
-      const el = root.querySelector<HTMLElement>(id)!;
-      el.style.width = `${Math.round(v * 100)}%`;
+      root.querySelector<HTMLElement>(id)!.style.width = `${Math.round(v * 100)}%`;
     };
     set('#m-rms', f.rms);
     set('#m-low', f.low);
@@ -192,14 +194,15 @@ export function mountApp(root: HTMLElement) {
       metaEl.innerHTML = `
         <span>BPM <b>—</b></span>
         <span>Onsets <b>—</b></span>
-        <span>Sections <b>—</b></span>
+        <span>Shocks <b>—</b></span>
         <span>Events <b>—</b></span>`;
       return;
     }
+    const shocks = state.timeline.events.filter((e) => e.kind === 'shockwave').length;
     metaEl.innerHTML = `
       <span>BPM <b>${state.reaction.bpmEstimate}</b></span>
       <span>Onsets <b>${state.reaction.onsets.length}</b></span>
-      <span>Sections <b>${state.reaction.sections.length}</b></span>
+      <span>Shocks <b>${shocks}</b></span>
       <span>Events <b>${state.timeline.events.length}</b></span>`;
   }
 
@@ -253,19 +256,22 @@ export function mountApp(root: HTMLElement) {
   packsEl.addEventListener('click', (e) => {
     const btn = (e.target as HTMLElement).closest<HTMLButtonElement>('[data-pack]');
     if (!btn) return;
-    const id = btn.dataset.pack!;
-    const pack = ALL_PACKS.find((p) => p.id === id);
+    const pack = ALL_PACKS.find((p) => p.id === btn.dataset.pack);
     if (!pack) return;
     state.pack = pack;
+    if (state.knobs.atmosphere !== 'none') {
+      state.knobs.atmosphere = pack.atmosphere;
+      gradeEl.value = pack.atmosphere;
+    }
     renderPacks();
     if (state.reaction) {
       rebuildTimeline();
       resetPlayback();
-      setStatus(`Switched to ${pack.name}. Timeline rebuilt.`, 'ok');
+      setStatus(`Field → ${pack.name}`, 'ok');
     }
   });
 
-  root.querySelector<HTMLInputElement>('#audio')!.addEventListener('change', async (e) => {
+  root.querySelector<HTMLInputElement>('#audio')!.addEventListener('change', (e) => {
     const file = (e.target as HTMLInputElement).files?.[0];
     if (!file) return;
     state.audioFile = file;
@@ -288,21 +294,20 @@ export function mountApp(root: HTMLElement) {
     const files = (e.target as HTMLInputElement).files;
     if (!files?.length) return;
     try {
-      const imgs = await Promise.all([...files].map(loadImageFromFile));
-      state.assets.faces = imgs;
-      setStatus(`Loaded ${imgs.length} face asset(s).`, 'ok');
+      state.assets.faces = await Promise.all([...files].map(loadImageFromFile));
+      setStatus(`Loaded ${state.assets.faces.length} apparition still(s).`, 'ok');
       if (state.reaction) {
         rebuildTimeline();
         resetPlayback();
       }
     } catch {
-      setStatus('Failed to load one or more face images.', 'err');
+      setStatus('Failed to load apparition images.', 'err');
     }
   });
 
   const intensityEl = root.querySelector<HTMLInputElement>('#intensity')!;
-  const cutEl = root.querySelector<HTMLInputElement>('#cutRate')!;
-  const mixEl = root.querySelector<HTMLInputElement>('#packMix')!;
+  const cohEl = root.querySelector<HTMLInputElement>('#coherence')!;
+  const mixEl = root.querySelector<HTMLInputElement>('#apparitionMix')!;
   const gradeEl = root.querySelector<HTMLSelectElement>('#grade')!;
 
   intensityEl.addEventListener('input', () => {
@@ -310,17 +315,18 @@ export function mountApp(root: HTMLElement) {
     root.querySelector('#intensity-val')!.textContent = `${intensityEl.value}%`;
     if (state.timeline) drawAt(state.playback?.getCurrentTime() ?? 0);
   });
-  cutEl.addEventListener('input', () => {
-    state.knobs.cutRate = Number(cutEl.value) / 100;
-    root.querySelector('#cut-val')!.textContent = `${(Number(cutEl.value) / 100).toFixed(2)}s`;
+  cohEl.addEventListener('input', () => {
+    state.knobs.coherence = Number(cohEl.value) / 100;
+    root.querySelector('#coh-val')!.textContent = `${cohEl.value}%`;
+    if (state.timeline) drawAt(state.playback?.getCurrentTime() ?? 0);
   });
   mixEl.addEventListener('input', () => {
-    state.knobs.packMix = Number(mixEl.value) / 100;
+    state.knobs.apparitionMix = Number(mixEl.value) / 100;
     root.querySelector('#mix-val')!.textContent = `${mixEl.value}%`;
     if (state.timeline) drawAt(state.playback?.getCurrentTime() ?? 0);
   });
   gradeEl.addEventListener('change', () => {
-    state.knobs.colorGrade = gradeEl.value as GlobalKnobs['colorGrade'];
+    state.knobs.atmosphere = gradeEl.value as Atmosphere;
     if (state.timeline) drawAt(state.playback?.getCurrentTime() ?? 0);
   });
 
@@ -332,7 +338,7 @@ export function mountApp(root: HTMLElement) {
     if (state.busy) return;
     state.busy = true;
     generateBtn.disabled = true;
-    setStatus('Decoding & analyzing audio…');
+    setStatus('Decoding & mapping the field…');
     try {
       state.audioBuffer = await decodeAudioFile(state.audioFile);
       state.reaction = await analyzeAudioBuffer(state.audioBuffer);
@@ -340,7 +346,7 @@ export function mountApp(root: HTMLElement) {
       resetPlayback();
       drawAt(0);
       setStatus(
-        `Ready — ${fmtTime(state.reaction.duration)}, ~${state.reaction.bpmEstimate} BPM, ${state.timeline!.events.length} events.`,
+        `Field ready — ${fmtTime(state.reaction.duration)}, ~${state.reaction.bpmEstimate} BPM, ${state.timeline!.events.length} events.`,
         'ok',
       );
     } catch (err) {
@@ -360,7 +366,7 @@ export function mountApp(root: HTMLElement) {
     if (state.busy) return;
     state.busy = true;
     demoBtn.disabled = true;
-    setStatus('Loading demo fixtures…');
+    setStatus('Loading demo field…');
     try {
       const [audioRes, coverRes, faceARes, faceBRes] = await Promise.all([
         fetch('/fixtures/demo-beat.wav'),
@@ -371,11 +377,9 @@ export function mountApp(root: HTMLElement) {
       if (!audioRes.ok || !coverRes.ok || !faceARes.ok || !faceBRes.ok) {
         throw new Error('Fixture fetch failed');
       }
-      const audioBlob = await audioRes.blob();
-      state.audioFile = new File([audioBlob], 'demo-beat.wav', {
+      state.audioFile = new File([await audioRes.blob()], 'demo-beat.wav', {
         type: 'audio/wav',
       });
-
       const toImage = async (res: Response, name: string) => {
         const blob = await res.blob();
         return loadImageFromFile(
@@ -387,7 +391,9 @@ export function mountApp(root: HTMLElement) {
         await toImage(faceARes, 'face-a.png'),
         await toImage(faceBRes, 'face-b.png'),
       ];
-      state.pack = ALL_PACKS.find((p) => p.id === 'face-pack') ?? state.pack;
+      state.pack = ALL_PACKS.find((p) => p.id === 'apparitions') ?? state.pack;
+      state.knobs.atmosphere = state.pack.atmosphere;
+      gradeEl.value = state.knobs.atmosphere;
       renderPacks();
       setStatus('Demo assets loaded — generating…');
       state.busy = false;
@@ -405,15 +411,11 @@ export function mountApp(root: HTMLElement) {
     if (!state.reaction) return;
     rebuildTimeline();
     resetPlayback();
-    setStatus('Timeline rebuilt with current knobs & pack.', 'ok');
+    setStatus('Field rebuilt.', 'ok');
   });
 
-  playBtn.addEventListener('click', () => {
-    state.playback?.play();
-  });
-  pauseBtn.addEventListener('click', () => {
-    state.playback?.pause();
-  });
+  playBtn.addEventListener('click', () => state.playback?.play());
+  pauseBtn.addEventListener('click', () => state.playback?.pause());
   seekEl.addEventListener('input', () => {
     if (!state.timeline) return;
     const t = (Number(seekEl.value) / 1000) * state.timeline.duration;
@@ -441,7 +443,7 @@ export function mountApp(root: HTMLElement) {
       setExportStatus('Export complete — WebM downloaded.', 'ok');
     } catch (err) {
       console.error(err);
-      setExportStatus('Export failed. Try Chrome/Edge for best MediaRecorder support.', 'err');
+      setExportStatus('Export failed. Try Chrome/Edge.', 'err');
     } finally {
       exportBtn.disabled = false;
     }
