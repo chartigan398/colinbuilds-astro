@@ -38,6 +38,14 @@ All commands are run from the root of the project, from a terminal:
 | `npm run astro ...`       | Run CLI commands like `astro add`, `astro check` |
 | `npm run astro -- --help` | Get help using the Astro CLI                     |
 
+## Pulseframe (reactive music videos)
+
+A separate browser app lives in [`viz-tool/`](viz-tool/) — drop in a Suno track + art, auto-compose beat-reactive visuals, export WebM.
+
+```sh
+cd viz-tool && npm install && npm run dev
+```
+
 ## 👀 Want to learn more?
 
 Feel free to check [our documentation](https://docs.astro.build) or jump into our [Discord server](https://astro.build/chat).
